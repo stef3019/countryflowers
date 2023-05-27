@@ -2,11 +2,11 @@
 /*
 Plugin Name: Slider Revolution
 Plugin URI: https://www.sliderrevolution.com/
-Description: Slider Revolution - Premium responsive slider
+Description: Slider Revolution - More than just a WordPress Slider
 Author: ThemePunch
 Text Domain: revslider
 Domain Path: /languages
-Version: 6.5.2
+Version: 6.6.13
 Author URI: https://themepunch.com/
 */
 
@@ -17,7 +17,7 @@ if(class_exists('RevSliderFront')){
 	die('ERROR: It looks like you have more than one instance of Slider Revolution installed. Please remove additional instances for this plugin to work again.');
 }
 
-define('RS_REVISION',			'6.5.2');
+define('RS_REVISION',			'6.6.13');
 define('RS_PLUGIN_PATH',		plugin_dir_path(__FILE__));
 define('RS_PLUGIN_SLUG_PATH',	plugin_basename(__FILE__));
 define('RS_PLUGIN_FILE_PATH',	__FILE__);
@@ -25,17 +25,19 @@ define('RS_PLUGIN_SLUG',		apply_filters('set_revslider_slug', 'revslider'));
 define('RS_PLUGIN_URL',			get_rs_plugin_url());
 define('RS_PLUGIN_URL_CLEAN',	str_replace(array('http://', 'https://'), '//', RS_PLUGIN_URL));
 define('RS_DEMO',				false);
-define('RS_TP_TOOLS',			'6.5.2'); //holds the version of the tp-tools script, load only the latest!
+define('RS_TP_TOOLS',			'6.6.13'); //holds the version of the tp-tools script, load only the latest!
 
 global $revslider_fonts;
 global $revslider_is_preview_mode;
 global $revslider_save_post;
 global $revslider_addon_notice_merged;
 global $revslider_animations;
+global $rs_loaded_by_editor;
 
 $revslider_fonts = array('queue' => array(), 'loaded' => array());
 $revslider_is_preview_mode = false;
 $revslider_save_post = false;
+$rs_loaded_by_editor = false;
 $revslider_addon_notice_merged = 0;
 $revslider_animations = array();
 
@@ -82,6 +84,38 @@ try{
 	RevSliderFunctions::set_memory_limit();
 
 	function rev_slider_shortcode($args, $mid_content = null){
+
+		//do not render in elementor preview iframe
+		if (isset($_GET['elementor-preview'])) return false;
+
+		//do not render on saving a post/page
+		global $revslider_save_post;
+		if($revslider_save_post) return false;
+		
+		//skip shortcode generation if any of these functions found in backtrace 
+		//function can be provided as array item without key
+		//or as 'class' => 'function'
+		$skip_functions = apply_filters(
+			'rs_shortcode_skip_functions',
+			array(
+				'WC_Structured_Data' => 'generate_product_data', // woocommerce
+				'AIOSEO\Plugin\Common\Meta\Description' => 'getDescription', // all-in-one-seo
+				//'Elementor\Core\Editor\Editor' => 'print_editor_template', // elementor
+			)
+		);
+
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		foreach ($backtrace as $trace) {
+			foreach ($skip_functions as $class => $func) {
+				if ($trace['function'] == $func) {
+					//no class was provided, func matched, return
+					if (!is_string($class)) return false;
+					//class provided in key, compare with trace class
+					if (isset($trace['class']) && $trace['class'] == $class) return false;
+				}
+			}
+		}
+		
 		$output = new RevSliderOutput();
 
 		if(is_admin() && $output->_is_gutenberg_page()) return false;
@@ -168,9 +202,10 @@ try{
 		require_once(RS_PLUGIN_PATH . 'admin/includes/newsletter.class.php');
 		require_once(RS_PLUGIN_PATH . 'admin/revslider-admin.class.php');
 		require_once(RS_PLUGIN_PATH . 'includes/update.class.php');
+		require_once(RS_PLUGIN_PATH . 'admin/includes/tracking.class.php');
 		//require_once(RS_PLUGIN_PATH . 'admin/includes/debug.php');
-
-		$rs_admin = new RevSliderAdmin();
+		$rstrack	= new RevSliderTracking();
+		$rs_admin	= new RevSliderAdmin();
 	}else{
 		require_once(RS_PLUGIN_PATH . 'public/includes/functions-public.class.php');
 
@@ -212,6 +247,7 @@ try{
 	}
 
 	register_activation_hook(__FILE__, array('RevSliderFront', 'create_tables'));
+	register_activation_hook(__FILE__, array('RevSliderFront', 'welcome_screen_activate'));
 	add_action('plugins_loaded', array('RevSliderFront', 'create_tables'));
 	add_action('plugins_loaded', array('RevSliderPluginUpdate', 'do_update_checks')); //add update checks
 	add_action('plugins_loaded', array('RevSliderPageTemplate', 'get_instance'));

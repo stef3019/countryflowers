@@ -83,6 +83,16 @@ if (!class_exists('Spring_Plant_Inc_Assets')) {
             wp_register_script( 'pretty-tabs', Spring_Plant()->helper()->getAssetUrl('assets/vendors/pretty-tabs/jquery.pretty-tabs.min.js'), array( 'jquery', Spring_Plant()->helper()->assetsHandle('core' )), '1.0', true );
 
             wp_register_script(Spring_Plant()->helper()->assetsHandle('woocommerce'), Spring_Plant()->helper()->getAssetUrl('assets/js/woocommerce.min.js'), array(Spring_Plant()->helper()->assetsHandle('core'), 'pretty-tabs'), '2.2', true);
+			wp_localize_script(Spring_Plant()->helper()->assetsHandle('woocommerce'),'g5plus_woocommerce_var',array(
+				'localization' => array(
+					'add_cart_quantity' => array(
+						'min' => esc_html__('Sorry, the minimum value was reached','spring-plant'),
+						'max' => esc_html__('Sorry, the maximum value was reached','spring-plant')
+
+
+					)
+				)
+			));
             wp_register_script(Spring_Plant()->helper()->assetsHandle('portfolio'), Spring_Plant()->helper()->getAssetUrl('assets/js/portfolio.min.js'), array(Spring_Plant()->helper()->assetsHandle('core')), '2.2', true);
 
 			wp_register_script(Spring_Plant()->helper()->assetsHandle('main'),Spring_Plant()->helper()->getAssetUrl('assets/js/main.min.js'),array('jquery', 'imagesloaded'),'1.0',true);

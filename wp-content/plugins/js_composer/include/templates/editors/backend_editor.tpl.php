@@ -36,12 +36,12 @@ $first_tag = 'style';
 /** @var Vc_Backend_Editor $editor */
 ?>
 	<<?php echo esc_attr( $first_tag ); ?>>
-		#wpb_visual_composer {
+		#wpb_wpbakery {
 			display: none;
 		}
 	</<?php echo esc_attr( $first_tag ); ?>>
 	<div class="metabox-composer-content">
-		<div id="visual_composer_content" class="wpb_main_sortable main_wrapper"></div>
+		<div id="wpbakery_content" class="wpb_main_sortable main_wrapper"></div>
 		<?php require vc_path_dir( 'TEMPLATES_DIR', 'editors/partials/vc_welcome_block.tpl.php' ); ?>
 
 	</div>
@@ -56,6 +56,7 @@ if ( '' === $wpb_vc_status || ! isset( $wpb_vc_status ) ) {
 ?>
 
 	<input type="hidden" id="wpb_vc_js_status" name="wpb_vc_js_status" value="<?php echo esc_attr( $wpb_vc_status ); ?>"/>
+	<input type="hidden" id="wpb_js_google_fonts_save_nonce" name="wpb_js_google_fonts_save_nonce" value="<?php echo esc_js( wp_create_nonce( 'wpb_js_google_fonts_save' ) ); ?>"/>
 	<input type="hidden" id="wpb_vc_loading" name="wpb_vc_loading"
 			value="<?php esc_attr_e( 'Loading, please wait...', 'js_composer' ); ?>"/>
 	<input type="hidden" id="wpb_vc_loading_row" name="wpb_vc_loading_row"

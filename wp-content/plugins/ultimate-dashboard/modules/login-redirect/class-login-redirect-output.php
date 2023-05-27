@@ -132,11 +132,11 @@ class Login_Redirect_Output extends Base_Output {
 		add_action( 'init', array( $this, 'change_url' ), 9999 );
 		add_action( 'wp_loaded', array( $this, 'protect_wp_login' ) );
 
-		add_action( 'site_url', array( $this, 'site_url' ), 10, 4 );
-		add_action( 'network_site_url', array( $this, 'network_site_url' ), 10, 3 );
-		add_action( 'wp_redirect', array( $this, 'wp_redirect' ), 10, 2 );
+		add_filter( 'site_url', array( $this, 'site_url' ), 10, 4 );
+		add_filter( 'network_site_url', array( $this, 'network_site_url' ), 10, 3 );
+		add_filter( 'wp_redirect', array( $this, 'wp_redirect' ), 10, 2 );
 		add_filter( 'login_url', array( $this, 'login_url' ), 10, 3 );
-		add_action( 'site_option_welcome_email', array( $this, 'welcome_email' ) );
+		add_filter( 'site_option_welcome_email', array( $this, 'welcome_email' ) );
 
 		// @see https://developer.wordpress.org/reference/functions/wp_redirect_admin_locations/
 		remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
@@ -368,12 +368,20 @@ class Login_Redirect_Output extends Base_Output {
 	 */
 	public function filter_old_login_page( $url, $scheme = null ) {
 
+		// Skip wp-login.php?action=postpass from the filtering.
 		if ( false !== stripos( $url, 'wp-login.php?action=postpass' ) ) {
 			return $url;
 		}
 
+		/**
+		 * We can't use `wp_get_referer` here because
+		 * it will call `wp_validate_referer` and it was causing
+		 * fatal error (infinite loop) with Google Site Kit installed.
+		 */
+		$referer = esc_url( wp_get_raw_referer() );
+
 		$url_contains_old_login_url     = false !== stripos( $url, 'wp-login.php' ) ? true : false;
-		$referer_contains_old_login_url = false !== stripos( wp_get_referer(), 'wp-login.php' ) ? true : false;
+		$referer_contains_old_login_url = false !== stripos( $referer, 'wp-login.php' ) ? true : false;
 
 		if ( $url_contains_old_login_url && ! $referer_contains_old_login_url ) {
 			if ( is_ssl() ) {

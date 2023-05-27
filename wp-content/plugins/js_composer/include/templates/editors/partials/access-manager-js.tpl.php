@@ -9,10 +9,15 @@ $custom_tag = 'script';
 	(function ( $ ) {
 		var _localCapabilities, _check, _groupAccessRules, _shortcodesPartSet, _mergedCaps;
 		_localCapabilities = <?php echo wp_json_encode( vc_user_roles_get_all() ); ?>;
-		_shortcodesPartSet = <?php echo vc_bc_access_get_shortcodes_state_is_set( vc_user_access()->part( 'shortcodes' )->getRole() ) ? 'true' : 'false'; ?>;
+		_shortcodesPartSet = <?php echo vc_user_access()->part( 'shortcodes' )->checkStateAny( true, null )->get() ? 'true' : 'false'; ?>;
 		_groupAccessRules = <?php echo wp_json_encode( array_merge( array( 'current_user' => wp_get_current_user()->roles ), (array) vc_settings()->get( 'groups_access_rules' ) ) ); ?>;
 		_mergedCaps = <?php echo wp_json_encode( vc_user_access()->part( 'shortcodes' )->getMergedCaps() ); ?>;
 		_check = function ( part, rule, custom, not_check_state ) {
+			<?php
+			if ( current_user_can( 'administrator' ) ) {
+				echo 'return rule==="disabled_ce_editor" ? false : true;';
+			}
+			?>
 			var state, partObj, findRule;
 
 			partObj = _.isUndefined( _localCapabilities[ part ] ) ? {} : _localCapabilities[ part ];
@@ -42,6 +47,8 @@ $custom_tag = 'script';
 				partAccess: function ( editor ) {
 					return <?php
 					if ( is_multisite() && is_super_admin() ) {
+						echo 'true;';
+					} elseif ( current_user_can( 'administrator' ) ) {
 						echo 'true;';
 					} else {
 						?>!_.isUndefined( _localCapabilities[ editor ] ) && false !== _localCapabilities[ editor ][ 'state' ];
@@ -82,6 +89,8 @@ $custom_tag = 'script';
 				shortcodeValidateOldMethod: function ( shortcode ) {
 					<?php
 					if ( is_multisite() && is_super_admin() ) {
+						echo 'return true;';
+					} elseif ( current_user_can( 'administrator' ) ) {
 						echo 'return true;';
 					} ?>
 					if ( 'vc_row' === shortcode ) {

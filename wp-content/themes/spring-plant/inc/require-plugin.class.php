@@ -30,9 +30,9 @@ if (!class_exists('Spring_Plant_Inc_Require_Plugin')) {
                 array(
                     'name'               => esc_html__('Spring Framework', 'spring-plant'), // The plugin name
                     'slug'               => 'spring-framework', // The plugin slug (typically the folder name)
-                    'source'             => get_template_directory() . '/inc/plugins/spring-framework-v2.7.zip', // The plugin source
+                    'source'             => get_template_directory() . '/inc/plugins/spring-framework-v3.0.zip', // The plugin source
                     'required'           => true, // If false, the plugin is only 'recommended' instead of required
-                    'version'            => '2.7', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
+                    'version'            => '3.0', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
                     'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch
                     'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins
                     'external_url'       => '', // If set, overrides default API URL and points to an external URL
@@ -40,9 +40,9 @@ if (!class_exists('Spring_Plant_Inc_Require_Plugin')) {
                 array(
                     'name'               => 'Revolution Slider', // The plugin name
                     'slug'               => 'revslider', // The plugin slug (typically the folder name)
-                    'source'             => get_template_directory() . '/inc/plugins/revslider_6.5.2.zip', // The plugin source
+                    'source'             => get_template_directory() . '/inc/plugins/revslider_6.6.13.zip', // The plugin source
                     'required'           => true, // If false, the plugin is only 'recommended' instead of required
-                    'version'            => '6.5.2', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
+                    'version'            => '6.6.13', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
                     'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch
                     'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins
                     'external_url'       => '', // If set, overrides default API URL and points to an external URL
@@ -50,9 +50,9 @@ if (!class_exists('Spring_Plant_Inc_Require_Plugin')) {
                 array(
                     'name'               => 'Visual Composer', // The plugin name
                     'slug'               => 'js_composer', // The plugin slug (typically the folder name)
-                    'source'             => get_template_directory() . '/inc/plugins/js_composer_6.6.0.zip', // The plugin source
+                    'source'             => get_template_directory() . '/inc/plugins/js_composer_6.11.0.zip', // The plugin source
                     'required'           => true, // If false, the plugin is only 'recommended' instead of required
-                    'version'            => '6.6.0', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
+                    'version'            => '6.11.0', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
                     'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch
                     'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins
                     'external_url'       => '', // If set, overrides default API URL and points to an external URL
@@ -63,7 +63,7 @@ if (!class_exists('Spring_Plant_Inc_Require_Plugin')) {
                     'slug'               => 'envato-market', // The plugin slug (typically the folder name)
                     'source'             => get_template_directory() . '/inc/plugins/envato-market.zip', // The plugin source
                     'required'           => false, // If false, the plugin is only 'recommended' instead of required
-                    'version'            => '2.0.6', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
+                    'version'            => '2.0.8', // E.g. 1.0.0. If set, the active plugin must be this version or higher, otherwise a notice is presented
                     'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch
                     'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins
                     'external_url'       => '', // If set, overrides default API URL and points to an external URL

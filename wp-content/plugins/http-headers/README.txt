@@ -3,9 +3,9 @@ Contributors: zinoui
 Donate link: https://paypal.me/Dimitar81
 Tags: custom headers, http headers, headers, security, http header, header, cross domain, cors, xss, clickjacking, mitm, cross origin, cross site, privacy, p3p, hsts, referrer, csp, caching, compression, access control, authentication
 Requires at least: 3.2
-Tested up to: 6.1.1
+Tested up to: 6.2
 Requires PHP: 5.3
-Stable tag: 1.18.7
+Stable tag: 1.18.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,18 @@ These HTTP headers are being used in production services by popular websites as 
 Updates are on they way, so stay tuned at [@DimitarIvanov](https://twitter.com/DimitarIvanov)
 
 == Changelog ==
+
+= 1.18.9 =
+*Release Date - 23rd April, 2023*
+
+* Fixed: Remote Code Execution by an Admin user
+
+= 1.18.8 =
+*Release Date - 17th April, 2023*
+
+* Fixed: SQL Injection by an Admin user
+* Fixed: Remote Code Execution by an Admin user
+* Few PHP 8.x compatible fixes
 
 = 1.18.7 =
 *Release Date - 24th January, 2023*

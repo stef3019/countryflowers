@@ -3,7 +3,7 @@ Contributors: rajeshsingh520
 Donate link: piwebsolution.com
 Tags: Async CSS, Defer CSS, Defer JS, Async JS, pagespeed, remove css, remove js
 Requires at least: 3.0.1
-Tested up to: 6.1.0
+Tested up to: 6.2.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -93,3 +93,10 @@ Yes you can remove css or js based on the device if it is mobile or desktop
 
 = I want to async a js file for mobile device =
 Yes you can do that in the pro version
+
+== Changelog ==
+= 2.4.49.7 =
+* Tested for WC 7.5 and WP 6.2
+
+= 2.4.49.6 =
+* Deprecated warning for FILTER_SANITIZE_STRING fixed

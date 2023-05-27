@@ -72,24 +72,21 @@ class Vc_Backend_Editor {
 		$this->registerBackendJavascript();
 		$this->registerBackendCss();
 		// B.C:
-		visual_composer()->registerAdminCss();
-		visual_composer()->registerAdminJavascript();
+		wpbakery()->registerAdminCss();
+		wpbakery()->registerAdminJavascript();
 	}
 
 	/**
-	 *    Calls add_meta_box to create Editor block. Block is rendered by WPBakeryVisualComposerLayout.
-	 *
 	 * @param $post_type
 	 * @throws \Exception
 	 * @since  4.2
 	 * @access public
 	 *
-	 * @see WPBakeryVisualComposerLayout
 	 */
 	public function render( $post_type ) {
 		if ( $this->isValidPostType( $post_type ) ) {
 			// meta box to render
-			add_meta_box( 'wpb_visual_composer', esc_html__( 'WPBakery Page Builder', 'js_composer' ), array(
+			add_meta_box( 'wpb_wpbakery', esc_html__( 'WPBakery Page Builder', 'js_composer' ), array(
 				$this,
 				'renderEditor',
 			), $post_type, 'normal', 'high' );
@@ -196,9 +193,13 @@ class Vc_Backend_Editor {
 			'backbone',
 			'underscore',
 		), WPB_VC_VERSION, true );
-		wp_register_script( 'vc-backend-min-js', vc_asset_url( 'js/dist/backend.min.js' ), array( 'vc-backend-actions-js' ), WPB_VC_VERSION, true );
 		// used in tta shortcodes, and panels.
 		wp_register_script( 'vc_accordion_script', vc_asset_url( 'lib/vc_accordion/vc-accordion.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
+		wp_register_script( 'vc-backend-min-js', vc_asset_url( 'js/dist/backend.min.js' ), array(
+			'vc-backend-actions-js',
+			'vc_accordion_script',
+			'wp-color-picker',
+		), WPB_VC_VERSION, true );
 		wp_register_script( 'wpb_php_js', vc_asset_url( 'lib/php.default/php.default.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
 		// used as polyfill for JSON.stringify and etc
 		wp_register_script( 'wpb_json-js', vc_asset_url( 'lib/bower/json-js/json2.min.js' ), array(), WPB_VC_VERSION, true );
@@ -206,7 +207,7 @@ class Vc_Backend_Editor {
 		wp_register_script( 'ace-editor', vc_asset_url( 'lib/bower/ace-builds/src-min-noconflict/ace.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
 		wp_register_script( 'webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js', array(), WPB_VC_VERSION, true ); // Google Web Font CDN
 
-		wp_localize_script( 'vc-backend-actions-js', 'i18nLocale', visual_composer()->getEditorsLocale() );
+		wp_localize_script( 'vc-backend-actions-js', 'i18nLocale', wpbakery()->getEditorsLocale() );
 	}
 
 	public function registerBackendCss() {

@@ -903,10 +903,10 @@ var G5_Core = window.G5_Core || {},
                     padding_top = $(target).css('padding-top').replace("px", ""),
                     max_height = $(window).height() - G5_Core.util.getAdminBarOffset() - padding_top;
                 $(target).addClass(position);
-                inner.css('max-height', max_height).perfectScrollbar({
+                /*inner.css('max-height', max_height).perfectScrollbar({
                     wheelSpeed: 0.5,
                     suppressScrollX: true
-                });
+                });*/
                 $(target).css('top', G5_Core.util.getAdminBarOffset());
 
                 $this.off('click').on('click', function () {
@@ -975,7 +975,7 @@ var G5_Core = window.G5_Core || {},
                     $(target).css({
                         'top': G5_Core.util.getAdminBarOffset()
                     });
-                    inner.css('max-height', max_height);
+                    //inner.css('max-height', max_height);
                 });
             });
 
@@ -1611,45 +1611,13 @@ var G5_Core = window.G5_Core || {},
             });
             
             if (!G5_Core.util.isDesktop()) {
-                $sidebar.css({
-                    opacity: 0,
-                    visibility: 'hidden'
-                });
                 $sidebar.addClass(skin);
-                /*$sidebarInner.perfectScrollbar({
-                    wheelSpeed: 0.5,
-                    suppressScrollX: true
-                });*/
-                setTimeout(function () {
-                    $sidebar.css({
-                        opacity: '',
-                        visibility: ''
-                    });
-                }, 1000);
             }
-            var orginalHeight = $(window).height();
             $(window).on('resize', function () {
                 if (G5_Core.util.isDesktop()) {
                     $sidebar.removeClass(skin);
-                    //$sidebarInner.perfectScrollbar('destroy');
                 } else {
-                    if($(window).height() === orginalHeight) {
-                        $sidebar.css({
-                            opacity: 0,
-                            visibility: 'hidden'
-                        });
-                        $sidebar.addClass(skin);
-                        /*$sidebarInner.perfectScrollbar({
-                         wheelSpeed: 0.5,
-                         suppressScrollX: true
-                         });*/
-                        setTimeout(function () {
-                            $sidebar.css({
-                                opacity: '',
-                                visibility: ''
-                            });
-                        }, 1000);
-                    }
+                    $sidebar.addClass(skin);
                 }
             });
 

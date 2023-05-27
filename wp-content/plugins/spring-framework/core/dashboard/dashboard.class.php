@@ -36,6 +36,7 @@ if (!class_exists('GSF_Core_Dashboard')) {
 			if ($this->isDashboardPage('install_demo')) {
 				$this->installDemo()->init();
 			}
+			$this->widget_areas()->init();
 		}
 
 
@@ -122,7 +123,7 @@ if (!class_exists('GSF_Core_Dashboard')) {
 
 		public function getConfigPages()
 		{
-			return array(
+			return apply_filters('gsf_dashboard_config_pages', array(
 				'welcome' => array(
 					'page_title' => esc_html__('Welcome', 'spring-framework'),
 					'menu_title' => esc_html__('Welcome', 'spring-framework'),
@@ -138,7 +139,12 @@ if (!class_exists('GSF_Core_Dashboard')) {
 					'menu_title' => esc_html__('Support', 'spring-framework'),
 					'function_binder' => array($this->support(),'binderPage')
 				),
-			);
+				'sidebars' => array(
+					'page_title' => esc_html__('Sidebars Management', 'spring-framework'),
+					'menu_title' => esc_html__('Sidebars Management', 'spring-framework'),
+					'function_binder' => array($this->widget_areas(),'binderPage')
+				),
+			));
 		}
 
 		/**
@@ -160,6 +166,13 @@ if (!class_exists('GSF_Core_Dashboard')) {
 		 */
 		public function support() {
 			return G5P_Dashboard_Support::getInstance();
+		}
+
+		/**
+		 * @return G5P_Dashboard_Widget_Areas
+		 */
+		public function widget_areas() {
+			return G5P_Dashboard_Widget_Areas::getInstance();
 		}
 
 		public function isDashboardPage($page = '') {

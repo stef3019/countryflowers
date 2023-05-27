@@ -254,7 +254,7 @@ if (!class_exists('Spring_Plant_Inc_Woocommerce')) {
             $image_size = isset($post_settings['post_image_size']) ? $post_settings['post_image_size'] : 'medium';
             $matrix['product'] = array(
                 'list' => array(
-                    'image_size' => 'shop_catalog',
+                    'image_size' => 'woocommerce_thumbnail',
                     'columns_gutter' => $columns_gutter,
                     'layout' => array(
                         array('columns' => $columns, 'template' => 'content-product'),
@@ -269,7 +269,7 @@ if (!class_exists('Spring_Plant_Inc_Woocommerce')) {
                 'grid' => array(
                     'placeholder_enable' => true,
                     'columns_gutter' => $columns_gutter,
-                    'image_size' => 'shop_catalog',
+                    'image_size' => 'woocommerce_thumbnail',
                     'layout' => array(
                         array('columns' => $columns, 'template' => 'content-product')
                     )
@@ -543,7 +543,7 @@ if (!class_exists('Spring_Plant_Inc_Woocommerce')) {
         {
             $defaults = array(
                 'post_id' => get_the_ID(),
-                'image_size' => 'shop_catalog',
+                'image_size' => 'woocommerce_thumbnail',
                 'placeholder_enable' => true,
                 'image_mode' => 'image',
                 'display_permalink' => true,
@@ -618,7 +618,7 @@ if (!class_exists('Spring_Plant_Inc_Woocommerce')) {
                 $post_animation = isset($post_settings['post_animation']) ? $post_settings['post_animation'] : '';
                 $placeholder_enable = isset($layout_matrix['placeholder_enable']) ? $layout_matrix['placeholder_enable'] : false;
                 $paged = Spring_Plant()->query()->query_var_paged();
-                $image_size = isset($post_settings['image_size']) ? $post_settings['image_size'] : (isset($layout_matrix['image_size']) ? $layout_matrix['image_size'] : 'shop_catalog');
+                $image_size = isset($post_settings['image_size']) ? $post_settings['image_size'] : (isset($layout_matrix['image_size']) ? $layout_matrix['image_size'] : 'woocommerce_thumbnail');
                 $image_size_base = $image_size;
                 $image_ratio = '';
 

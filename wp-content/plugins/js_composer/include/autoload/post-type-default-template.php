@@ -115,7 +115,7 @@ class Vc_Setting_Post_Type_Default_Template_Field {
 	 * @return bool|\Vc_Templates_Panel_Editor
 	 */
 	protected function getTemplatesEditor() {
-		return visual_composer()->templatesPanelEditor();
+		return wpbakery()->templatesPanelEditor();
 	}
 
 	/**
@@ -150,7 +150,9 @@ class Vc_Setting_Post_Type_Default_Template_Field {
 		WPBMap::addAllMappedShortcodes();
 		if ( 'my_templates' === $template_type ) {
 			$saved_templates = get_option( $this->getTemplatesEditor()->getOptionName() );
-
+			if ( ! isset( $saved_templates[ $template_id ] ) ) {
+				return $template;
+			}
 			$content = trim( $saved_templates[ $template_id ]['template'] );
 			$content = str_replace( '\"', '"', $content );
 			$pattern = get_shortcode_regex();

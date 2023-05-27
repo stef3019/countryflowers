@@ -28,7 +28,7 @@
 					notice_action: notice_action,
 					nonce: cnArgsNotice.nonce,
 					param: param,
-					cn_network: cnArgsNotice.network
+					cn_network: cnArgsNotice.network ? 1 : 0
 				}
 			} );
 

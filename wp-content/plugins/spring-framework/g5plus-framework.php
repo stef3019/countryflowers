@@ -3,7 +3,7 @@
  *    Plugin Name: Spring Framework
  *    Plugin URI: http://g5plus.net
  *    Description: The Spring Framework plugin.
- *    Version: 2.7
+ *    Version: 3.0
  *    Author: g5plus
  *    Author URI: http://g5plus.net
  *

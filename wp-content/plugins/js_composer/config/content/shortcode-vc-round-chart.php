@@ -88,6 +88,46 @@ return array(
 			'std' => 'yes',
 		),
 		array(
+			'type' => 'dropdown',
+			'heading' => esc_html__( 'Legend color', 'js_composer' ),
+			'param_name' => 'legend_color',
+			'value' => vc_get_shared( 'colors-dashed' ) + array( esc_html__( 'Custom', 'js_composer' ) => 'custom' ),
+			'description' => esc_html__( 'Select legend color.', 'js_composer' ),
+			'param_holder_class' => 'vc_colored-dropdown',
+			'std' => 'black',
+			'dependency' => array(
+				'element' => 'legend',
+				'value' => 'yes',
+			),
+		),
+		array(
+			'type' => 'dropdown',
+			'heading' => esc_html__( 'Legend position', 'js_composer' ),
+			'param_name' => 'legend_position',
+			'value' => array(
+				esc_html__( 'Top', 'js_composer' ) => 'top',
+				esc_html__( 'Left', 'js_composer' ) => 'left',
+				esc_html__( 'Bottom', 'js_composer' ) => 'bottom',
+				esc_html__( 'Right', 'js_composer' ) => 'right',
+			),
+			'description' => esc_html__( 'Select legend position.', 'js_composer' ),
+			'std' => 'left',
+			'dependency' => array(
+				'element' => 'legend',
+				'value' => 'yes',
+			),
+		),
+		array(
+			'type' => 'colorpicker',
+			'heading' => esc_html__( 'Custom legend color', 'js_composer' ),
+			'param_name' => 'custom_legend_color',
+			'description' => esc_html__( 'Select custom legend color.', 'js_composer' ),
+			'dependency' => array(
+				'element' => 'legend_color',
+				'value' => array( 'custom' ),
+			),
+		),
+		array(
 			'type' => 'checkbox',
 			'heading' => esc_html__( 'Show hover values?', 'js_composer' ),
 			'param_name' => 'tooltips',

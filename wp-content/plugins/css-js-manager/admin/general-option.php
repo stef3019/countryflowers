@@ -19,7 +19,7 @@ class CCM_General_Option{
     function __construct(){
         $this->plugin_name = 'css-js-manager';
         
-        $this->tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_STRING );
+        $this->tab = filter_input( INPUT_GET, 'tab' );
         $this->active_tab = $this->tab != "" ? $this->tab : 'default';
 
         $post_type = get_post_types( array('public' => true), 'objects' );
@@ -50,7 +50,7 @@ class CCM_General_Option{
     }
 
     function tab(){
-        $page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING );
+        $page = filter_input( INPUT_GET, 'page' );
         ?>
         <a class=" px-3 text-light d-flex align-items-center  border-left border-right  <?php echo ($this->active_tab == $this->this_tab ? 'bg-primary' : 'bg-secondary'); ?>" href="<?php echo admin_url( 'admin.php?page='.$page.'&tab='.$this->this_tab ); ?>">
             <?php _e( $this->tab_name, 'critical-css-manager' ); ?> 

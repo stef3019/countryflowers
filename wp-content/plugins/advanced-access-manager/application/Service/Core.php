@@ -10,18 +10,21 @@
 /**
  * AAM core service
  *
- * @since 6.9.5 https://github.com/aamplugin/advanced-access-manager/issues/243
- * @since 6.9.3 https://github.com/aamplugin/advanced-access-manager/issues/236
- * @since 6.7.5 https://github.com/aamplugin/advanced-access-manager/issues/173
- * @since 6.5.3 https://github.com/aamplugin/advanced-access-manager/issues/126
- * @since 6.4.2 Fixed https://github.com/aamplugin/advanced-access-manager/issues/82
- * @since 6.4.0 Added "Manage Access" toolbar item to single & multisite network
- * @since 6.0.5 Making sure that only if user is allowed to manage other users
- * @since 6.0.4 Bug fixing. Unwanted "Access Denied" metabox on the Your Profile page
- * @since 6.0.0 Initial implementation of the class
+ * @since 6.9.10 https://github.com/aamplugin/advanced-access-manager/issues/276
+ * @since 6.9.9  https://github.com/aamplugin/advanced-access-manager/issues/268
+ * @since 6.9.9  https://github.com/aamplugin/advanced-access-manager/issues/265
+ * @since 6.9.5  https://github.com/aamplugin/advanced-access-manager/issues/243
+ * @since 6.9.3  https://github.com/aamplugin/advanced-access-manager/issues/236
+ * @since 6.7.5  https://github.com/aamplugin/advanced-access-manager/issues/173
+ * @since 6.5.3  https://github.com/aamplugin/advanced-access-manager/issues/126
+ * @since 6.4.2  https://github.com/aamplugin/advanced-access-manager/issues/82
+ * @since 6.4.0  Added "Manage Access" toolbar item to single & multi-site network
+ * @since 6.0.5  Making sure that only if user is allowed to manage other users
+ * @since 6.0.4  Bug fixing. Unwanted "Access Denied" metabox on the Your Profile page
+ * @since 6.0.0  Initial implementation of the class
  *
  * @package AAM
- * @version 6.9.5
+ * @version 6.9.10
  */
 class AAM_Service_Core
 {
@@ -40,24 +43,26 @@ class AAM_Service_Core
      *
      * @access protected
      *
-     * @since 6.9.5 https://github.com/aamplugin/advanced-access-manager/issues/243
-     * @since 6.9.3 https://github.com/aamplugin/advanced-access-manager/issues/236
-     * @since 6.4.2 https://github.com/aamplugin/advanced-access-manager/issues/82
-     * @since 6.4.0 Added "Manage Access" toolbar item
-     * @since 6.0.5 Fixed bug when Access Manager metabox is rendered for users that
-     *              have ability to manage other users
-     * @since 6.0.4 Fixed bug when Access Manager metabox is rendered on profile edit
-     *              page
-     * @since 6.0.0 Initial implementation of the method
+     * @since 6.9.10 https://github.com/aamplugin/advanced-access-manager/issues/276
+     * @since 6.9.9  https://github.com/aamplugin/advanced-access-manager/issues/268
+     * @since 6.9.5  https://github.com/aamplugin/advanced-access-manager/issues/243
+     * @since 6.9.3  https://github.com/aamplugin/advanced-access-manager/issues/236
+     * @since 6.4.2  https://github.com/aamplugin/advanced-access-manager/issues/82
+     * @since 6.4.0  Added "Manage Access" toolbar item
+     * @since 6.0.5  Fixed bug when Access Manager metabox is rendered for users that
+     *               have ability to manage other users
+     * @since 6.0.4  Fixed bug when Access Manager metabox is rendered on profile edit
+     *               page
+     * @since 6.0.0  Initial implementation of the method
      *
      * @return void
-     * @version 6.9.5
+     * @version 6.9.10
      */
     protected function __construct()
     {
         if (is_admin()) {
             $metaboxEnabled = AAM_Core_Config::get(
-                'ui.settings.renderAccessMetabox', true
+                'ui.settings.renderAccessMetabox', false
             );
 
             if ($metaboxEnabled && current_user_can('aam_manager')) {
@@ -130,6 +135,9 @@ class AAM_Service_Core
             AAM::getUser()->setUserExpiration($settings);
         });
 
+        // Run upgrades if available
+        AAM_Core_Migration::run();
+
         // Bootstrap RESTful API
         AAM_Core_Restful::bootstrap();
     }
@@ -191,11 +199,12 @@ class AAM_Service_Core
      *
      * @return array
      *
+     * @since 6.9.9 https://github.com/aamplugin/advanced-access-manager/issues/265
      * @since 6.5.3 https://github.com/aamplugin/advanced-access-manager/issues/126
      * @since 6.0.0 Initial implementation of the method
      *
      * @access public
-     * @version 6.5.3
+     * @version 6.9.9
      */
     public function mapMetaCaps($caps, $cap, $user_id, $args)
     {
@@ -204,7 +213,7 @@ class AAM_Service_Core
         // Mutate any AAM specific capability if it does not exist
         foreach ((array) $caps as $i => $capability) {
             if (
-                (strpos($capability, 'aam_') === 0)
+                is_string($capability) && (strpos($capability, 'aam_') === 0)
                 && !AAM_Core_API::capExists($capability)
             ) {
                 $caps[$i] = AAM_Core_Config::get(

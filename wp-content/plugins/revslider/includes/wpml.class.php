@@ -2,7 +2,7 @@
 /**
  * @author    ThemePunch <info@themepunch.com>
  * @link      https://www.themepunch.com/
- * @copyright 2019 ThemePunch
+ * @copyright 2022 ThemePunch
  */
  
 if(!defined('ABSPATH')) exit();
@@ -101,21 +101,17 @@ class RevSliderWpml extends RevSliderFunctions {
 		
 		$this->validateWpmlExists();
 		
+		$path = (defined('ICL_PLUGIN_URL')) ? ICL_PLUGIN_URL . '/res/img/icon16.png' : RS_PLUGIN_URL . 'admin/assets/images/icon16.png';
+
 		if(empty($code) || $code == 'all'){
-            //$url = RS_PLUGIN_URL.'admin/assets/images/icon-all.png'; // NEW: ICL_PLUGIN_URL . '/res/img/icon16.png';
-            $url = ICL_PLUGIN_URL . '/res/img/icon16.png';
+            $url = $path;
         }else{
             $active_languages = apply_filters('wpml_active_languages', array());
             $url = isset($active_languages[$code]['country_flag_url']) ? $active_languages[$code]['country_flag_url'] : null;
         }
 		
 		//default: show all
-		if(empty($url)){
-			//$url = RS_PLUGIN_URL.'admin/assets/images/icon-all.png';
-			$url = ICL_PLUGIN_URL . '/res/img/icon16.png';
-		}
-		
-		return $url;
+		return (!empty($url)) ? $url : $path;
 	}
 	
 	
@@ -214,7 +210,7 @@ class RevSliderWpml extends RevSliderFunctions {
 				'image'	=> $this->getFlagUrl($code)
 			);
 		}
-		echo '<script type="text/javascript">';
+		echo '<script>';
 		echo 'var RS_WPML_LANGS = JSON.parse(\''.json_encode($use_langs).'\');';
 		echo '</script>';
 	}

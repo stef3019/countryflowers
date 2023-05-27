@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) )
 /**
  * Cookie Notice Modules Autoptimize class.
  *
+ * Compatibility since: 2.4.0
+ *
  * @class Cookie_Notice_Modules_Autoptimize
  */
 class Cookie_Notice_Modules_Autoptimize {
@@ -20,7 +22,7 @@ class Cookie_Notice_Modules_Autoptimize {
 	}
 
 	/**
-	 * Filter excluded JavaScript files or inline code.
+	 * Exclude JavaScript files or inline code.
 	 *
 	 * @param string $excludes
 	 * @return string

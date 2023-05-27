@@ -192,6 +192,49 @@
 	}
 }
 
+.wp-block-search {
+	.wp-block-search__label {
+		display: none;
+	}
+	.wp-block-search__inside-wrapper {
+		position: relative;
+	}
+	.wp-block-search__input {
+		width: 100%;
+		padding-right: 53px;
+		border: none;
+		.border-radius(0);
+	}
+
+	[type="submit"] {
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 100%;
+		font-size: 0;
+		border: none;
+		background-color: transparent;
+		.transition(all 0.3s);
+		cursor: pointer;
+		&:before {
+			font-family: 'FontAwesome';
+			display: inline-block;
+			content: "\f002";
+			font-size: 15px;
+		}
+		padding-left: 20px;
+		padding-right: 20px;
+		&:hover,
+		&:focus {
+			&:extend(.accent-color);
+			background-color: transparent;
+			color: @accent_color !important;
+		}
+	}
+}
+
+
+
 .search-form,
 .woocommerce-product-search {
 	position: relative;

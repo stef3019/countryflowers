@@ -182,9 +182,9 @@ if ( ! class_exists( 'YITH_System_Status' ) ) {
 				$this->add_requirements(
 					esc_html__( 'YITH Plugins', 'yith-plugin-fw' ),
 					array(
-						'min_wp_version'  => '5.6',
-						'min_wc_version'  => '5.3',
-						'min_php_version' => '7.0',
+						'min_wp_version'  => '5.9',
+						'min_wc_version'  => '7.2',
+						'min_php_version' => '7.2',
 					)
 				);
 				$this->add_requirements(
@@ -301,7 +301,6 @@ if ( ! class_exists( 'YITH_System_Status' ) ) {
 			wp_register_script( 'yith-system-info', yit_load_js_file( $script_path . '/assets/js/yith-system-info.js' ), array( 'jquery' ), '1.0.0', true );
 
 			if ( isset( $_GET['page'] ) && 'yith_system_info' === $_GET['page'] ) { //phpcs:ignore
-				wp_enqueue_style( 'yit-plugin-style' );
 				wp_enqueue_style( 'yith-plugin-fw-fields' );
 				wp_enqueue_script( 'yith-system-info' );
 

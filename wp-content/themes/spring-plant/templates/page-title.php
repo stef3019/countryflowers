@@ -31,9 +31,9 @@ $wrapper_class = implode(' ', array_filter($wrapper_classes));
 		<div class="container">
 			<div class="page-title-inner row no-gutters align-items-center">
                 <div class="page-title-content d-flex">
-                    <h1><?php echo esc_html($page_title); ?></h1>
+                    <h1><?php echo wp_kses_post($page_title); ?></h1>
                     <?php if(!empty($page_subtitle)): ?>
-                        <p class="page-sub-title"><?php echo esc_html($page_subtitle); ?></p>
+                        <p class="page-sub-title"><?php echo wp_kses_post($page_subtitle); ?></p>
                     <?php endif; ?>
                 </div>
 				<?php Spring_Plant()->breadcrumbs()->get_breadcrumbs(); ?>

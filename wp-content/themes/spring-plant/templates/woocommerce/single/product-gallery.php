@@ -36,7 +36,7 @@ if(isset($product_images) && !empty($product_images)) {
         }
         $image_link = wp_get_attachment_url($image_id);
         $image_thumb = wp_get_attachment_image_src($image_id);
-        $image = wp_get_attachment_image($image_id, apply_filters('single_product_large_thumbnail_size', 'shop_single'), array(
+        $image = wp_get_attachment_image($image_id, apply_filters('single_product_large_thumbnail_size', 'woocommerce_single'), array(
             'title' => $image_title,
             'alt' => $image_title
         ));

@@ -8,7 +8,6 @@
  * @var $display_permalink
  */
 global $product;
-
 remove_action('spring_plant_before_post_image',array(Spring_Plant()->templates(),'zoom_image_thumbnail'));
 ?>
 <?php if (has_post_thumbnail($post_id)): ?>

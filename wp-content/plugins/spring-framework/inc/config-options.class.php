@@ -24,6 +24,11 @@ if (!class_exists('G5P_Inc_Config_Options')) {
 		{
 			// Defined Theme Options
 			add_filter('gsf_option_config', array($this, 'define_theme_options'));
+			add_filter('gsf_replace_font_option_keys',array($this,'replace_font_option_keys'));
+		}
+
+		public function replace_font_option_keys($keys) {
+			return wp_parse_args(array(G5P()->getOptionName()),$keys);
 		}
 
 		public function define_theme_options($configs)
@@ -1610,7 +1615,6 @@ if (!class_exists('G5P_Inc_Config_Options')) {
                                 'default' => array(
                                     'facebook'  => 'facebook',
                                     'twitter'   => 'twitter',
-                                    'google'    => 'google',
                                     'linkedin'  => 'linkedin',
                                     'tumblr'    => 'tumblr',
                                     'pinterest' => 'pinterest'

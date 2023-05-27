@@ -26,28 +26,28 @@ class Cookie_Notice_Bot_Detect {
 	 *
 	 * @var array
 	 */
-	protected $http_headers = array();
+	protected $http_headers = [];
 
 	/**
 	 * Store regex matches.
 	 *
 	 * @var array
 	 */
-	protected $matches = array();
+	protected $matches = [];
 
 	/**
 	 * Crawlers object.
 	 *
 	 * @var object
 	 */
-	protected $crawlers = array();
+	protected $crawlers = [];
 
 	/**
 	 * Exclusions object.
 	 *
 	 * @var object
 	 */
-	protected $exclusions = array();
+	protected $exclusions = [];
 
 	/**
 	 * Headers object.
@@ -58,16 +58,20 @@ class Cookie_Notice_Bot_Detect {
 
 	/**
 	 * Class constructor.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->crawlers = $this->get_crawlers_list();
 		$this->exclusions = $this->get_exclusions_list();
 
-		add_action( 'after_setup_theme', array( $this, 'init' ) );
+		add_action( 'after_setup_theme', [ $this, 'init' ] );
 	}
 
 	/**
 	 * Initialize class.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		// break on admin side
@@ -83,6 +87,7 @@ class Cookie_Notice_Bot_Detect {
 	 * Set HTTP headers.
 	 *
 	 * @param array $http_headers
+	 * @return void
 	 */
 	public function set_http_headers( $http_headers = null ) {
 		// use global _SERVER if $http_headers aren't defined
@@ -90,13 +95,12 @@ class Cookie_Notice_Bot_Detect {
 			$http_headers = $_SERVER;
 
 		// clear existing headers
-		$this->http_headers = array();
+		$this->http_headers = [];
 
 		// only save HTTP headers - in PHP land, that means only _SERVER vars that start with HTTP_.
 		foreach ( $http_headers as $key => $value ) {
-			if ( substr( $key, 0, 5 ) === 'HTTP_' ) {
+			if ( substr( $key, 0, 5 ) === 'HTTP_' )
 				$this->http_headers[$key] = $value;
-			}
 		}
 	}
 
@@ -122,18 +126,20 @@ class Cookie_Notice_Bot_Detect {
 	 * Set the user agent.
 	 *
 	 * @param string $user_agent
+	 * @return string
 	 */
 	public function set_user_agent( $user_agent = null ) {
-		if ( false === empty( $user_agent ) ) {
+		if ( false === empty( $user_agent ) )
 			return $this->user_agent = $user_agent;
-		} else {
+		else {
 			$this->user_agent = null;
+
 			foreach ( $this->get_ua_http_headers() as $alt_header ) {
-				if ( false === empty( $this->http_headers[$alt_header] ) ) { // @todo: should use get_http_header(), but it would be slow.
+				if ( false === empty( $this->http_headers[$alt_header] ) ) // @todo: should use get_http_header(), but it would be slow.
 					$this->user_agent .= $this->http_headers[$alt_header] . ' ';
-				}
 			}
-			return $this->user_agent = ( ! empty( $this->user_agent ) ? trim( $this->user_agent ) : null);
+
+			return $this->user_agent = ( ! empty( $this->user_agent ) ? trim( $this->user_agent ) : null );
 		}
 	}
 
@@ -159,7 +165,6 @@ class Cookie_Notice_Bot_Detect {
 	 * Check user agent string against the regex.
 	 *
 	 * @param string $user_agent
-	 *
 	 * @return bool
 	 */
 	public function is_crawler( $user_agent = null ) {
@@ -192,7 +197,7 @@ class Cookie_Notice_Bot_Detect {
 	 * @return array
 	 */
 	protected function get_crawlers_list() {
-		$data = array(
+		return [
 			' YLT',
 			'^Aether',
 			'^Amazon Simple Notification Service Agent$',
@@ -944,6 +949,7 @@ class Cookie_Notice_Bot_Detect {
 			'mogimogi',
 			'Mojeek',
 			'Mojolicious \(Perl\)',
+			'Mollie',
 			'monitis',
 			'Monitority\/',
 			'Monit\/',
@@ -1228,6 +1234,7 @@ class Cookie_Notice_Bot_Detect {
 			'Seobility',
 			'SEOCentro',
 			'SeoCheck',
+			'seocompany',
 			'SEOkicks',
 			'SEOlizer',
 			'Seomoz',
@@ -1425,6 +1432,7 @@ class Cookie_Notice_Bot_Detect {
 			'via ggpht\.com GoogleImageProxy',
 			'Virusdie',
 			'visionutils',
+			'Visual Rights Group',
 			'vkShare',
 			'VoidEYE',
 			'Voil',
@@ -1530,7 +1538,6 @@ class Cookie_Notice_Bot_Detect {
 			'worldping-api',
 			'wotbox',
 			'WP Engine Install Performance API',
-			'WP Rocket',
 			'wpif',
 			'wprecon\.com survey',
 			'WPScan',
@@ -1586,9 +1593,7 @@ class Cookie_Notice_Bot_Detect {
 			'ZoteroTranslationServer',
 			'ZyBorg',
 			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
-		);
-
-		return $data;
+		];
 	}
 
 	/**
@@ -1597,7 +1602,7 @@ class Cookie_Notice_Bot_Detect {
 	 * @return array
 	 */
 	public function get_exclusions_list() {
-		$data = array(
+		return [
 			'Safari.[\d\.]*',
 			'Firefox.[\d\.]*',
 			' Chrome.[\d\.]*',
@@ -1646,9 +1651,7 @@ class Cookie_Notice_Bot_Detect {
 			'; ID bot',
 			'; POWER BOT',
 			'OCTOPUS-CORE'
-		);
-
-		return $data;
+		];
 	}
 
 	/**
@@ -1657,7 +1660,7 @@ class Cookie_Notice_Bot_Detect {
 	 * @return array
 	 */
 	public function get_headers_list() {
-		$data = array(
+		return [
 			// The default User-Agent string.
 			'HTTP_USER_AGENT',
 			// Header can occur on devices using Opera Mini.
@@ -1672,8 +1675,6 @@ class Cookie_Notice_Bot_Detect {
 			// Sometimes, bots (especially Google) use a genuine user agent, but fill this header in with their email address
 			'HTTP_FROM',
 			'HTTP_X_SCANNER' // Seen in use by Netsparker
-		);
-
-		return $data;
+		];
 	}
 }

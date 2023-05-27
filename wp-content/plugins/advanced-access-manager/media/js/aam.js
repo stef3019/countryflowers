@@ -497,10 +497,11 @@
                         LoadRolesDropdown();
 
                         //clear add role form first
-                        $('input', '#add-role-modal').val('').focus();
+                        $('input', '#add-role-modal').val('');
+                        $('input[name="name"]', '#add-role-modal').focus();
                     });
 
-                    $('#edit-role-modal').on('shown.bs.modal', function (e) {
+                    $('#edit-role-modal').on('shown.bs.modal', function () {
                         $('input[name="name"]', '#edit-role-modal').focus();
                     });
 
@@ -783,42 +784,39 @@
              */
             function generateJWT() {
                 if ($('#login-url-preview').length === 1) {
-                    // Build the trigger
-                    var trigger = {
-                        action: $('#action-after-expiration').val()
+                    const action = $('#action-after-expiration').val();
+
+                    const payload = {
+                        user_id: $('#reset-user-expiration-btn').attr('data-user-id'),
+                        expires_at: (new Date($('#user-expires').val() * 1000)).toISOString(),
+                    };
+
+                    if (action) {
+                        payload.additional_claims = {
+                            trigger: {
+                                action
+                            }
+                        }
+
+                        if (action === 'change-role') {
+                            payload.additional_claims.trigger.meta = $('#expiration-change-role').val();
+                        }
                     }
 
-                    if (trigger.action === 'change-role') {
-                        trigger.meta = $('#expiration-change-role').val();
-                    }
-
-                    $.ajax(getLocal().ajaxurl, {
+                    $.ajax(`${getLocal().rest_base}aam/v2/service/jwt`, {
                         type: 'POST',
                         dataType: 'json',
-                        data: {
-                            action: 'aam',
-                            sub_action: 'Main_Jwt.generate',
-                            _ajax_nonce: getLocal().nonce,
-                            subject: 'user',
-                            subjectId: $('#reset-user-expiration-btn').attr('data-user-id'),
-                            expires: $('#user-expires').val(),
-                            trigger: trigger,
-                            register: true
+                        data: payload,
+                        headers: {
+                            'X-WP-Nonce': getLocal().rest_nonce
                         },
                         beforeSend: function () {
                             $('#login-url-preview').val(getAAM().__('Generating URL...'));
                         },
                         success: function (response) {
-                            if (response.status === 'success') {
-                                $('#login-url-preview').val(
-                                    $('#login-url-preview').data('url').replace('%s', response.jwt)
-                                );
-                                $('#login-jwt').val(response.jwt);
-                            } else {
-                                getAAM().notification(
-                                    'danger', getAAM().__('Failed to generate JWT token')
-                                );
-                            }
+                            $('#login-url-preview').val(
+                                $('#login-url-preview').data('url').replace('%s', response.token)
+                            );
                         },
                         error: function () {
                             getAAM().notification('danger');
@@ -998,14 +996,6 @@
                                                 } else {
                                                     getAAM().loadRoleList();
                                                     $('#expiration-change-role-holder').addClass('hidden');
-                                                }
-
-                                                // set JWT if defined
-                                                if (settings.length === 4) {
-                                                    $('#login-url-preview').val(
-                                                        $('#login-url-preview').data('url').replace('%s', settings[3])
-                                                    );
-                                                    $('#login-jwt').val(settings[3]);
                                                 }
                                             } else {
                                                 $('#reset-user-expiration-btn, #expiration-change-role-holder').addClass('hidden');
@@ -1189,8 +1179,7 @@
                         user: $(_this).attr('data-user-id'),
                         expires: $('#user-expires').val(),
                         after: $('#action-after-expiration').val(),
-                        role: $('#expiration-change-role').val(),
-                        jwt: $('#login-jwt').val()
+                        role: $('#expiration-change-role').val()
                     },
                     beforeSend: function () {
                         $(_this).text(getAAM().__('Saving...')).attr('disabled', true);
@@ -3747,41 +3736,29 @@
 
             /**
              *
-             * @param {type} type
-             * @param {type} route
-             * @param {type} method
+             * @param {type} id
              * @param {type} btn
              * @returns {undefined}
              */
-            function save(type, route, method, btn) {
+            function save(id, btn) {
                 var value = $(btn).hasClass('icon-check-empty');
 
                 getAAM().queueRequest(function () {
                     //show indicator
                     $(btn).attr('class', 'aam-row-action icon-spin4 animate-spin');
 
-                    $.ajax(getLocal().ajaxurl, {
+                    $.ajax(`${getLocal().rest_base}aam/v2/service/api-route/${id}`, {
                         type: 'POST',
                         dataType: 'json',
-                        data: {
-                            action: 'aam',
-                            sub_action: 'Main_Route.save',
-                            _ajax_nonce: getLocal().nonce,
-                            subject: getAAM().getSubject().type,
-                            subjectId: getAAM().getSubject().id,
-                            type: type,
-                            route: route,
-                            method: method,
-                            value: value
+                        data: prepareRequestSubjectData({
+                            is_restricted: value
+                        }),
+                        headers: {
+                            'X-WP-Nonce': getLocal().rest_nonce,
                         },
-                        success: function (response) {
-                            if (response.status === 'failure') {
-                                getAAM().notification('danger', response.error);
-                                updateBtn(btn, value ? 0 : 1);
-                            } else {
-                                $('#aam-route-overwrite').removeClass('hidden');
-                                updateBtn(btn, value);
-                            }
+                        success: function () {
+                            $('#aam-route-overwrite').removeClass('hidden');
+                            updateBtn(btn, value);
                         },
                         error: function () {
                             updateBtn(btn, value ? 0 : 1);
@@ -3805,6 +3782,37 @@
                 }
             }
 
+            function escapeHtml(text) {
+                var map = {
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#039;'
+                };
+
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            /**
+             *
+             * @returns
+             */
+            function prepareRequestSubjectData(mergeWith = {}) {
+                // Prepare the payload
+                const data = {
+                    access_level: getAAM().getSubject().type
+                };
+
+                if (data.access_level === 'role') {
+                    data.role_id = getAAM().getSubject().id;
+                } else if (data.access_level === 'user') {
+                    data.user_id = getAAM().getSubject().id;
+                }
+
+                return Object.assign({}, mergeWith, data);
+            }
+
             /**
              *
              * @returns {undefined}
@@ -3818,18 +3826,31 @@
                         pagingType: 'simple',
                         serverSide: false,
                         ajax: {
-                            url: getLocal().ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'aam',
-                                sub_action: 'Main_Route.getTable',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id
+                            url: `${getLocal().rest_base}aam/v2/service/api-route`,
+                            type: 'GET',
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
+                            },
+                            data: prepareRequestSubjectData(),
+                            dataType: 'json',
+                            dataSrc: function (routes) {
+                                // Transform the received data into DT format
+                                const data = [];
+
+                                $.each(routes, (_, route) => {
+                                    data.push([
+                                        route.id,
+                                        route.method,
+                                        escapeHtml(route.route),
+                                        route.is_restricted ? 'checked' : 'unchecked'
+                                    ]);
+                                });
+
+                                return data;
                             }
                         },
                         columnDefs: [
-                            { visible: false, targets: [0, 1] },
+                            { visible: false, targets: [0] },
                             { className: 'text-center', targets: [0, 1] }
                         ],
                         language: {
@@ -3844,12 +3865,12 @@
                         createdRow: function (row, data) {
                             // decorate the method
                             var method = $('<span/>', {
-                                'class': 'aam-api-method ' + data[2].toLowerCase()
-                            }).text(data[2]);
+                                'class': 'aam-api-method ' + data[1].toLowerCase()
+                            }).text(data[1]);
 
                             $('td:eq(0)', row).html(method);
 
-                            var actions = data[4].split(',');
+                            var actions = data[3].split(',');
 
                             var container = $('<div/>', { 'class': 'aam-row-actions' });
                             $.each(actions, function (i, action) {
@@ -3858,7 +3879,7 @@
                                         $(container).append($('<i/>', {
                                             'class': 'aam-row-action text-muted icon-check-empty'
                                         }).bind('click', function () {
-                                            save(data[1], data[0], data[2], this);
+                                            save(data[0], this);
                                         }));
                                         break;
 
@@ -3866,7 +3887,7 @@
                                         $(container).append($('<i/>', {
                                             'class': 'aam-row-action text-danger icon-check'
                                         }).bind('click', function () {
-                                            save(data[1], data[0], data[2], this);
+                                            save(data[0], this);
                                         }));
                                         break;
 
@@ -3880,7 +3901,30 @@
 
                     //reset button
                     $('#route-reset').bind('click', function () {
-                        getAAM().reset('Main_Route.reset', $(this));
+                        const _btn = $(this);
+
+                        $.ajax(`${getLocal().rest_base}aam/v2/service/api-route/reset`, {
+                            type: 'POST',
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
+                            },
+                            data: prepareRequestSubjectData(),
+                            dataType: 'json',
+                            beforeSend: function () {
+                                var label = _btn.text();
+                                _btn.attr('data-original-label', label);
+                                _btn.text(getAAM().__('Resetting...'));
+                            },
+                            success: function () {
+                                getAAM().fetchContent('main');
+                            },
+                            error: function () {
+                                getAAM().notification('danger');
+                            },
+                            complete: function () {
+                                _btn.text(_btn.attr('data-original-label'));
+                            }
+                        });
                     });
                 }
             }
@@ -3897,8 +3941,34 @@
          * @returns {void}
          */
         (function ($) {
+
+            /**
+             *
+             * @returns
+             */
+            function prepareRequestSubjectData(mergeWith = {}) {
+                // Prepare the payload
+                const data = {
+                    access_level: getAAM().getSubject().type
+                };
+
+                if (data.access_level === 'role') {
+                    data.role_id = getAAM().getSubject().id;
+                } else if (data.access_level === 'user') {
+                    data.user_id = getAAM().getSubject().id;
+                }
+
+                return Object.assign({}, mergeWith, data);
+            }
+
+            /**
+             *
+             */
             function initialize() {
-                var container = '#uri-content';
+                const container = '#uri-content';
+
+                // Currently editing rule
+                let editingRule;
 
                 if ($(container).length) {
                     $('input[type="radio"]', container).each(function () {
@@ -3911,7 +3981,7 @@
                                 $(action).show();
                             }
 
-                            if ($(this).val() === 'page' || $(this).val() === 'url') {
+                            if (['page_redirect', 'url_redirect'].includes($(this).val())) {
                                 $('#uri-access-deny-redirect-code').show();
                             }
                         });
@@ -3919,48 +3989,89 @@
 
                     //reset button
                     $('#uri-reset').bind('click', function () {
-                        getAAM().reset('Main_Uri.reset', $(this));
+                        const _btn = $(this);
+
+                        $.ajax(`${getLocal().rest_base}aam/v2/service/url/reset`, {
+                            type: 'POST',
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
+                            },
+                            data: prepareRequestSubjectData(),
+                            dataType: 'json',
+                            beforeSend: function () {
+                                var label = _btn.text();
+                                _btn.attr('data-original-label', label);
+                                _btn.text(getAAM().__('Resetting...'));
+                            },
+                            success: function () {
+                                getAAM().fetchContent('main');
+                            },
+                            error: function () {
+                                getAAM().notification('danger');
+                            },
+                            complete: function () {
+                                _btn.text(_btn.attr('data-original-label'));
+                            }
+                        });
                     });
 
                     $('#uri-save-btn').bind('click', function (event) {
                         event.preventDefault();
 
-                        var uri  = $('#uri-rule').val();
-                        var original = $(this).attr('data-original-uri');
-                        var type = $('input[name="uri.access.type"]:checked').val();
-                        var val  = $('#uri-access-deny-' + type + '-value').val();
-                        var code = $('#uri-access-deny-redirect-code-value').val();
+                        const uri    = $('#uri-rule').val();
+                        const type   = $('input[name="uri.access.type"]:checked').val();
+                        const code   = $('#uri-access-deny-redirect-code-value').val();
 
                         if (uri && type) {
-                            $.ajax(getLocal().ajaxurl, {
+                            // Preparing the payload
+                            const payload = {
+                                url: uri,
+                                type: type
+                            }
+
+                            if (type === 'custom_message') {
+                                payload.message = $.trim(
+                                    $('#uri-access-custom_message-value').val()
+                                );
+                            } else if (type === 'page_redirect') {
+                                payload.redirect_page_id = parseInt(
+                                    $('#uri-access-page_redirect-value').val(), 10
+                                );
+                            } else if (type === 'url_redirect') {
+                                payload.redirect_url = $.trim(
+                                    $('#uri-access-url_redirect-value').val()
+                                );
+                            } else if (type === 'trigger_callback') {
+                                payload.callback = $.trim(
+                                    $('#uri-access-trigger_callback-value').val()
+                                );
+                            }
+
+                            if (code) {
+                                payload.http_redirect_code = parseInt(code, 10);
+                            }
+
+                            let endpoint = `${getLocal().rest_base}aam/v2/service/url`;
+
+                            if (editingRule !== null) {
+                                endpoint += '/' + editingRule[0];
+                            }
+
+                            $.ajax(endpoint, {
                                 type: 'POST',
                                 dataType: 'json',
-                                data: {
-                                    action: 'aam',
-                                    sub_action: 'Main_Uri.save',
-                                    _ajax_nonce: getLocal().nonce,
-                                    subject: getAAM().getSubject().type,
-                                    subjectId: getAAM().getSubject().id,
-                                    uri: uri,
-                                    edited_uri: original,
-                                    type: type,
-                                    value: val,
-                                    code: code
+                                data: prepareRequestSubjectData(payload),
+                                headers: {
+                                    'X-WP-Nonce': getLocal().rest_nonce,
                                 },
                                 beforeSend: function () {
                                     $('#uri-save-btn').text(
                                         getAAM().__('Saving...')
                                     ).attr('disabled', true);
                                 },
-                                success: function (response) {
-                                    if (response.status === 'success') {
-                                        $('#uri-list').DataTable().ajax.reload();
-                                        $('#aam-uri-overwrite').show();
-                                    } else {
-                                        getAAM().notification(
-                                            'danger', getAAM().__('Failed to save URI rule')
-                                        );
-                                    }
+                                success: function () {
+                                    $('#uri-list').DataTable().ajax.reload();
+                                    $('#aam-uri-overwrite').show();
                                 },
                                 error: function () {
                                     getAAM().notification('danger');
@@ -3976,31 +4087,23 @@
                     $('#uri-delete-btn').bind('click', function (event) {
                         event.preventDefault();
 
-                        $.ajax(getLocal().ajaxurl, {
+                        const id = $('#uri-delete-btn').attr('data-id');
+
+                        $.ajax(`${getLocal().rest_base}aam/v2/service/url/${id}`, {
                             type: 'POST',
                             dataType: 'json',
-                            data: {
-                                action: 'aam',
-                                sub_action: 'Main_Uri.delete',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id,
-                                uri: $('#uri-delete-btn').attr('data-uri')
+                            data: prepareRequestSubjectData(),
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce,
+                                'X-HTTP-Method-Override': 'DELETE'
                             },
                             beforeSend: function () {
                                 $('#uri-delete-btn').text(
                                     getAAM().__('Deleting...')
                                 ).attr('disabled', true);
                             },
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    $('#uri-list').DataTable().ajax.reload();
-                                } else {
-                                    getAAM().notification(
-                                        'danger',
-                                        getAAM().__('Failed to delete URI rule')
-                                    );
-                                }
+                            success: function () {
+                                $('#uri-list').DataTable().ajax.reload();
                             },
                             error: function () {
                                 getAAM().notification('danger');
@@ -4021,16 +4124,50 @@
                         stateSave: true,
                         serverSide: false,
                         ajax: {
-                            url: getLocal().ajaxurl,
-                            type: 'POST',
+                            url: `${getLocal().rest_base}aam/v2/service/url`,
+                            type: 'GET',
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
+                            },
+                            data: prepareRequestSubjectData(),
                             dataType: 'json',
-                            data: {
-                                action: 'aam',
-                                sub_action: 'Main_Uri.getTable',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id
-                            }
+                            dataSrc: function (json) {
+                                // Transform the received data into DT format
+                                const data = [];
+
+                                $.each(json, (_, rule) => {
+                                    const actions = ['edit'];
+
+                                    if (rule.is_inherited) {
+                                        actions.push('no-delete');
+                                    } else {
+                                        actions.push('delete');
+                                    }
+
+                                    let action = null;
+
+                                    if (rule.type === 'custom_message') {
+                                        action = rule.message;
+                                    } else if (rule.type === 'trigger_callback') {
+                                        action = rule.callback;
+                                    } else if (rule.type === 'url_redirect') {
+                                        action = rule.redirect_url;
+                                    } else if (rule.type === 'page_redirect') {
+                                        action = rule.redirect_page_id;
+                                    }
+
+                                    data.push([
+                                        rule.id,
+                                        rule.url,
+                                        rule.type,
+                                        action,
+                                        rule.http_redirect_code || null,
+                                        actions.join(',')
+                                    ]);
+                                });
+
+                                return data;
+                            },
                         },
                         language: {
                             search: '_INPUT_',
@@ -4039,7 +4176,7 @@
                             infoFiltered: ''
                         },
                         columnDefs: [
-                            { visible: false, targets: [2, 3] }
+                            { visible: false, targets: [0, 3, 4] }
                         ],
                         initComplete: function () {
                             var create = $('<a/>', {
@@ -4047,6 +4184,8 @@
                                 'class': 'btn btn-primary'
                             }).html('<i class="icon-plus"></i> ' + getAAM().__('Create'))
                                 .bind('click', function () {
+                                    editingRule = null;
+
                                     $('.form-clearable', '#uri-model').val('');
                                     $('.aam-uri-access-action').hide();
                                     $('#uri-save-btn').removeAttr('data-original-uri');
@@ -4057,7 +4196,7 @@
                             $('.dataTables_filter', '#uri-list_wrapper').append(create);
                         },
                         createdRow: function (row, data) {
-                            var actions = data[4].split(',');
+                            var actions = data[5].split(',');
 
                             var container = $('<div/>', { 'class': 'aam-row-actions' });
                             $.each(actions, function (i, action) {
@@ -4066,13 +4205,14 @@
                                         $(container).append($('<i/>', {
                                             'class': 'aam-row-action icon-pencil text-warning'
                                         }).bind('click', function () {
+                                            editingRule = data;
+
                                             $('.form-clearable', '#uri-model').val('');
                                             $('.aam-uri-access-action').hide();
-                                            $('#uri-rule').val(data[0]);
-                                            $('#uri-save-btn').attr('data-original-uri', data[0]);
-                                            $('input[value="' + data[1] + '"]', '#uri-model').prop('checked', true).trigger('click');
-                                            $('#uri-access-deny-' + data[1] + '-value').val(data[2]);
-                                            $('#uri-access-deny-redirect-code-value').val(data[3]);
+                                            $('#uri-rule').val(data[1]);
+                                            $('input[value="' + data[2] + '"]', '#uri-model').prop('checked', true).trigger('click');
+                                            $('#uri-access-' + data[2] + '-value').val(data[3]);
+                                            $('#uri-access-deny-redirect-code-value').val(data[4]);
                                             $('#uri-model').modal('show');
                                         }).attr({
                                             'data-toggle': "tooltip",
@@ -4093,7 +4233,7 @@
                                         $(container).append($('<i/>', {
                                             'class': 'aam-row-action icon-trash-empty text-danger'
                                         }).bind('click', function () {
-                                            $('#uri-delete-btn').attr('data-uri', data[0]);
+                                            $('#uri-delete-btn').attr('data-id', data[0]);
                                             $('#uri-delete-model').modal('show');
                                         }).attr({
                                             'data-toggle': "tooltip",
@@ -4118,21 +4258,21 @@
                             // Decorate the type of access
                             var type = $('<span/>');
 
-                            switch(data[1]) {
-                                case 'default':
-                                case 'message':
+                            switch(data[2]) {
+                                case 'deny':
+                                case 'custom_message':
                                     type.html(getAAM().__('Denied'));
                                     type.attr('class', 'badge danger');
                                     break;
 
-                                case 'login':
-                                case 'page':
-                                case 'url':
+                                case 'login_redirect':
+                                case 'page_redirect':
+                                case 'url_redirect':
                                     type.html(getAAM().__('Redirected'));
                                     type.attr('class', 'badge redirect');
                                     break;
 
-                                case 'callback':
+                                case 'trigger_callback':
                                     type.html(getAAM().__('Callback'));
                                     type.attr('class', 'badge callback');
                                     break;
@@ -4165,52 +4305,6 @@
 
             /**
              *
-             * @param {type} expires
-             * @returns {undefined}
-             */
-            function generateJWT(expires, refreshable) {
-                $.ajax(getLocal().ajaxurl, {
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        action: 'aam',
-                        sub_action: 'Main_Jwt.generate',
-                        _ajax_nonce: getLocal().nonce,
-                        subject: getAAM().getSubject().type,
-                        subjectId: getAAM().getSubject().id,
-                        expires: expires,
-                        refreshable: refreshable,
-                        register: false
-                    },
-                    beforeSend: function () {
-                        $('#jwt-token-preview').val(
-                            getAAM().__('Generating token...')
-                        );
-
-                        $('#jwt-url-preview').val(
-                            getAAM().__('Generating URL...')
-                        );
-                    },
-                    success: function (response) {
-                        if (response.status === 'success') {
-                            $('#jwt-token-preview').val(response.jwt);
-                            $('#jwt-url-preview').val(
-                                $('#jwt-url-preview').data('url').replace('%s', response.jwt)
-                            );
-                        } else {
-                            getAAM().notification(
-                                'danger', getAAM().__('Failed to generate JWT token')
-                            );
-                        }
-                    },
-                    error: function () {
-                        getAAM().notification('danger');
-                    }
-                });
-            }
-
-            /**
-             *
              */
             function initialize() {
                 var container = '#jwt-content';
@@ -4230,6 +4324,8 @@
                         sideBySide: true
                     });
 
+                    let jwtClaimsEditor;
+
                     $('#create-jwt-modal').on('show.bs.modal', function () {
                         try {
                             var tomorrow = new Date();
@@ -4238,25 +4334,29 @@
                                 tomorrow
                             );
                             $('#jwt-expires').val('');
+
+                            $('#aam-jwt-claims-editor').val('{\n  \n}')
+
+                            if (!$('#aam-jwt-claims-editor').next().hasClass('CodeMirror')) {
+                                jwtClaimsEditor = wp.CodeMirror.fromTextArea(
+                                    document.getElementById("aam-jwt-claims-editor"),
+                                    {
+                                        type: 'application/json'
+                                    }
+                                );
+                            }
                         } catch (e) {
                             // do nothing. Prevent from any kind of corrupted data
                         }
                     });
 
                     $('#jwt-expiration-datapicker').on('dp.change', function (res) {
-                        $('#jwt-expires').val(res.date.unix());
-                        generateJWT(
-                            $('#jwt-expires').val(),
-                            $('#jwt-refreshable').is(':checked')
-                        );
+                        $('#jwt-expires').val(res.date.toISOString());
                     });
 
-                    $('#jwt-refreshable').on('change', function () {
-                        generateJWT(
-                            $('#jwt-expires').val(),
-                            $('#jwt-refreshable').is(':checked')
-                        );
-                    });
+                    // Prepare the URL endpoint
+                    let url  = `${getLocal().rest_base}aam/v2/service/jwt`;
+                        url += `?user_id=${getAAM().getSubject().id}&fields=claims,token,id,signed_url,is_valid`;
 
                     $('#jwt-list').DataTable({
                         autoWidth: false,
@@ -4267,15 +4367,36 @@
                         stateSave: false,
                         serverSide: false,
                         ajax: {
-                            url: getLocal().ajaxurl,
-                            type: 'POST',
+                            url,
+                            type: 'GET',
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
+                            },
                             dataType: 'json',
-                            data: {
-                                action: 'aam',
-                                sub_action: 'Main_Jwt.getTable',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id
+                            dataSrc: function (tokens) {
+                                // Transform the received data into DT format
+                                const data = [];
+
+                                $.each(tokens, (_, token) => {
+                                    let details;
+
+                                    if (token.is_valid) {
+                                        details = 'Expires On: ' + (new Date(token.claims.exp * 1000)).toDateString()
+                                    } else {
+                                        details = 'Token is no longer valid';
+                                    }
+
+                                    data.push([
+                                        token.id,
+                                        token.token,
+                                        token.signed_url,
+                                        token.is_valid,
+                                        details,
+                                        'view,delete'
+                                    ]);
+                                });
+
+                                return data;
                             }
                         },
                         language: {
@@ -4288,8 +4409,8 @@
                             lengthMenu: '_MENU_'
                         },
                         columnDefs: [
-                            { visible: false, targets: [0, 1] },
-                            { orderable: false, targets: [0, 1, 2, 4] }
+                            { visible: false, targets: [0, 1, 2] },
+                            { orderable: false, targets: [0, 1, 2, 3, 5] }
                         ],
                         initComplete: function () {
                             var create = $('<a/>', {
@@ -4304,7 +4425,7 @@
                         },
                         createdRow: function (row, data) {
                             // Render status
-                            if (data[2] === true) {
+                            if (data[3] === true) {
                                 $('td:eq(0)', row).html(
                                     '<i class="icon-ok-circled text-success"></i>'
                                 );
@@ -4314,7 +4435,12 @@
                                 );
                             }
 
-                            var actions = data[4].split(',');
+                            // Token details
+                            $('td:eq(1)', row).html(
+                                data[0] + '<br/><small>' + data[4] + '</small>'
+                            )
+
+                            var actions = data[5].split(',');
 
                             var container = $('<div/>', { 'class': 'aam-row-actions' });
                             $.each(actions, function (i, action) {
@@ -4335,8 +4461,8 @@
                                         $(container).append($('<i/>', {
                                             'class': 'aam-row-action icon-eye text-success'
                                         }).bind('click', function () {
-                                            $('#view-jwt-token').val(data[0]);
-                                            $('#view-jwt-url').val(data[1]);
+                                            $('#view-jwt-token').val(data[1]);
+                                            $('#view-jwt-url').val(data[2]);
                                             $('#view-jwt-modal').modal('show');
                                         }).attr({
                                             'data-toggle': "tooltip",
@@ -4353,27 +4479,40 @@
                     });
 
                     $('#create-jwt-btn').bind('click', function () {
-                        $.ajax(getLocal().ajaxurl, {
+                        // Preparing the payload
+                        const payload = {
+                            user_id: getAAM().getSubject().id,
+                            is_refreshable: $('#jwt-refreshable').is(':checked'),
+                            expires_at: $('#jwt-expires').val()
+                        }
+
+                        try {
+                            const claims = JSON.parse(jwtClaimsEditor.getValue());
+
+                            if (Object.keys(claims).length > 0) {
+                                payload.additional_claims = claims;
+                            }
+                        } catch (e) {
+                            console.log(e);
+                        }
+
+                        $.ajax(`${getLocal().rest_base}aam/v2/service/jwt?fields=token,signed_url`, {
                             type: 'POST',
                             dataType: 'json',
-                            data: {
-                                action: 'aam',
-                                sub_action: 'Main_Jwt.save',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id,
-                                token: $('#jwt-token-preview').val()
+                            data: payload,
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce
                             },
                             beforeSend: function () {
                                 $('#create-jwt-btn').html(getAAM().__('Creating...'));
                             },
                             success: function (response) {
-                                if (response.status === 'success') {
-                                    $('#create-jwt-modal').modal('hide');
-                                    $('#jwt-list').DataTable().ajax.reload();
-                                } else {
-                                    getAAM().notification('danger', response.reason);
-                                }
+                                $('#create-jwt-modal').modal('hide');
+                                $('#jwt-list').DataTable().ajax.reload();
+
+                                $('#view-jwt-token').val(response.token);
+                                $('#view-jwt-url').val(response.signed_url);
+                                $('#view-jwt-modal').modal('show');
                             },
                             error: function () {
                                 getAAM().notification('danger');
@@ -4385,27 +4524,22 @@
                     });
 
                     $('#jwt-delete-btn').bind('click', function () {
-                        $.ajax(getLocal().ajaxurl, {
+                        $.ajax(`${getLocal().rest_base}aam/v2/service/jwt/${$('#jwt-delete-btn').attr('data-id')}`, {
                             type: 'POST',
                             dataType: 'json',
                             data: {
-                                action: 'aam',
-                                sub_action: 'Main_Jwt.delete',
-                                _ajax_nonce: getLocal().nonce,
-                                subject: getAAM().getSubject().type,
-                                subjectId: getAAM().getSubject().id,
-                                token: $('#jwt-delete-btn').attr('data-id')
+                                user_id: getAAM().getSubject().id
+                            },
+                            headers: {
+                                'X-WP-Nonce': getLocal().rest_nonce,
+                                'X-HTTP-Method-Override': 'DELETE'
                             },
                             beforeSend: function () {
                                 $('#jwt-delete-btn').html(getAAM().__('Deleting...'));
                             },
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    $('#delete-jwt-modal').modal('hide');
-                                    $('#jwt-list').DataTable().ajax.reload();
-                                } else {
-                                    getAAM().notification('danger', response.reason);
-                                }
+                            success: function () {
+                                $('#delete-jwt-modal').modal('hide');
+                                $('#jwt-list').DataTable().ajax.reload();
                             },
                             error: function () {
                                 getAAM().notification('danger');

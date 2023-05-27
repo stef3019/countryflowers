@@ -2,7 +2,7 @@
 /**
  * @author    ThemePunch <info@themepunch.com>
  * @link      https://www.themepunch.com/
- * @copyright 2019 ThemePunch
+ * @copyright 2022 ThemePunch
  */
 
 if(!defined('ABSPATH')) exit();
@@ -51,6 +51,7 @@ class RevSliderAddons extends RevSliderFunctions { //before: Rev_addon_Admin
 	 * get all the addons with information
 	 **/
 	public function get_addon_list(){
+
 		$addons	= get_option('revslider-addons');
 		$addons	= (array)$addons;
 		$addons = array_reverse($addons, true);
@@ -97,10 +98,11 @@ class RevSliderAddons extends RevSliderFunctions { //before: Rev_addon_Admin
 				
 				$version = $this->get_val($this->addon_version_required, $handle, false);
 				if($version !== false && version_compare($installed, $version, '<')){
+					$available = (version_compare($version, $this->get_val($addon, 'available'), '>')) ? $version : $this->get_val($addon, 'available');
 					$update[$handle] = array(
 						'title' => $this->get_val($addon, 'full_title'),
 						'old'	=> $installed,
-						'new'	=> $this->get_val($addon, 'available'),
+						'new'	=> $available,
 						'status'=> '1' //1 is mandatory to use it
 					);
 				}

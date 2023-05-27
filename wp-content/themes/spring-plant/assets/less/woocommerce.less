@@ -815,6 +815,9 @@ a.compare {
 			content: '\f08a';
 			font-size: 18px;
 		}
+		i {
+			display: none;
+		}
 	}
 	.yith-wcwl-wishlistaddedbrowse a,
 	.yith-wcwl-wishlistexistsbrowse a {
@@ -2780,6 +2783,9 @@ a.compare {
 					position: relative;
 					top: 2px;
 				}
+				i {
+					display: none;
+				}
 			}
 			&.show {
 				display: inline-block !important;
@@ -4079,7 +4085,6 @@ body {
 	.wishlist-title h2 {
 		font-size: 34px;
 		margin-top: 0;
-		margin-bottom: 40px;
 	}
 	tbody {
 		th, td {
@@ -4147,7 +4152,9 @@ body {
 		}
 		.product-add-to-cart {
 			> a {
-				padding: 11.5px 20px;
+				//padding: 11.5px 20px;
+				display: inline-block !important;
+				margin: 0 !important;
 				&:before {
 					display: none;
 				}
@@ -4166,6 +4173,16 @@ body {
 			ul {
 				display: inline-block;
 			}
+		}
+	}
+}
+
+.yith_wcwl_wishlist_footer {
+	.yith-wcwl-share {
+		margin-bottom: 0;
+		ul {
+			padding: 0;
+			display: inline-block;
 		}
 	}
 }

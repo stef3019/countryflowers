@@ -42,7 +42,7 @@ if (!isset($post_inner_class)) {
 }
 
 if (!isset($image_size)) {
-    $image_size = 'shop_catalog';
+    $image_size = 'woocommerce_thumbnail';
 }
 
 if (!isset($placeholder_enable)) {

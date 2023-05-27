@@ -2,7 +2,7 @@
 /**
  * @author    ThemePunch <info@themepunch.com>
  * @link      https://www.themepunch.com/
- * @copyright 2019 ThemePunch
+ * @copyright 2022 ThemePunch
  */
 
 if(!defined('ABSPATH')) exit();
@@ -33,7 +33,7 @@ class RevSliderElementorWidget extends \Elementor\Widget_Shortcode {
 		
 	}
 
-	protected function _register_controls() {
+	public function rs_register_controls() {
 		
 		/*Fallback
 		$shortcode = $this->get_settings_for_display( 'text' );
@@ -132,8 +132,15 @@ class RevSliderElementorWidget extends \Elementor\Widget_Shortcode {
 		$this->end_controls_section();	
 	}
 
+	protected function register_controls() {
+		$this->rs_register_controls();
+	}
+
 	protected function render() {
+		global $rs_loaded_by_editor;
 		
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) $rs_loaded_by_editor = true;
+
 		$shortcode = $this->get_settings_for_display( 'shortcode' );
 		$wrapperid = $this->get_settings_for_display( 'wrapperid' );
 		$wrapperid = empty($wrapperid) ? '': 'id="' . $wrapperid . '" ';
@@ -142,16 +149,10 @@ class RevSliderElementorWidget extends \Elementor\Widget_Shortcode {
 		$zindex = $this->get_settings_for_display( 'zindex' );
 		$style = $zindex ? ' style="z-index:'.$zindex.';"' : '';
 
-		/*if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
-			//EDIT
-		} else {
-			//FRONTEND
-		}*/
-
 		// hack to make sure object library only opens when the user manually adds a slider to the page
 		if(empty($shortcode)) {
 		?>
-		<script type="text/javascript">window.parent.elementorSelectRevSlider();</script>
+		<script>window.parent.elementorSelectRevSlider();</script>
 		<?php
 		}
 		?>
@@ -159,7 +160,17 @@ class RevSliderElementorWidget extends \Elementor\Widget_Shortcode {
 		<div <?php echo $wrapperid; ?>class="wp-block-themepunch-revslider"<?php echo $style;?>><?php echo $shortcode; ?></div>
 
 		<?php
+
+		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) $rs_loaded_by_editor = false;
 	}
 	
+}
 
+/**
+ * function _register_controls() is deprecated since 3.1.0 of Elementor
+ **/
+class RevSliderElementorWidgetPre310 extends RevSliderElementorWidget {
+	protected function _register_controls() {
+		$this->rs_register_controls();
+	}
 }

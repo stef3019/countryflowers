@@ -259,11 +259,11 @@
 .xmenu-section-item.active {
 	display: block;
 }
-span.item-title {
+.item-title {
 	position: relative;
 }
 
-span.item-title .xmenu-item-config {
+.item-title .xmenu-item-config {
 	position: absolute;
 	background: #222;
 	left: 100%;
@@ -284,20 +284,20 @@ span.item-title .xmenu-item-config {
 	-o-transition:      opacity 0.2s;
 	transition:         opacity 0.2s;
 }
-span.item-title .xmenu-item-config > i {
+.item-title .xmenu-item-config > i {
 	color: #f8af1c;
 }
 
 ul.menu > li.menu-item:hover .xmenu-item-config {
 	opacity: 1;
 }
-span.item-title .xmenu-item-config.is-changed {
+.item-title .xmenu-item-config.is-changed {
 	opacity: 1;
 }
-span.item-title .xmenu-item-config > i.fa-warning {
+.item-title .xmenu-item-config > i.fa-warning {
 	display: none;
 }
-span.item-title .xmenu-item-config.is-change > i.fa-warning{
+.item-title .xmenu-item-config.is-change > i.fa-warning{
 	display: inline-block;
 }
 /******************************/

@@ -18,6 +18,22 @@
 		}
 	}
 }
+.widgettitle {
+	font-size: 24px;
+	font-family: @primary_font;
+	&:extend(.heading-color);
+	font-weight: 400;
+	margin: 0 0 20px 0;
+}
+.widget_block .wp-block-group__inner-container > h2 {
+	font-size: 24px;
+	margin-bottom: 57px !important;
+	font-family: @primary_font;
+	margin-top: 0;
+	&:extend(.heading-color);
+	font-weight: 400;
+}
+
 
 .widget-title {
 	position: relative;
@@ -157,6 +173,7 @@ footer {
 * Search Form
 * ----------------------------------------------------------------------------
 */
+.wp-block-search .wp-block-search__input,
 input[type="search"].search-field {
 	font-size: 15px;
 	height: 45px;

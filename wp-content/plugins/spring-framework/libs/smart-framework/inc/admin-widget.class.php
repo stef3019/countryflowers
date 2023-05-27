@@ -37,6 +37,21 @@ if (!class_exists('GSF_Inc_Admin_Widget')) {
 
 			wp_enqueue_script(GSF()->assetsHandle('fields'));
 			wp_enqueue_script(GSF()->assetsHandle('widget'));
+
+			wp_enqueue_script(GSF()->assetsHandle('media'));
+			wp_enqueue_script(GSF()->assetsHandle('field_image'), GSF()->helper()->getAssetUrl('fields/image/assets/image.min.js'), array(), GSF()->pluginVer(), true);
+			wp_enqueue_style(GSF()->assetsHandle('field_image'), GSF()->helper()->getAssetUrl('fields/image/assets/image.min.css'), array(), GSF()->pluginVer());
+
+			wp_enqueue_style('selectize');
+			wp_enqueue_style('selectize-default');
+			wp_enqueue_script('selectize');
+
+			wp_enqueue_script(GSF()->assetsHandle('field_selectize'), GSF()->helper()->getAssetUrl('fields/selectize/assets/selectize.min.js'), array(), GSF()->pluginVer(), true);
+
+			wp_enqueue_script(GSF()->assetsHandle('media'));
+			wp_enqueue_script(GSF()->assetsHandle('field_gallery'), GSF()->helper()->getAssetUrl('fields/gallery/assets/gallery.min.js'), array(), GSF()->pluginVer(), true);
+			wp_enqueue_style(GSF()->assetsHandle('field_gallery'), GSF()->helper()->getAssetUrl('fields/gallery/assets/gallery.min.css'), array(), GSF()->pluginVer());
+
 			wp_localize_script(GSF()->assetsHandle('fields'), 'GSF_META_DATA', array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'nonce'   => GSF()->helper()->getNonceValue(),
