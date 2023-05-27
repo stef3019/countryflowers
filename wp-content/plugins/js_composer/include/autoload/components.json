@@ -17,6 +17,7 @@
   "vendors/wpml.php": "",
   "vendors/rankmath-seo.php": "",
   "vendors/gutenberg.php": "",
+  "vendors/wordpress-com.php": "",
   "hook-vc-grid.php": "Logic for shortcode vc_grid",
   "hook-vc-iconpicker-param.php": "Logic for shortcode param iconpicker",
   "hook-vc-message.php": "Logic for shortcode vc_message",
@@ -38,8 +39,8 @@
   "vc-settings-presets.php": "Logic for settings presets",
   "vc-single-image.php": "add bc for single image",
   "params-to-init.php": "add required init params",
-  "bc-access-rules-4.8.php": "BC for roles via filters >= VC 4.8",
   "post-type-default-template.php": "Load default templates",
   "bc-multisite-options.php": "BC for multisite options",
-  "vc-undoredo.php": "Undo Redo logic"
+  "vc-undoredo.php": "Undo Redo logic",
+  "local-fonts/class-local-fonts.php": "Local Google fonts"
 }

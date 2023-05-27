@@ -22,7 +22,7 @@
 $product_item_skin = isset($product_item_skin) ? $product_item_skin : Spring_Plant()->options()->get_product_item_skin();
 $product_layout = isset($post_layout) ? $post_layout : Spring_Plant()->options()->get_product_catalog_layout();
 if (!isset($image_size)) {
-	$image_size = 'shop_catalog';
+	$image_size = 'woocommerce_thumbnail';
 }
 if(!in_array($product_layout, array('grid', 'list'))) {
 	$product_item_skin = '';

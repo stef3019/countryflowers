@@ -19,7 +19,7 @@ class pisol_css_js_manager_other_plugins{
         $this->plugin_name = $plugin_name;
 
         
-        $this->tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_STRING );
+        $this->tab = filter_input( INPUT_GET, 'tab');
         $this->active_tab = $this->tab != "" ? $this->tab : 'default';
 
         $this->settings = array(

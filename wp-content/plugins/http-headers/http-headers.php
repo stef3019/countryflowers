@@ -3,7 +3,7 @@
 Plugin Name: HTTP Headers
 Plugin URI: https://github.com/riverside/http-headers
 Description: A plugin for HTTP headers management including security, access-control (CORS), caching, compression, and authentication.
-Version: 1.18.7
+Version: 1.18.9
 Author: Dimitar Ivanov
 Author URI: https://github.com/riverside
 License: GPLv2 or later
@@ -784,6 +784,10 @@ function http_headers_option($option) {
     if (isset($_POST['hh_method']))
     {
         check_admin_referer('http-headers-mtd-options');
+        if (!is_super_admin()) {
+            wp_redirect(sprintf("%soptions-general.php?page=http-headers&tab=advanced&status=ERR&code=102", get_admin_url()));
+            exit;
+        }
 	# When method is changed
         http_headers_activate();
 	
@@ -1513,6 +1517,10 @@ function http_headers_ajax_inspect() {
 
 function http_headers_post_import() {
     check_admin_referer('import');
+    if (!is_super_admin()) {
+        wp_redirect(sprintf("%soptions-general.php?page=http-headers&tab=advanced&status=ERR&code=102", get_admin_url()));
+        exit;
+    }
     global $wpdb;
     if (!(isset($_FILES['file']['tmp_name'])
         && is_uploaded_file($_FILES['file']['tmp_name'])
@@ -1540,6 +1548,10 @@ function http_headers_post_import() {
 
 function http_headers_post_export() {
     check_admin_referer('export');
+    if (!is_super_admin()) {
+        wp_redirect(sprintf("%soptions-general.php?page=http-headers&tab=advanced&status=ERR&code=102", get_admin_url()));
+        exit;
+    }
     global $wpdb;
     $options = include dirname(__FILE__) . '/views/includes/options.inc.php';
     $opts = array();

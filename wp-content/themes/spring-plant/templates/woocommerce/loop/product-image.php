@@ -92,7 +92,7 @@ if ($product->get_type() == 'variable') {
             }
             $image_link  	= wp_get_attachment_url( $image_id );
             $image_thumb = wp_get_attachment_image_src($image_id);
-            $image       	= wp_get_attachment_image( $image_id, apply_filters( 'single_product_large_thumbnail_size', 'shop_single' ), array(
+            $image       	= wp_get_attachment_image( $image_id, apply_filters( 'single_product_large_thumbnail_size', 'woocommerce_single' ), array(
                 'title'	=> $image_title,
                 'alt'	=> $image_title
             ) );
@@ -125,7 +125,7 @@ if ($product->get_type() == 'variable') {
                 $image_caption 	= $image_obj->post_excerpt;
             }
 
-            $large_img = wp_get_attachment_image_src($image_id, 'shop_single');
+            $large_img = wp_get_attachment_image_src($image_id, 'woocommerce_single');
             if(!empty($large_img) && !empty($large_img[0])) {
                 $large_img = $large_img[0];
             } else {

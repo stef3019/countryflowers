@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) )
 /**
  * Cookie Notice Modules Elementor class.
  *
+ * Compatibility since: 1.3.0
+ *
  * @class Cookie_Notice_Modules_Elementor
  */
 class Cookie_Notice_Modules_Elementor {

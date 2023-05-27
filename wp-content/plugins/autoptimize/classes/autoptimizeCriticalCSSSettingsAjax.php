@@ -8,6 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class autoptimizeCriticalCSSSettingsAjax {
+    /**
+     * Critical CSS object.
+     *
+     * @var object
+     */
+    protected $criticalcss;
+    
     public function __construct() {
         $this->criticalcss = autoptimize()->criticalcss();
         $this->run();
@@ -375,7 +382,7 @@ class autoptimizeCriticalCSSSettingsAjax {
                         if ( false === array_key_exists( 'ccss', $settings ) || false === array_key_exists( $ccss_setting, $settings['ccss'] ) ) {
                             continue;
                         } else {
-                            update_option( 'autoptimize_ccss_' . $ccss_setting, $settings['ccss'][ $ccss_setting ] );
+                            update_option( 'autoptimize_ccss_' . $ccss_setting, autoptimizeUtils::strip_tags_array( $settings['ccss'][ $ccss_setting ] ) );
                         }
                     }
 

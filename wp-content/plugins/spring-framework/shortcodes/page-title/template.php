@@ -44,7 +44,7 @@ CSS;
 $heading_class = array($page_title_class, $attributes[2]);
 if('on' !== $use_theme_fonts) {
     if(empty($typography)) {
-        $font = GSF()->core()->fonts()->getActiveFonts()[0];
+        $font = GSF_Core_Fonts::getInstance()->getActiveFonts()[0];
         $font_family = $font_variant = $font_weight = $font_style = '';
         $font_family = isset($font['name']) ? $font['name'] : $font['family'];
         $font_variant = isset($font['variants'][0]) ? $font['variants'][0] : '400';

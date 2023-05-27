@@ -29,17 +29,12 @@ if (!is_a($product, 'WC_Product')) {
 }
 
 if (has_post_thumbnail()) {
-
 	$product_images[$index] = array(
 		'image_id' => get_post_thumbnail_id()
 	);
 	$image_ids[$index] = get_post_thumbnail_id();
 	$index++;
 }
-
-
-
-
 
 // Additional Images
 $attachment_ids = $product->get_gallery_image_ids();
@@ -130,7 +125,7 @@ if(wc_notice_count()) {
 					}
 
 					$image_link = wp_get_attachment_url($image_id);
-					$image = wp_get_attachment_image($image_id, apply_filters('single_product_large_thumbnail_size', 'shop_single'), array(
+					$image = wp_get_attachment_image($image_id, apply_filters('single_product_large_thumbnail_size', 'woocommerce_single'), array(
 						'title' => $image_title,
 						'alt'   => $image_title
 					));

@@ -730,7 +730,6 @@ if (!class_exists('G5P_Inc_Options')) {
                     array (
                         'facebook' => 'facebook',
                         'twitter' => 'twitter',
-                        'google' => 'google',
                         'linkedin' => 'linkedin',
                         'tumblr' => 'tumblr',
                         'pinterest' => 'pinterest',

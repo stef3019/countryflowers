@@ -18,7 +18,7 @@ if (!isset($post_inner_class)) {
 	$post_inner_class = Spring_Plant()->woocommerce()->get_product_inner_class();
 }
 if (!isset($image_size)) {
-	$image_size = 'shop_catalog';
+	$image_size = 'woocommerce_thumbnail';
 }
 if (!isset($placeholder_enable)) {
 	$placeholder_enable = true;

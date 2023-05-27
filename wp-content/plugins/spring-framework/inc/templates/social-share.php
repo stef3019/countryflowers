@@ -13,6 +13,7 @@ if(!isset($share_title)) {
 }
 $social_share = G5P()->options()->get_social_share();
 unset($social_share['sort_order']);
+unset($social_share['google']);
 if (count($social_share) === 0) return;
 $wrapper_classes = array(
     'gf-social-icon',
@@ -57,42 +58,37 @@ $wrapper_class = implode(' ', array_filter($wrapper_classes));
                     if ($twitter_author_username !== '') {
                         $by = "@{$twitter_author_username}";
                     }
-                    $link  = "javascript: window.open('//twitter.com/share?text=" . $page_title . $by . "&url=" . $page_permalink . "','_blank', 'width=900, height=450');";
+	                $link  = "https://twitter.com/share?text=" . $page_title . $by . "&url=" . urlencode($page_permalink) . "";
                     $icon = 'fa fa-twitter';
                     $title = esc_html__('Twitter', 'spring-framework');
                     break;
-                case 'google':
-                    $link  = "javascript: window.open('//plus.google.com/share?url=" . $page_permalink . "','_blank', 'width=500, height=450');";
-                    $icon = 'fa fa-google-plus';
-                    $title = esc_html__('Google', 'spring-framework');
-                    break;
                 case 'linkedin':
-                    $link  = "javascript: window.open('//www.linkedin.com/shareArticle?mini=true&url=" . $page_permalink . "&title=" . $page_title . "','_blank', 'width=500, height=450');";
+	                $link = "http://www.linkedin.com/shareArticle?mini=true&url=" . urlencode($page_permalink) . "&title=" . $page_title;
                     $icon = 'fa fa-linkedin';
                     $title = esc_html__('LinkedIn', 'spring-framework');
                     break;
                 case 'tumblr':
-                    $link  = "javascript: window.open('//www.tumblr.com/share/link?url=" . $page_permalink . "&name=" . $page_title . "','_blank', 'width=500, height=450');";
+	                $link = "http://www.tumblr.com/share/link?url=" . urlencode($page_permalink) . "&name=" . $page_title;
                     $icon = 'fa fa-tumblr';
                     $title = esc_html__('Tumblr', 'spring-framework');
                     break;
                 case 'pinterest':
                     $_img_src = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
-                    $link     = "javascript: window.open('//pinterest.com/pin/create/button/?url=" . $page_permalink . '&media=' . (($_img_src === false) ? '' :  $_img_src[0]) . "&description=" . $page_title . "','_blank', 'width=900, height=450');";
+	                $link = "http://pinterest.com/pin/create/button/?url=" . urlencode($page_permalink) . '&media=' . (($_img_src === false) ? '' :  $_img_src[0]) . "&description=" . $page_title;
                     $icon = 'fa fa-pinterest';
                     $title = esc_html__('Pinterest', 'spring-framework');
                     break;
                 case 'email':
-                    $link  = "mailto:?subject=" . $page_title . "&body=" . esc_url( $page_permalink );
+	                $link  = "mailto:?subject=" . $page_title . "&body=" . esc_url( $page_permalink );
                     $icon = 'fa fa-envelope';
                     $title = esc_html__('Email', 'spring-framework');
                     break;
                 case 'telegram':
-                    $link  = "javascript: window.open('https://telegram.me/share/url?url=" . esc_url( $page_permalink ) . "&text=" . $page_title . "','_blank', 'width=900, height=450');";
+	                $link = "https://telegram.me/share/url?url=" . esc_url( $page_permalink ) . "&text=" . $page_title;
                     $icon = 'fa fa-send';
                     break;
                 case 'whatsapp':
-                    $link  = "whatsapp://send?text=" . esc_attr( $page_title . "  \n\n" . esc_url( $page_permalink ) );
+	                $link  = "https://api.whatsapp.com/send?text=" . esc_attr( $page_title . "  \n\n" . esc_url( $page_permalink ) );
                     $icon = 'fa fa-whatsapp';
                     $title = esc_html__('Whats App', 'spring-framework');
                     break;

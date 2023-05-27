@@ -2,7 +2,7 @@
 /**
  * @author    ThemePunch <info@themepunch.com>
  * @link      https://www.themepunch.com/
- * @copyright 2019 ThemePunch
+ * @copyright 2022 ThemePunch
  */
 
 if(!defined('ABSPATH')) exit();
@@ -11,6 +11,7 @@ if(!defined('ABSPATH')) exit();
 $system_config	= $rsaf->get_system_requirements();
 $current_user	= wp_get_current_user();
 $revslider_valid = get_option('revslider-valid', 'false');
+$show_trustpilot = $rsaf->_truefalse(get_option('revslider-trustpilot', 'true'));
 $latest_version	= get_option('revslider-latest-version', RS_REVISION);
 $stable_version	= get_option('revslider-stable-version', '4.2');
 $latest_version	= ($revslider_valid !== 'true' && version_compare($latest_version, $stable_version, '<')) ? $stable_version : $latest_version;
@@ -55,8 +56,8 @@ $rs_languages	= $rsaf->get_available_languages();
 		<h2 id="rs_welcome_h2" class="title"><?php echo $hi; echo $current_user->display_name; echo '!'; ?></h2>
 		<h3 id="rs_welcome_h3" class="subtitle"><?php _e('You are running Slider Revolution ', 'revslider'); echo RS_REVISION; ?></h3>
 		<?php if ($selling === true) { ?>	
-			<a href="https://account.sliderrevolution.com/portal/" target="_blank" id="rs_memarea_registered" class="basic_action_button longbutton basic_action_lilabutton"><i class="material-icons">person_outline</i><?php _e('Members Area', 'revslider');?></a>
-			<!-- <a href="https://account.sliderrevolution.com/portal/" target="_blank" id="rs_memarea"></a>					  -->
+			<a href="https://account.sliderrevolution.com/portal/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=members" target="_blank" rel="noopener" id="rs_memarea_registered" class="basic_action_button longbutton basic_action_lilabutton"><i class="material-icons">person_outline</i><?php _e('Members Area', 'revslider');?></a>
+			<!-- <a href="https://account.sliderrevolution.com/portal/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=members" target="_blank" rel="noopener" id="rs_memarea"></a>					  -->
 		<?php } ?>		
 	</div>
 
@@ -115,9 +116,10 @@ $rs_languages	= $rsaf->get_available_languages();
 				<div id="syscheck_memory_limit" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Memory Limit (256M)', 'revslider');?></div>
 				<div id="syscheck_upload_max_filesize" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Upload Max. Filesize (256M)', 'revslider');?></div>
 				<div id="syscheck_post_max_size" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Max. Post Size (256M)', 'revslider');?></div>
-				<div id="syscheck_server_connect" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('ThemePunch Server', 'revslider');?><darkiconbox id="check_for_themepunchserver" class="rfloated"><i class="material-icons">refresh</i></darkiconbox></div>
+				<div id="syscheck_max_allowed_packet" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Max. Allowed Package (16M)', 'revslider');?></div>
+				<div id="syscheck_zlib_enabled" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Zlib Library', 'revslider');?></div>
 				<div id="syscheck_object_library_writable" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('Object Library', 'revslider');?></div>
-
+				<div id="syscheck_server_connect" class="system_requirement"><i class="material-icons done_icon">done</i><i class="material-icons warning_icon">warning</i><?php _e('ThemePunch Server', 'revslider');?><darkiconbox id="check_for_themepunchserver" class="rfloated"><i class="material-icons">refresh</i></darkiconbox><darkiconbox id="faq_to_systemrequirements" class="rfloated"><a href="https://www.sliderrevolution.com/documentation/system-requirements/" target="_blank" rel="noopener"><i class="material-icons">question_mark</i></a></darkiconbox></div>
 			</div>
 		</div>
 		<!-- PLUGIN HISTORY -->
@@ -127,7 +129,14 @@ $rs_languages	= $rsaf->get_available_languages();
 		</div>
 	</div>
 
-	<div class="div150"></div>
+	<div class="div100"></div>
+	<!--Show Trustpilot Message-->	
+	<div id="register_trustpilot_wrap" data-state="<?php echo ($show_trustpilot) ? '' : 'closed'; ?>">
+		<div class="pli_left"><a id="trustpilotlink" class="purplesmallbutton" href="https://www.trustpilot.com/evaluate/sliderrevolution.com" target="_blank" rel="noopener"><?php _e('Review us on', 'revslider');?><span class="rs_trustpilot_bg"></span></a></div>
+		<div class="pli_right"><h3 class="pli_title"><?php _e('Thank you for using Slider Revolution!', 'revslider');?><span class="thicon"></span></h3></div>
+		<div id="trust_closer"><i class="material-icons">close</i></div>
+	</div>
+
 	<!-- PLUGIN INFORMATIONS -->	
 	<div id="plugin_activation_row" class="plugin_inforow">
 		<!-- PLUGIN UPDATE -->
@@ -136,7 +145,7 @@ $rs_languages	= $rsaf->get_available_languages();
 			<row>
 
 				<onehalf style="padding-right:5px"><div id="activated_ornot_box" class="box_with_icon"><i class="material-icons">done</i><?php _e('Registered', 'revslider');?></div></onehalf>
-				<onehalf style="padding-left:5px"><a target="_blank" href="<?php echo ($selling === true) ? 'https://www.sliderrevolution.com/faq/where-to-find-purchase-code/' : 'https://themepunch.com/faq/where-to-find-the-purchase-code/'; ?>" class="box_with_icon"><i class="material-icons">vpn_key</i><?php echo ($selling === true) ? __('Find My Key', 'revslider') : __('Find My Code', 'revslider');?></a></onehalf>
+				<onehalf style="padding-left:5px"><a target="_blank" rel="noopener" href="<?php echo ($selling === true) ? 'https://www.sliderrevolution.com/faq/where-to-find-purchase-code/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=findkey' : 'https://themepunch.com/faq/where-to-find-the-purchase-code/'; ?>" class="box_with_icon"><i class="material-icons">vpn_key</i><?php echo ($selling === true) ? __('Find My Key', 'revslider') : __('Find My Code', 'revslider');?></a></onehalf>
 			</row>
 			<div class="div10"></div>
 			<div id="purchasekey_wrap" class="activated">
@@ -154,16 +163,16 @@ $rs_languages	= $rsaf->get_available_languages();
 				<div class="simpletext"><?php _e('If you want to use Slider Revolution on another domain, you need to use a different license key.', 'revslider');?></div>
 				<?php } ?>
 				<div class="div25"></div>
-				<a class="lilabuybutton" href="https://account.sliderrevolution.com/portal/pricing/" target="_blank"><?php _e('Buy License Key', 'revslider');?></a>
+				<a class="lilabuybutton" href="https://account.sliderrevolution.com/portal/pricing/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=buykey" target="_blank" rel="noopener"><?php _e('Buy License Key', 'revslider');?></a>
 			</div>
 			<div class="div25"></div>
 			<div class="infobox">
 				<div class="whitetitle" style="display:inline-block"><?php _e('Manage Your Licenses', 'revslider');?></div><div class="rs_new"><?php _e('NEW', 'revslider');?></div>			
 				<div class="simpletext"><?php _e('Switch license key registrations, download plugins and get discounts!', 'revslider');?></div>				
 				<div class="div25"></div>
-				<a class="lilabuybutton" href="https://account.sliderrevolution.com/portal" target="_blank"><?php _e('Go To My Dashboard', 'revslider');?></a>
+				<a class="lilabuybutton" href="https://account.sliderrevolution.com/portal/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=members" target="_blank" rel="noopener"><?php _e('Go To My Dashboard', 'revslider');?></a>
 				<div class="div10"></div>
-				<a class="simpletext smalllink" target="_blank" href="https://www.sliderrevolution.com/get-on-board-the-slider-revolution-dashboard/" ><?php _e('I don‘t have a login. How to get access?', 'revslider');?></a>
+				<a class="simpletext smalllink" target="_blank" rel="noopener" href="https://www.sliderrevolution.com/get-on-board-the-slider-revolution-dashboard/?utm_source=admin&utm_medium=button&utm_campaign=srusers&utm_content=signup" ><?php _e('I don‘t have a login. How to get access?', 'revslider');?></a>
 			</div>
 		</div>
 		<!-- PLUGIN FEATURES -->
@@ -177,11 +186,11 @@ $rs_languages	= $rsaf->get_available_languages();
 				</div><!--				
 				--><div class="featurebox">
 					<div class="box_with_icon not_activated activate_to_unlock"><i class="material-icons">do_not_disturb</i><?php _e('Register to Unlock', 'revslider');?></div>
-					<?php require_once(RS_PLUGIN_PATH . 'admin/views/features/object_library.php'); ?>
+					<?php require_once(RS_PLUGIN_PATH . 'admin/views/features/add_ons.php'); ?>					
 				</div><!--				
 				--><div class="featurebox">
 					<div class="box_with_icon not_activated activate_to_unlock"><i class="material-icons">do_not_disturb</i><?php _e('Register to Unlock', 'revslider');?></div>
-					<?php require_once(RS_PLUGIN_PATH . 'admin/views/features/add_ons.php'); ?>
+					<?php require_once(RS_PLUGIN_PATH . 'admin/views/features/object_library.php'); ?>
 				</div><!--							
 				--><div class="featurebox">
 					<div class="box_with_icon not_activated activate_to_unlock"><i class="material-icons">do_not_disturb</i><?php _e('Register to Unlock', 'revslider');?></div>
@@ -196,19 +205,19 @@ $rs_languages	= $rsaf->get_available_languages();
 		<!-- PLUGIN UPDATE -->
 		<div id="cwt_socials" class="pli_left">
 			<h3 class="pli_title"><?php _e('Connect with Slider Revolution', 'revslider');?></h3>
-			<a class="cwt_link" target="_blank" href="https://youtube.com/c/sliderrevolution"><grayiconbox class="cwt_youtube"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('YouTube', 'revslider');?></div><div class="dynamicval pli_subtitle">youtube.com/c/sliderrevolution</div></div></a>
+			<a class="cwt_link" target="_blank" rel="noopener" href="https://youtube.com/c/sliderrevolution"><grayiconbox class="cwt_youtube"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('YouTube', 'revslider');?></div><div class="dynamicval pli_subtitle">youtube.com/c/sliderrevolution</div></div></a>
 			<div class="div10"></div>
-			<a class="cwt_link" target="_blank" href="https://twitter.com/revslider"><grayiconbox class="cwt_twitter"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Twitter', 'revslider');?></div><div class="dynamicval pli_subtitle">twitter.com/revslider</div></div></a>
+			<a class="cwt_link" target="_blank" rel="noopener" href="https://twitter.com/revslider"><grayiconbox class="cwt_twitter"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Twitter', 'revslider');?></div><div class="dynamicval pli_subtitle">twitter.com/revslider</div></div></a>
 			<div class="div10"></div>
-			<a class="cwt_link" target="_blank" href="https://www.facebook.com/wordpress.slider.revolution"><grayiconbox class="cwt_facebook"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Facebook', 'revslider');?></div><div class="dynamicval pli_subtitle">facebook.com/wordpress.slider.revolution</div></div></a>
+			<a class="cwt_link" target="_blank" rel="noopener" href="https://www.facebook.com/wordpress.slider.revolution"><grayiconbox class="cwt_facebook"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Facebook', 'revslider');?></div><div class="dynamicval pli_subtitle">facebook.com/wordpress.slider.revolution</div></div></a>
 			<div class="div10"></div>
-			<a class="cwt_link" target="_blank" href="https://instagram.com/sliderrevolution"><grayiconbox class="cwt_instagram"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Instagram', 'revslider');?></div><div class="dynamicval pli_subtitle">instagram.com/sliderrevolution</div></div></a>
+			<a class="cwt_link" target="_blank" rel="noopener" href="https://instagram.com/sliderrevolution"><grayiconbox class="cwt_instagram"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Instagram', 'revslider');?></div><div class="dynamicval pli_subtitle">instagram.com/sliderrevolution</div></div></a>
 			<div class="div10"></div>			
-			<a class="cwt_link" target="_blank" href="https://dribbble.com/sliderrevolution"><grayiconbox class="cwt_dribbble"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Dribbble', 'revslider');?></div><div class="dynamicval pli_subtitle">dribbble.com/sliderrevolution</div></div></a>
+			<a class="cwt_link" target="_blank" rel="noopener" href="https://dribbble.com/sliderrevolution"><grayiconbox class="cwt_dribbble"></grayiconbox><div class="pli_twoline"><div class="pli_subtitle"><?php _e('Dribbble', 'revslider');?></div><div class="dynamicval pli_subtitle">dribbble.com/sliderrevolution</div></div></a>
 			<div class="div100"></div>
 			<h3 class="pli_title"><?php _e('Sign up to our Newsletter', 'revslider');?></h3>									
 			<!--<input class="codeinput" id="newsletter_mail" placeholder="<?php _e('Enter your Email', 'revslider');?>"/> id="signuptonewsletter" -->
-			<a href="https://www.themepunch.com/links/newsletter" target="_blank"><bluebutton ><?php _e('Sign Up', 'revslider');?></bluebutton></a>
+			<a href="https://www.themepunch.com/links/newsletter" target="_blank" rel="noopener"><bluebutton ><?php _e('Sign Up', 'revslider');?></bluebutton></a>
 			<div class="div25"></div>
 			<div class="infobox">
 				<div class="bluetitle"><?php _e('Updates, New Products, Spotlights', 'revslider');?></div>
@@ -225,7 +234,7 @@ $rs_languages	= $rsaf->get_available_languages();
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	window.sliderLibrary = JSON.parse(<?php echo $rsaf->json_encode_client_side(array('sliders' => $rs_od)); ?>);
 	window.rs_system = JSON.parse(<?php echo $rsaf->json_encode_client_side($system_config); ?>);
 	var rvs_f_initOverView_Once = false;

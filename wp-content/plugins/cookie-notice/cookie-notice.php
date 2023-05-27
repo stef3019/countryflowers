@@ -2,7 +2,7 @@
 /*
 Plugin Name: Cookie Notice & Compliance for GDPR / CCPA
 Description: Cookie Notice allows you to you elegantly inform users that your site uses cookies and helps you comply with GDPR, CCPA and other data privacy laws.
-Version: 2.4.6
+Version: 2.4.8
 Author: Hu-manity.co
 Author URI: https://hu-manity.co/
 Plugin URI: https://cookie-compliance.co/
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) )
  * Cookie Notice class.
  *
  * @class Cookie_Notice
- * @version	2.4.6
+ * @version	2.4.8
  */
 class Cookie_Notice {
 
@@ -50,8 +50,16 @@ class Cookie_Notice {
 	private $network_admin = false;
 	private $plugin_network_active = false;
 	private static $_instance;
+	private $notices = [];
 	public $options = [];
 	public $network_options = [];
+	public $bot_detect;
+	public $dashboard;
+	public $frontend;
+	public $settings;
+	public $welcome;
+	public $welcome_api;
+	public $welcome_frontend;
 
 	/**
 	 * @var $defaults
@@ -63,7 +71,9 @@ class Cookie_Notice {
 			'app_id'				=> '',
 			'app_key'				=> '',
 			'app_blocking'			=> true,
-			'hide_banner'			=> false,
+			'conditional_active'	=> false,
+			'conditional_display'	=> 'hide',
+			'conditional_rules'		=> [],
 			'debug_mode'			=> false,
 			'position'				=> 'bottom',
 			'message_text'			=> '',
@@ -114,7 +124,7 @@ class Cookie_Notice {
 			'subscription'			=> 'basic',
 			'threshold_exceeded'	=> false
 		],
-		'version'	=> '2.4.6'
+		'version'	=> '2.4.8'
 	];
 
 	/**
@@ -157,7 +167,7 @@ class Cookie_Notice {
 	}
 
 	/**
-	 * Constructor.
+	 * Class constructor.
 	 *
 	 * @return void
 	 */
@@ -172,6 +182,8 @@ class Cookie_Notice {
 		// set network data
 		$this->set_network_data();
 
+		$this->check_legacy_options();
+
 		// get options
 		if ( is_multisite() ) {
 			// get network options
@@ -180,12 +192,14 @@ class Cookie_Notice {
 			if ( $this->is_network_admin() ) {
 				$options = $this->network_options;
 			} else {
+				$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+
 				// settings page?
-				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'cookie-notice' ) {
+				if ( is_admin() && $page === 'cookie-notice' ) {
 					// get current url path
 					$url_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 
-					if ( basename( $url_path ) === 'admin.php' ) {
+					if ( is_string( $url_path ) && basename( $url_path ) === 'admin.php' ) {
 						// get site options
 						$options = get_option( 'cookie_notice_options', $this->defaults['general'] );
 					}
@@ -198,9 +212,6 @@ class Cookie_Notice {
 			}
 		} else
 			$options = get_option( 'cookie_notice_options', $this->defaults['general'] );
-
-		// check legacy parameters
-		$options = $this->check_legacy_params( $options, [ 'refuse_opt', 'on_scroll', 'on_click', 'deactivation_delete', 'see_more' ] );
 
 		// merge old options with new ones
 		$this->options['general'] = $this->multi_array_merge( $this->defaults['general'], $options );
@@ -218,6 +229,81 @@ class Cookie_Notice {
 		add_action( 'admin_footer', [ $this, 'deactivate_plugin_template' ] );
 		add_action( 'wp_ajax_cn_dismiss_notice', [ $this, 'ajax_dismiss_admin_notice' ] );
 		add_action( 'wp_ajax_cn-deactivate-plugin', [ $this, 'deactivate_plugin' ] );
+	}
+
+	/**
+	 * Check legacy options.
+	 *
+	 * @return void
+	 */
+	public function check_legacy_options() {
+		// multisite?
+		if ( is_multisite() ) {
+			// get network options
+			$site_options = get_site_option( 'cookie_notice_options', $this->defaults['general'] );
+
+			// update legacy options
+			$site_options = $this->update_legacy_options( $site_options );
+
+			// any changes?
+			if ( $site_options !== false )
+				update_site_option( 'cookie_notice_options', $site_options );
+		}
+
+		// get options
+		$options = get_option( 'cookie_notice_options', $this->defaults['general'] );
+
+		// update legacy options
+		$options = $this->update_legacy_options( $options );
+
+		// any changes?
+		if ( $options !== false )
+			update_option( 'cookie_notice_options', $options );
+	}
+
+	/**
+	 * Maybe change legacy options.
+	 *
+	 * @param array $options
+	 * @return false|array
+	 */
+	public function update_legacy_options( $options ) {
+		$options_changed = false;
+
+		// check legacy parameters that were yes/no strings
+		foreach ( [ 'refuse_opt', 'on_scroll', 'on_click', 'deactivation_delete', 'see_more' ] as $param ) {
+			if ( array_key_exists( $param, $options ) && ! is_bool( $options[$param] ) ) {
+				$options[$param] = $options[$param] === 'yes';
+
+				$options_changed = true;
+			}
+		}
+
+		// check hide banner
+		if ( isset( $options['hide_banner'] ) ) {
+			if ( $options['hide_banner'] && ! isset( $options['conditional_active'] ) ) {
+				$options['conditional_active'] = true;
+				$options['conditional_display'] = 'hide';
+				$options['conditional_rules'] = [
+					1 => [
+						1 => [
+							'param'		=> 'user_type',
+							'operator'	=> 'equal',
+							'value'		=> 'logged_in'
+						]
+					]
+				];
+			}
+
+			unset( $options['hide_banner'] );
+
+			$options_changed = true;
+		}
+
+		if ( $options_changed )
+			return $options;
+		else
+			return false;
 	}
 
 	/**
@@ -339,8 +425,8 @@ class Cookie_Notice {
 	/**
 	 * Get endpoint URL.
 	 *
-	 * @param $type
-	 * @param $query
+	 * @param string $type
+	 * @param string $query
 	 * @return string
 	 */
 	public function get_url( $type, $query = '' ) {
@@ -399,8 +485,10 @@ class Cookie_Notice {
 		if ( ! function_exists( 'is_plugin_active_for_network' ) )
 			require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
+		$cn_network = isset( $_POST['cn_network'] ) ? (int) $_POST['cn_network'] : false;
+
 		// bypass is_network_admin() to handle AJAX requests properly.
-		$this->network_admin = is_multisite() && ( is_network_admin() || ( wp_doing_ajax() && isset( $_POST['cn_network'] ) && $_POST['cn_network'] === '1' ) );
+		$this->network_admin = is_multisite() && ( is_network_admin() || ( wp_doing_ajax() && $cn_network === 1 ) );
 
 		// check whether the plugin is active for the entire network.
 		$this->plugin_network_active = is_plugin_active_for_network( COOKIE_NOTICE_BASENAME );
@@ -436,21 +524,18 @@ class Cookie_Notice {
 	 *
 	 * @global object $wpdb
 	 *
-	 * @param bool $networkwide
+	 * @param bool $network
 	 * @return void
 	 */
-	public function activation( $networkwide ) {
+	public function activation( $network ) {
 		// network activation?
-		if ( $networkwide ) {
+		if ( is_multisite() && $network ) {
 			// add network options
 			add_site_option( 'cookie_notice_options', $this->defaults['general'] );
 			add_site_option( 'cookie_notice_status', $this->defaults['data'] );
 			add_site_option( 'cookie_notice_version', $this->defaults['version'] );
 
 			global $wpdb;
-
-			// get current site
-			$current_blog_id = $wpdb->blogid;
 
 			// get all available sites
 			$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
@@ -461,10 +546,9 @@ class Cookie_Notice {
 
 				// run current site activation process
 				$this->activate_site();
-			}
 
-			// switch back to main site
-			switch_to_blog( $current_blog_id );
+				restore_current_blog();
+			}
 		} else
 			$this->activate_site();
 	}
@@ -486,12 +570,12 @@ class Cookie_Notice {
 	 *
 	 * @global object $wpdb
 	 *
-	 * @param bool $networkwide
+	 * @param bool $network
 	 * @return void
 	 */
-	public function deactivation( $networkwide ) {
+	public function deactivation( $network ) {
 		// network deactivation?
-		if ( $networkwide ) {
+		if ( is_multisite() && $network ) {
 			$delete = $this->options['general']['global_override'] && $this->options['general']['deactivation_delete'];
 
 			// delete network options?
@@ -505,9 +589,6 @@ class Cookie_Notice {
 
 			global $wpdb;
 
-			// get current site
-			$current_blog_id = $wpdb->blogid;
-
 			// get all available sites
 			$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
 
@@ -517,10 +598,9 @@ class Cookie_Notice {
 
 				// run current site deactivation process
 				$this->deactivate_site( $delete );
-			}
 
-			// switch back to main site
-			switch_to_blog( $current_blog_id );
+				restore_current_blog();
+			}
 		} else
 			$this->deactivate_site();
 	}
@@ -528,7 +608,7 @@ class Cookie_Notice {
 	/**
 	 * Single site deactivation.
 	 *
-	 * @param boolean $force_deletion
+	 * @param bool $force_deletion
 	 * @return void
 	 */
 	public function deactivate_site( $force_deletion = false ) {
@@ -541,37 +621,14 @@ class Cookie_Notice {
 			delete_option( 'cookie_notice_app_blocking' );
 			delete_option( 'cookie_notice_version' );
 
-			// delete transient
-			delete_transient( 'cookie_notice_app_cache' );
+			// delete transients if any
+			delete_transient( 'cookie_notice_app_token' );
+			delete_transient( 'cookie_notice_app_quick_config' );
+			delete_transient( 'cookie_notice_app_subscriptions' );
 		}
 
 		// remove wp super cache cookie
 		$this->wpsc_delete_cookie();
-	}
-
-	/**
-	 * Retrieve the timezone of the site as a string.
-	 *
-	 * @return string
-	 */
-	public function timezone_string() {
-		if ( function_exists( 'wp_timezone_string' ) )
-			return wp_timezone_string();
-
-		$timezone_string = get_option( 'timezone_string' );
-
-		if ( $timezone_string )
-			return $timezone_string;
-
-		$offset = (float) get_option( 'gmt_offset' );
-		$hours = (int) $offset;
-		$minutes = ( $offset - $hours );
-		$sign = ( $offset < 0 ) ? '-' : '+';
-		$abs_hour = abs( $hours );
-		$abs_mins = abs( $minutes * 60 );
-		$tz_offset = sprintf( '%s%02d:%02d', $sign, $abs_hour, $abs_mins );
-
-		return $tz_offset;
 	}
 
 	/**
@@ -619,8 +676,11 @@ class Cookie_Notice {
 			}
 		}
 
+		// check page
+		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+
 		// if visiting settings, mark notice as read
-		if ( ! empty( $_GET['page'] ) && $_GET['page'] === 'cookie-notice' && ! empty( $_GET['welcome'] ) ) {
+		if ( $page === 'cookie-notice' && ! empty( $_GET['welcome'] ) ) {
 			$this->options['general']['update_notice'] = false;
 
 			if ( $network ) {
@@ -639,7 +699,7 @@ class Cookie_Notice {
 
 		// show notice, if no compliance only
 		if ( $this->options['general']['update_notice'] === true && empty( $status ) ) {
-			$this->add_notice( '<div class="cn-notice-text"><h2>' . __( 'Two new privacy laws in the United States started January 1st 2023', 'cookie-notice' ) . '</h2><p>' . __( 'As of early 2023, two regulations in the United States went into effect: the California CPRA and the Virginia VCDPA. They expand requirements already in place in the US, such as having a Privacy Policy and allowing users to opt out of the data processing for certain purposes. Click "Run Compliance Check" to check if your website has the functionality required by the US Privacy Laws.', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="' . ( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . __( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . __( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
+			$this->add_notice( '<div class="cn-notice-text"><h2>' . esc_html__( 'Two new privacy laws in the United States started January 1st 2023', 'cookie-notice' ) . '</h2><p>' . esc_html__( 'As of early 2023, two regulations in the United States went into effect: the California CPRA and the Virginia VCDPA. They expand requirements already in place in the US, such as having a Privacy Policy and allowing users to opt out of the data processing for certain purposes. Click "Run Compliance Check" to check if your website has the functionality required by the US Privacy Laws.', 'cookie-notice' ) . '</p><p class="cn-notice-actions"><a href="' . esc_url( $network ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ) ) . '" class="button button-primary cn-button">' . esc_html__( 'Run Compliance Check', 'cookie-notice' ) . '</a> <a href="#" class="button-link cn-notice-dismiss">' . esc_html__( 'Dismiss Notice', 'cookie-notice' ) . '</a></p></div>', 'error', 'div' );
 		}
 
 		// show threshold limit warning, compliance only
@@ -674,7 +734,7 @@ class Cookie_Notice {
 						$threshold = $cycle_usage['threshold'];
 						$cycle_date = date_i18n( $date_format, $cycle_usage['end_date']->getTimestamp() );
 
-						$this->add_notice( '<div class="cn-notice-text" data-delay="' . $cycle_usage['end_date']->getTimestamp() . '"><h2>' . __( 'Cookie Compliance Warning', 'cookie-notice') . '</h2><p>' . sprintf( __( 'Your website has reached the <b>%1$s visits usage limit for the Cookie Compliance Free Plan</b>. Compliance services such as Consent Record Storage, Autoblocking, and Consent Analytics have been deactivated until current usage cycle ends on %2$s.', 'cookie-notice' ), $threshold, $cycle_date ) . '<br>' . sprintf( __( 'To reactivate compliance services now, <a href="%s" target="_blank">upgrade your domain to a Pro plan.</a>', 'cookie-notice' ) . '</p></div>', $upgrade_link ), 'cn-threshold error is-dismissible', 'div' );
+						$this->add_notice( '<div class="cn-notice-text" data-delay="' . esc_attr( $cycle_usage['end_date']->getTimestamp() ) . '"><h2>' . esc_html__( 'Cookie Compliance Warning', 'cookie-notice') . '</h2><p>' . sprintf( __( 'Your website has reached the <b>%1$s visits usage limit for the Cookie Compliance Free Plan</b>. Compliance services such as Consent Record Storage, Autoblocking, and Consent Analytics have been deactivated until current usage cycle ends on %2$s.', 'cookie-notice' ), $threshold, $cycle_date ) . '<br>' . sprintf( __( 'To reactivate compliance services now, <a href="%s" target="_blank">upgrade your domain to a Pro plan.</a>', 'cookie-notice' ) . '</p></div>', $upgrade_link ), 'cn-threshold error is-dismissible', 'div' );
 					}
 				}
 			}
@@ -708,10 +768,10 @@ class Cookie_Notice {
 	public function display_notice() {
 		foreach( $this->notices as $notice ) {
 			echo '
-			<div id="cn-admin-notice" class="cn-notice notice notice-info ' . $notice['status'] . '">
-				' . ( ! empty( $notice['container'] ) ? '<' . $notice['container'] . ' class="cn-notice-container">' : '' ) . '
-				' . $notice['html'] . '
-				' . ( ! empty( $notice['container'] ) ? '</' . $notice['container'] . ' class="cn-notice-container">' : '' ) . '
+			<div id="cn-admin-notice" class="cn-notice notice notice-info ' . esc_attr( $notice['status'] ) . '">
+				' . ( ! empty( $notice['container'] ) ? '<' . esc_attr( $notice['container'] ) . ' class="cn-notice-container">' : '' ) . '
+				' . wp_kses_post( $notice['html'] ) . '
+				' . ( ! empty( $notice['container'] ) ? '</' . esc_attr( $notice['container'] ) . ' class="cn-notice-container">' : '' ) . '
 			</div>';
 		}
 	}
@@ -725,15 +785,20 @@ class Cookie_Notice {
 		if ( ! current_user_can( 'install_plugins' ) )
 			return;
 
-		if ( wp_verify_nonce( $_REQUEST['nonce'], 'cn_dismiss_notice' ) ) {
-			$notice_action = empty( $_REQUEST['notice_action'] ) || $_REQUEST['notice_action'] === 'dismiss' ? 'dismiss' : sanitize_text_field( $_REQUEST['notice_action'] );
-			$network = is_multisite() && isset( $_POST['cn_network'] ) && $_POST['cn_network'] === '1';
+		if ( wp_verify_nonce( $_POST['nonce'], 'cn_dismiss_notice' ) ) {
+			// get notice action
+			$notice_action = ! empty( $_POST['notice_action'] ) ? sanitize_key( $_POST['notice_action'] ) : 'dismiss';
+
+			$cn_network = isset( $_POST['cn_network'] ) ? (int) $_POST['cn_network'] : false;
+
+			// network?
+			$network = is_multisite() && $cn_network === 1;
 
 			switch ( $notice_action ) {
 				// threshold notice
 				case 'threshold':
 					// set delay period last cycle day
-					$delay = isset( $_REQUEST['param'] ) ? (int) $_REQUEST['param'] : 0;
+					$delay = isset( $_POST['param'] ) ? (int) $_POST['param'] : 0;
 
 					$this->options['general']['update_threshold_date'] = $delay + DAY_IN_SECONDS;
 
@@ -790,7 +855,7 @@ class Cookie_Notice {
 	 * Register cookies accepted shortcode.
 	 *
 	 * @param array $args
-	 * @param mixed $content
+	 * @param string $content
 	 * @return string
 	 */
 	public function cookies_accepted_shortcode( $args, $content ) {
@@ -812,7 +877,7 @@ class Cookie_Notice {
 	 * Register cookies revoke shortcode.
 	 *
 	 * @param array $args
-	 * @param mixed $content
+	 * @param string $content
 	 * @return string
 	 */
 	public function cookies_revoke_shortcode( $args, $content ) {
@@ -835,13 +900,10 @@ class Cookie_Notice {
 		// combine shortcode arguments
 		$args = shortcode_atts( $defaults, $args );
 
-		// escape class(es)
-		$args['class'] = esc_attr( $args['class'] );
-
 		if ( Cookie_Notice()->get_status() === 'active' )
-			$shortcode = '<a href="#" class="cn-revoke-cookie cn-button-inline cn-revoke-inline' . ( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '" title="' . esc_attr( $args['title'] ) . '" data-hu-action="cookies-notice-revoke">' . esc_html( $args['title'] ) . '</a>';
+			$shortcode = '<a href="#" class="cn-revoke-cookie cn-button-inline cn-revoke-inline' . esc_attr( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '" title="' . esc_attr( $args['title'] ) . '" data-hu-action="cookies-notice-revoke">' . esc_html( $args['title'] ) . '</a>';
 		else
-			$shortcode = '<a href="#" class="cn-revoke-cookie cn-button-inline cn-revoke-inline' . ( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '" title="' . esc_attr( $args['title'] ) . '">' . esc_html( $args['title'] ) . '</a>';
+			$shortcode = '<a href="#" class="cn-revoke-cookie cn-button-inline cn-revoke-inline' . esc_attr( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '" title="' . esc_attr( $args['title'] ) . '">' . esc_html( $args['title'] ) . '</a>';
 
 		return $shortcode;
 	}
@@ -897,15 +959,15 @@ class Cookie_Notice {
 
 		// defaults
 		$defaults = [
-			'title'	=> esc_html( $options['see_more_opt']['text'] !== '' ? $options['see_more_opt']['text'] : '&#x279c;' ),
-			'link'	=> ( $options['see_more_opt']['link_type'] === 'custom' ? esc_url( $options['see_more_opt']['link'] ) : esc_url( $permalink ) ),
-			'class'	=> esc_attr( $options['css_class'] )
+			'title'	=> $options['see_more_opt']['text'] !== '' ? $options['see_more_opt']['text'] : '&#x279c;',
+			'link'	=> $options['see_more_opt']['link_type'] === 'custom' ? $options['see_more_opt']['link'] : $permalink,
+			'class'	=> $options['css_class']
 		];
 
 		// combine shortcode arguments
 		$args = shortcode_atts( $defaults, $args );
 
-		$shortcode = '<a href="' . $args['link'] . '" target="' . $options['link_target'] . '" id="cn-more-info" class="cn-privacy-policy-link cn-link' . ( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '">' . esc_html( $args['title'] ) . '</a>';
+		$shortcode = '<a href="' . esc_url( $args['link'] ) . '" target="' . esc_attr( $options['link_target'] ) . '" id="cn-more-info" class="cn-privacy-policy-link cn-link' . esc_attr( $args['class'] !== '' ? ' ' . $args['class'] : '' ) . '">' . esc_html( $args['title'] ) . '</a>';
 
 		return $shortcode;
 	}
@@ -917,32 +979,24 @@ class Cookie_Notice {
 	 */
 	public static function cookies_accepted() {
 		if ( Cookie_Notice()->get_status() === 'active' ) {
+			// get cookie
 			$cookies = isset( $_COOKIE['hu-consent'] ) ? json_decode( stripslashes( $_COOKIE['hu-consent'] ), true ) : [];
 
-			if ( ! empty( $cookies ) && is_array( $cookies ) ) {
-				foreach( $cookies as $cookie_name => $cookie_value ) {
-					switch ( $cookie_name ) {
-						case 'consent':
-							$cookies[$cookie_name] = (bool) $cookie_value;
-							break;
-
-						default:
-							$cookies[$cookie_name] = is_array( $cookie_value ) ? array_map( 'sanitize_text_field', $cookie_value ) : sanitize_text_field( $cookie_value );
-					}
-				}
-			}
-
-			$result = ( is_array( $cookies ) && json_last_error() === JSON_ERROR_NONE && ! empty( $cookies['consent'] ) );
+			// valid cookie?
+			if ( json_last_error() === JSON_ERROR_NONE && ! empty( $cookies ) && is_array( $cookies ) && isset( $cookies['consent'] ) )
+				$result = (bool) $cookies['consent'];
+			else
+				$result = false;
 		} else
 			$result = isset( $_COOKIE['cookie_notice_accepted'] ) && $_COOKIE['cookie_notice_accepted'] === 'true';
 
-		return apply_filters( 'cn_is_cookie_accepted', $result );
+		return (bool) apply_filters( 'cn_is_cookie_accepted', $result );
 	}
 
 	/**
 	 * Check if cookies are set.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function cookies_set() {
 		if ( Cookie_Notice()->get_status() === 'active' )
@@ -950,7 +1004,7 @@ class Cookie_Notice {
 		else
 			$result = isset( $_COOKIE['cookie_notice_accepted'] );
 
-		return apply_filters( 'cn_is_cookie_set', $result );
+		return (bool) apply_filters( 'cn_is_cookie_set', $result );
 	}
 
 	/**
@@ -984,7 +1038,7 @@ class Cookie_Notice {
 	 * @return void
 	 */
 	public function admin_enqueue_scripts( $page ) {
-		// plugins?
+		// plugins page?
 		if ( $page === 'plugins.php' ) {
 			add_thickbox();
 
@@ -992,34 +1046,28 @@ class Cookie_Notice {
 
 			wp_enqueue_style( 'cookie-notice-admin-plugins', COOKIE_NOTICE_URL . '/css/admin-plugins.css', [], $this->defaults['version'] );
 
-			wp_localize_script(
-				'cookie-notice-admin-plugins',
-				'cnArgsPlugins',
-				[
-					'deactivate'	=> __( 'Cookie Notice & Compliance - Deactivation survey', 'cookie-notice' ),
-					'nonce'			=> wp_create_nonce( 'cn-deactivate-plugin' )
-				]
-			);
+			// prepare script data
+			$script_data = [
+				'deactivate'	=> esc_html__( 'Cookie Notice & Compliance - Deactivation survey', 'cookie-notice' ),
+				'nonce'			=> wp_create_nonce( 'cn-deactivate-plugin' )
+			];
+
+			wp_add_inline_script( 'cookie-notice-admin-plugins', 'var cnArgsPlugins = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 		}
 
 		// notice js and css
-		wp_enqueue_script(
-			'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/js/admin-notice.js', [ 'jquery' ], Cookie_Notice()->defaults['version']
-		);
+		wp_enqueue_script( 'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/js/admin-notice.js', [ 'jquery' ], Cookie_Notice()->defaults['version'] );
 
-		wp_localize_script(
-			'cookie-notice-admin-notice',
-			'cnArgsNotice',
-			[
-				'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
-				'nonce'		=> wp_create_nonce( 'cn_dismiss_notice' ),
-				'network'	=> (int) $this->is_network_admin()
-			]
-		);
+		// prepare script data
+		$script_data = [
+			'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
+			'nonce'		=> wp_create_nonce( 'cn_dismiss_notice' ),
+			'network'	=> $this->is_network_admin()
+		];
 
-		wp_enqueue_style(
-			'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/css/admin-notice.css', [], Cookie_Notice()->defaults['version']
-		);
+		wp_add_inline_script( 'cookie-notice-admin-notice', 'var cnArgsNotice = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
+
+		wp_enqueue_style( 'cookie-notice-admin-notice', COOKIE_NOTICE_URL . '/css/admin-notice.css', [], Cookie_Notice()->defaults['version'] );
 	}
 
 	/**
@@ -1061,8 +1109,10 @@ class Cookie_Notice {
 
 			// skip settings link if plugin is activated from main site
 			if ( ! ( $this->is_network_admin() && ! $this->is_plugin_network_active() ) ) {
+				$url = $this->is_network_admin() ? network_admin_url( 'admin.php?page=cookie-notice' ) : admin_url( 'admin.php?page=cookie-notice' );
+
 				// put settings link at start
-				array_unshift( $links, sprintf( '<a href="%s">%s</a>', $this->is_network_admin() ? network_admin_url( 'admin.php?page=cookie-notice' ) : admin_url( 'admin.php?page=cookie-notice' ), __( 'Settings', 'cookie-notice' ) ) );
+				array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Settings', 'cookie-notice' ) ) );
 			}
 
 			// get cookie compliance status
@@ -1074,8 +1124,11 @@ class Cookie_Notice {
 				$check_status = empty( $status );
 
 			// add upgrade link
-			if ( $check_status )
-				$links[] = sprintf( '<a href="%s" style="color: #20C19E; font-weight: bold;">%s</a>', $this->is_network_admin() ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' ), __( 'Free Upgrade', 'cookie-notice' ) );
+			if ( $check_status ) {
+				$url = $this->is_network_admin() ? network_admin_url( 'admin.php?page=cookie-notice&welcome=1' ) : admin_url( 'admin.php?page=cookie-notice&welcome=1' );
+
+				$links[] = sprintf( '<a href="%s" style="color: #20C19E; font-weight: bold">%s</a>', esc_url( $url ), esc_html__( 'Free Upgrade', 'cookie-notice' ) );
+			}
 		}
 
 		return $links;
@@ -1096,25 +1149,25 @@ class Cookie_Notice {
 			return;
 
 		echo '
-		<div id="cn-deactivation-modal" style="display: none;">
+		<div id="cn-deactivation-modal" style="display: none">
 			<div id="cn-deactivation-container">
 				<div id="cn-deactivation-body">
 					<div class="cn-deactivation-options">
-						<p><em>' . __( "We're sorry to see you go. Could you please tell us what happened?", 'cookie-notice' ) . '</em></p>
+						<p><em>' . esc_html__( "We're sorry to see you go. Could you please tell us what happened?", 'cookie-notice' ) . '</em></p>
 						<ul>';
 
 		foreach ( [
-				'1'	=> __( "I couldn't figure out how to make it work.", 'cookie-notice' ),
-				'2'	=> __( 'I found another plugin to use for the same task.', 'cookie-notice' ),
-				'3'	=> __( 'The Cookie Compliance banner is too big.', 'cookie-notice' ),
-				'4'	=> __( 'The Cookie Compliance consent choices (Silver, Gold, Platinum) are confusing.', 'cookie-notice' ),
-				'5'	=> __( 'The Cookie Compliance default settings are too strict.', 'cookie-notice' ),
-				'6'	=> __( 'The web application user interface is not clear to me.', 'cookie-notice' ),
-				'7'	=> __( "Support isn't timely.", 'cookie-notice' ),
-				'8'	=> __( 'Other', 'cookie-notice' )
+				'1'	=> esc_html__( "I couldn't figure out how to make it work.", 'cookie-notice' ),
+				'2'	=> esc_html__( 'I found another plugin to use for the same task.', 'cookie-notice' ),
+				'3'	=> esc_html__( 'The Cookie Compliance banner is too big.', 'cookie-notice' ),
+				'4'	=> esc_html__( 'The Cookie Compliance consent choices (Silver, Gold, Platinum) are confusing.', 'cookie-notice' ),
+				'5'	=> esc_html__( 'The Cookie Compliance default settings are too strict.', 'cookie-notice' ),
+				'6'	=> esc_html__( 'The web application user interface is not clear to me.', 'cookie-notice' ),
+				'7'	=> esc_html__( "Support isn't timely.", 'cookie-notice' ),
+				'8'	=> esc_html__( 'Other', 'cookie-notice' )
 		] as $option => $text ) {
 			echo '
-							<li><label><input type="radio" name="cn_deactivation_option" value="' . $option . '" ' . checked( '8', $option, false ) . ' />' . esc_html( $text ) . '</label></li>';
+							<li><label><input type="radio" name="cn_deactivation_option" value="' . esc_attr( $option ) . '" ' . checked( '8', $option, false ) . ' />' . esc_html( $text ) . '</label></li>';
 			}
 
 		echo '
@@ -1125,9 +1178,9 @@ class Cookie_Notice {
 					</div>
 				</div>
 				<div id="cn-deactivation-footer">
-					<a href="" class="button cn-deactivate-plugin-cancel">' . __( 'Cancel', 'cookie-notice' ) . '</a>
-					<a href="' . $this->deactivaion_url . '" class="button button-secondary cn-deactivate-plugin-simple">' . __( 'Deactivate', 'cookie-notice' ) . '</a>
-					<a href="' . $this->deactivaion_url . '" class="button button-primary right cn-deactivate-plugin-data">' . __( 'Deactivate & Submit', 'cookie-notice' ) . '</a>
+					<a href="" class="button cn-deactivate-plugin-cancel">' . esc_html__( 'Cancel', 'cookie-notice' ) . '</a>
+					<a href="' . esc_url( $this->deactivaion_url ) . '" class="button button-secondary cn-deactivate-plugin-simple">' . esc_html__( 'Deactivate', 'cookie-notice' ) . '</a>
+					<a href="' . esc_url( $this->deactivaion_url ) . '" class="button button-primary right cn-deactivate-plugin-data">' . esc_html__( 'Deactivate & Submit', 'cookie-notice' ) . '</a>
 					<span class="spinner"></span>
 				</div>
 			</div>
@@ -1146,11 +1199,15 @@ class Cookie_Notice {
 
 		if ( isset( $_POST['option_id'] ) ) {
 			$option_id = (int) $_POST['option_id'];
-			$other = esc_html( $_POST['other'] );
 
 			// avoid fake submissions
-			if ( $option_id == 8 && $other == '' )
-				wp_send_json_success();
+			if ( $option_id === 8 ) {
+				$other = isset( $_POST['other'] ) ? sanitize_textarea_field( $_POST['other'] ) : '';
+
+				// no reason?
+				if ( $other === '' )
+					wp_send_json_success();
+			}
 
 			wp_remote_post(
 				'https://hu-manity.co/wp-json/api/v1/forms/',
@@ -1184,85 +1241,26 @@ class Cookie_Notice {
 			array_merge(
 				wp_kses_allowed_html( 'post' ),
 				[
-					'script' => [
-						'type' => [],
-						'src' => [],
-						'charset' => [],
-						'async' => []
+					'script'	=> [
+						'type'		=> true,
+						'src'		=> true,
+						'charset'	=> true,
+						'async'		=> true
 					],
-					'noscript' => [],
-					'style' => [
-						'type' => []
+					'noscript'	=> [],
+					'style'		=> [
+						'type'	=> true
 					],
-					'iframe' => [
-						'src' => [],
-						'height' => [],
-						'width' => [],
-						'frameborder' => [],
-						'allowfullscreen' => []
+					'iframe'	=> [
+						'src'				=> true,
+						'height'			=> true,
+						'width'				=> true,
+						'frameborder'		=> true,
+						'allowfullscreen'	=> true
 					]
 				]
 			)
 		);
-	}
-
-	/**
-	 * Helper: convert hex color to rgb color.
-	 *
-	 * @param type $color
-	 * @return bool|array
-	 */
-	public function hex2rgb( $color ) {
-		if ( $color[0] == '#' )
-			$color = substr( $color, 1 );
-
-		if ( strlen( $color ) == 6 )
-			list( $r, $g, $b ) = [ $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] ];
-		elseif ( strlen( $color ) == 3 )
-			list( $r, $g, $b ) = [ $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] ];
-		else
-			return false;
-
-		$r = hexdec( $r );
-		$g = hexdec( $g );
-		$b = hexdec( $b );
-
-		return [ $r, $g, $b ];
-	}
-
-	/**
-	 * Helper: Convert undersocores to CamelCase.
-	 *
-	 * @param string $string
-	 * @param bool $capitalize_first_char
-	 * @return string
-	 */
-	public function underscores_to_camelcase( $string, $capitalize_first_char = false ) {
-		$str = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $string ) ) );
-
-		if ( ! $capitalize_first_char ) {
-			$str[0] = strtolower( $str[0] );
-		}
-
-		return $str;
-	}
-
-	/**
-	 * Check legacy parameters that were yes/no strings.
-	 *
-	 * @param array $options
-	 * @param array $params
-	 * @return array
-	 */
-	public function check_legacy_params( $options, $params ) {
-		if ( is_array( $options ) ) {
-			foreach ( $params as $param ) {
-				if ( array_key_exists( $param, $options ) && ! is_bool( $options[$param] ) )
-					$options[$param] = $options[$param] === 'yes';
-			}
-		}
-
-		return $options;
 	}
 
 	/**
@@ -1272,9 +1270,9 @@ class Cookie_Notice {
 	 * $siblings examples: array( '=>', 'only_first_level', 'first_level=>second_level', 'first_key=>next_key=>sibling' ) and so on.
 	 * Single '=>' means that all siblings of the highest level will be kept in the final array.
 	 *
-	 * @param array	$defaults Array with defaults values
-	 * @param array	$array Array to merge
-	 * @param boolean|array	$siblings Whether to allow "string" siblings to copy from $array if they do not exist in $defaults, false otherwise
+	 * @param array $defaults Array with defaults values
+	 * @param array $array Array to merge
+	 * @param bool|array $siblings Whether to allow "string" siblings to copy from $array if they do not exist in $defaults, false otherwise
 	 * @return array
 	 */
 	public function multi_array_merge( $defaults, $array, $siblings = false ) {
@@ -1347,22 +1345,25 @@ class Cookie_Notice {
 	 * @return bool
 	 */
 	public function is_cookie_policy_page() {
+		// get privacy policy options
 		$see_more = $this->options['general']['see_more_opt'];
 
+		// custom link?
 		if ( $see_more['link_type'] !== 'page' )
 			return false;
 
-		$cp_id = $see_more['id'];
-		$cp_slug = get_post_field( 'post_name', $cp_id );
-
+		// get current object
 		$current_page = sanitize_post( $GLOBALS['wp_the_query']->get_queried_object() );
 
-		return $current_page->post_name === $cp_slug;
+		// check if current page is privacy policy page
+		return $current_page->post_name === get_post_field( 'post_name', $see_more['id'] );
 	}
 }
 
 /**
  * Initialize Cookie Notice.
+ *
+ * @return object
  */
 function Cookie_Notice() {
 	static $instance;
@@ -1374,4 +1375,4 @@ function Cookie_Notice() {
 	return $instance;
 }
 
-$cookie_notice = Cookie_Notice();
+Cookie_Notice();

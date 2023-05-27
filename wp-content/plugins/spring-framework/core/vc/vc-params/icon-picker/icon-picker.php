@@ -26,7 +26,7 @@ if (!class_exists('G5P_Custom_Vc_Param_Icon_Picker')) {
 
 		public function enqueue_admin_resources() {
 			// icon popup
-			GSF()->core()->iconPopup()->enqueue();
+			GSF_Core_Icons_Popup::getInstance()->enqueue();
 		}
 	}
 

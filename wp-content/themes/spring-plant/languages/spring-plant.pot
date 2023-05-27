@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Spring Plant\n"
-"POT-Creation-Date: 2019-08-28 08:38+0700\n"
+"POT-Creation-Date: 2022-05-21 09:14+0700\n"
 "PO-Revision-Date: 2017-07-08 15:16+0700\n"
 "Last-Translator: \n"
 "Language-Team: G5Team\n"
@@ -19,6 +19,7 @@ msgstr ""
 "_n_noop:1,2;_nx_noop:1,2,3c;__\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: theme-plugins\n"
+"X-Poedit-SearchPathExcluded-1: assets\n"
 
 #: 404.php:19
 msgid "404"
@@ -68,7 +69,7 @@ msgid ""
 msgstr ""
 
 #: inc/ajax.class.php:103 inc/ajax.class.php:197
-#: templates/canvas-sidebar.php:22 templates/popup/mailchimp.php:59
+#: templates/canvas-sidebar.php:22 templates/popup/mailchimp.php:60
 #: templates/woocommerce/loop/canvas-woocommerce-filter.php:22
 msgid "Close"
 msgstr ""
@@ -114,11 +115,19 @@ msgstr ""
 msgid "<strong>ERROR:</strong> "
 msgstr ""
 
-#: inc/assets.class.php:214
+#: inc/assets.class.php:89
+msgid "Sorry, the minimum value was reached"
+msgstr ""
+
+#: inc/assets.class.php:90
+msgid "Sorry, the maximum value was reached"
+msgstr ""
+
+#: inc/assets.class.php:216
 msgid "More <span class=\"caret\"></span>"
 msgstr ""
 
-#: inc/assets.class.php:627
+#: inc/assets.class.php:629
 msgid "Sidebar"
 msgstr ""
 
@@ -930,7 +939,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: templates/popup/mailchimp.php:65
+#: templates/popup/mailchimp.php:66
 msgid "Don't show this popup again"
 msgstr ""
 
@@ -1110,7 +1119,7 @@ msgstr ""
 msgid "Apply coupon"
 msgstr ""
 
-#: woocommerce/cart/cross-sells.php:93
+#: woocommerce/cart/cross-sells.php:90
 msgid "Cross sells product"
 msgstr ""
 
@@ -1148,14 +1157,14 @@ msgstr ""
 msgid "No products were found matching your selection."
 msgstr ""
 
-#: woocommerce/loop/rating.php:36
+#: woocommerce/loop/rating.php:39
 #, php-format
 msgid "%s Review"
 msgstr ""
 
 #: woocommerce/loop/result-count.php:40
 #, php-format
-msgid "Showing the single result"
+msgid "Showing all <span class=\"accent-color\">%d result</span>"
 msgid_plural "Showing all <span class=\"accent-color\">%d results</span>"
 msgstr[0] ""
 msgstr[1] ""
@@ -1170,7 +1179,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: woocommerce/single-product/related.php:104
+#: woocommerce/single-product/related.php:102
 msgid "Related products"
 msgstr ""
 

@@ -168,10 +168,18 @@ class GF_Import extends G5_Import {
 		}
 		update_option('theme_mods_' . get_option("stylesheet"), $data);
 
+
+		$opt_widget_sidebars = get_option( 'sidebars_widgets' );
+		foreach ($opt_widget_sidebars as $k => $v) {
+			if (!is_array($v)) {
+				unset($opt_widget_sidebars[$k]);
+			}
+		}
+
 		// Change theme_mod
 		$data['sidebars_widgets'] = array(
 			'time' => time(),
-			'data' => get_option('sidebars_widgets')
+			'data' => $opt_widget_sidebars
 		);
 
 		if (is_child_theme()) {

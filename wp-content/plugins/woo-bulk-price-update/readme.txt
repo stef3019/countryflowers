@@ -1,11 +1,11 @@
-=== Woo Bulk Price Update ===
+=== Bulk Price Update for Woocommerce ===
 Contributors: Technocrackers
-Donate link: http://www.technocrackers.com/
+Donate link: https://www.technocrackers.com/
 Tags: woo commerce,bulk,woocommerce,woocommerce-bulk-edit,bulk-edit,product-bulk-edit,update-product-price,bulk-product-price,price,bulk-product-edit,woocommerce-bulk,products,tools
 Requires at least: 3.0.1
-Tested up to: 5.5.1
+Tested up to: 6.1.1
 Requires PHP: 5.2.4
-Stable tag: 2.1.8
+Stable tag: 2.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,7 +41,7 @@ For any queries feel free to drop a line at <a href="mailto:wordpress@technocrac
 
 = Automatic Installation =
 
-* Go to your plugin browser inside your wordpress installation and search `woocommerce bulk price update` by keyword. Then choose "Woo Bulk Price Update" and click install. It will be installed shortly.
+* Go to your plugin browser inside your wordpress installation and search `Bulk Price Update for Woocommerce` by keyword. Then choose "Woo Bulk Price Update" and click install. It will be installed shortly.
 * Activate the plugin from `Plugins` menu after installation
 
 = Manual Installation =
@@ -62,6 +62,22 @@ For any queries feel free to drop a line at <a href="mailto:wordpress@technocrac
 
 
 == Changelog ==
+
+= 2.2.2 =
+* Bug fixes.
+* Plugin Name Change.
+* Tested latest version compatibility.
+
+= 2.2.1 =
+* Bug fixes.
+* Tested latest version compatibility.
+
+= 2.2.0 =
+* Bug fixes.
+* Tested latest version compatibility.
+
+= 2.1.9 =
+* Tested latest version compatibility.
 
 = 2.1.8 =
 * Fixed Jquery conflict issue.

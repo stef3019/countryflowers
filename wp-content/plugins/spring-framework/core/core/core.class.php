@@ -21,7 +21,7 @@ if (!class_exists('G5P_Core_Core')) {
 		}
 
 		public function init() {
-			$this->widgetAreas()->init();
+			//$this->widgetAreas()->init();
 			$this->dashboard()->init();
 			$this->less()->init();
 			$this->vc()->init();

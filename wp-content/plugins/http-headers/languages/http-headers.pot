@@ -176,6 +176,14 @@ msgstr ""
 msgid "Choose file..."
 msgstr ""
 
+#: views/advanced.php:208
+msgid "Import / Export"
+msgstr ""
+
+#: views/advanced.php:209
+msgid "Only Super Admin users have access to this functionality."
+msgstr ""
+
 #: views/access-control-allow-credentials.php:3
 msgid "The Access-Control-Allow-Credentials header indicates whether the response to request can be exposed when the credentials flag is true."
 msgstr ""

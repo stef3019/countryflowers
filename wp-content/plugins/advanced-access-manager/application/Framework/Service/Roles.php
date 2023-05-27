@@ -8,10 +8,13 @@
  */
 
 /**
- * AAM framework manager
+ * AAM service role manage
+ *
+ * @since 6.9.10 https://github.com/aamplugin/advanced-access-manager/issues/275
+ * @since 6.9.6  Initial implementation of the class
  *
  * @package AAM
- * @since 6.9.6
+ * @version 6.9.10
  */
 class AAM_Framework_Service_Roles
 {
@@ -23,7 +26,7 @@ class AAM_Framework_Service_Roles
      *
      * @access private
      * @static
-     * @since 6.9.6
+     * @version 6.9.6
      */
     private static $_instance = null;
 
@@ -35,7 +38,7 @@ class AAM_Framework_Service_Roles
      * @var array
      *
      * @access private
-     * @since 6.9.6
+     * @version 6.9.6
      */
     private $_user_index = null;
 
@@ -45,7 +48,7 @@ class AAM_Framework_Service_Roles
      * @var WP_Roles
      *
      * @access private
-     * @since 6.9.6
+     * @version 6.9.6
      */
     private $_wp_roles = null;
 
@@ -55,7 +58,7 @@ class AAM_Framework_Service_Roles
      * @return void
      *
      * @access protected
-     * @since 6.9.6
+     * @version 6.9.6
      */
     protected function __construct() {}
 
@@ -65,7 +68,7 @@ class AAM_Framework_Service_Roles
      * @return array Array of AAM_Framework_Proxy_Role
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function get_all_roles()
     {
@@ -88,7 +91,7 @@ class AAM_Framework_Service_Roles
      * @return array Array of AAM_Framework_Proxy_Role
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function get_editable_roles()
     {
@@ -121,7 +124,7 @@ class AAM_Framework_Service_Roles
      *
      * @access public
      * @throws UnderflowException
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function get_role_by_slug($slug, $editable = true)
     {
@@ -162,8 +165,11 @@ class AAM_Framework_Service_Roles
      * @return AAM_Framework_Proxy_Role
      * @throws InvalidArgumentException
      *
+     * @since 6.9.10 https://github.com/aamplugin/advanced-access-manager/issues/275
+     * @since 6.9.6  Initial implementation of the method
+     *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.10
      */
     public function create_role(
         $display_name, $slug = null, array $capabilities = array()
@@ -180,8 +186,11 @@ class AAM_Framework_Service_Roles
                 if (strlen($slug) === 0) {
                     throw new InvalidArgumentException('Role slug is invalid');
                 }
-            } else { // Generate random slug
-                $slug = strtolower(uniqid());
+            } else {
+                // First, try to normalize the roles name into slug and if nothing,
+                // then generate the random number
+                $slug = str_replace(' ', '_', sanitize_key($name));
+                $slug = empty($slug) ? strtolower(uniqid()) : $slug;
             }
 
             if ($roles->is_role($slug)) {
@@ -224,7 +233,7 @@ class AAM_Framework_Service_Roles
      *
      * @access public
      * @throws DomainException
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function update_role(AAM_Framework_Proxy_Role $role)
     {
@@ -273,7 +282,7 @@ class AAM_Framework_Service_Roles
      *
      * @access public
      * @throws DomainException
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function delete_role(AAM_Framework_Proxy_Role $role)
     {
@@ -297,7 +306,7 @@ class AAM_Framework_Service_Roles
      * @return int
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function get_role_user_count(AAM_Framework_Proxy_Role $role)
     {
@@ -316,7 +325,7 @@ class AAM_Framework_Service_Roles
      * @return WP_Roles
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function get_wp_roles()
     {
@@ -344,7 +353,7 @@ class AAM_Framework_Service_Roles
      * @return mixed
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function __call($name, $arguments)
     {
@@ -372,7 +381,7 @@ class AAM_Framework_Service_Roles
      * @return mixed
      *
      * @access public
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public function __get($name)
     {
@@ -399,7 +408,7 @@ class AAM_Framework_Service_Roles
      *
      * @access public
      * @static
-     * @since 6.9.6
+     * @version 6.9.6
      */
     public static function bootstrap()
     {

@@ -238,7 +238,7 @@
         initXMenuButton: function() {
             $('ul.menu > li.menu-item').each(function(){
                 var menuId = parseInt($(this).attr('id').replace('menu-item-',''), 10);
-                $('> .menu-item-bar > .menu-item-handle > span.item-title', this).append('<span class="xmenu-item-config" data-id="' + menuId + '"><i class="fa fa-cogs"></i> XMENU <i class="fa fa-warning"></i></span>');
+                $('> .menu-item-bar > .menu-item-handle > .item-title', this).append('<span class="xmenu-item-config" data-id="' + menuId + '"><i class="fa fa-cogs"></i> XMENU <i class="fa fa-warning"></i></span>');
             });
             $('ul.menu > li.menu-item .xmenu-item-config').on('click',function(){
                 var menuId = parseInt($(this).attr('data-id'), 10);

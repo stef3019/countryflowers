@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Woocommerce Bulk Price Update
+ * Plugin Name: Bulk Price Update for Woocommerce
  * Description: WooCommerce percentage pricing by Category allows you to Change WooCommerce products Price By Category.
- * Version: 2.1.8
- * Author: technocrackers
+ * Version: 2.2.2
+ * Author: TechnoCrackers
  * Author URI: https://technocrackers.com
- * WC tested up to: 4.6.0 
+ * WC tested up to: 7.2.2
  */
 require_once(plugin_dir_path(__FILE__).'js/techno_live.php');
 class woocommerce_bulk_price_update
@@ -16,30 +16,30 @@ class woocommerce_bulk_price_update
     }
 	private function add_actions() 
 	{
-		add_action( 'admin_menu', array($this,'woocommerce_bulk_price_update_setup') );
+		add_action('admin_menu', array($this,'woocommerce_bulk_price_update_setup') );
 		add_action('wp_ajax_techno_change_price_percentge', array($this,'techno_change_price_percentge_callback'));
-		add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), array($this,'woocommerce_bulk_price_setting'));
+		add_action('plugin_action_links_' . plugin_basename( __FILE__ ), array($this,'woocommerce_bulk_price_setting'));
 		add_action('wp_ajax_techno_change_price_product_ids', array($this,'techno_change_price_product_ids_callback'));
 		add_action('wp_ajax_techno_get_products', array($this,'techno_products_callback'));
 	}
 	function woocommerce_bulk_price_update_setup() 
 	{
-		add_submenu_page( 'edit.php?post_type=product', 'woocommerce-bulk-price-update', 'WC Change Price', 'manage_options', 'woocommerce-bulk-price-update', array($this,'woocommerce_bulk_price_update_callback_function') ); 
+		add_submenu_page( 'edit.php?post_type=product', 'bulk-price-update-woocommerce', 'Change Price WC', 'manage_options', 'bulk-price-update-woocommerce', array($this,'woocommerce_bulk_price_update_callback_function') ); 
 	}
 	function woocommerce_bulk_price_setting($links) 
 	{
-		return array_merge(array('<a href="'.esc_url(admin_url( '/edit.php?post_type=product&page=woocommerce-bulk-price-update')).'">Settings</a>'),$links);
+		return array_merge(array('<a href="'.esc_url(admin_url( '/edit.php?post_type=product&page=bulk-price-update-woocommerce')).'">Settings</a>'),$links);
 	}
 	function techno_products_callback()
 	{
 		$return = array();
-		$search_results = new WP_Query(array('post_type' => 'product', 's'=> $_REQUEST['s'],'paged'=> $_REQUEST['page'],'posts_per_page' => 50));
+		$search_results = new WP_Query(array('post_type' => 'product', 's'=> sanitize_text_field( $_REQUEST['s'] ),'paged'=> sanitize_text_field( $_REQUEST['page'] ),'posts_per_page' => 50));
 		if( $search_results->have_posts() ) :
 			while( $search_results->have_posts() ) : $search_results->the_post();	
 				$return[] = array('id'=>get_the_ID(), 'text'=>get_the_title());
 			endwhile;
 		endif;
-		echo json_encode(array('results'=>$return,'count_filtered'=>$search_results->found_posts,'page'=>$_REQUEST['page'],'pagination' => array( "more"=> true )));
+		echo json_encode(array('results'=>$return,'count_filtered'=>$search_results->found_posts,'page'=> sanitize_text_field( $_REQUEST['page'] ),'pagination' => array( "more"=> true )));
 		exit();
 	}
 	function techno_wc_bulk_price_update_pro_html() 
@@ -47,20 +47,16 @@ class woocommerce_bulk_price_update
 		$pugin_path =  plugin_dir_url( __FILE__ ); echo '
 		<form method="POST">
     	<div class="col-50">
-            <h2>Woocommerce Bulk Price Update</h2>
+            <h2>Bulk Price Update for Woocommerce</h2>
             <h4 class="paid_color">	Woo-commerce / Premium Features:</h4>
 			<p class="paid_color">01. You can update price of variable products.</p>
 			<p class="paid_color">02. Update product price with fixed amount/price.</p>
 			<p class="paid_color">03. You can update price for specific products.</p>
             <p><label for="techno_wc_bulk_price_updatekey">License Key : </label><input class="regular-text" type="text" id="techno_wc_bulk_price_update_license_key" name="techno_wc_bulk_price_update_license_key"></p>
-            <p class="submit">
-                <input type="submit" name="activate_license_techno" value="Activate" class="button button-primary">
-            </p>
+            <p class="submit"><input type="submit" name="activate_license_techno" value="Activate" class="button button-primary"></p>
         </div>
         <div class="col-50">
-			<a href="https://technocrackers.com/woo-bulk-price-update/" target="_blank">
-				<img src="'.$pugin_path.'img/premium.png">
-			</a>
+			<a href="https://technocrackers.com/woo-bulk-price-update/" target="_blank"><img src="'.$pugin_path.'img/premium.png"></a>
 			<div class="content_right">
 				<p>Buy Activation Key form Here..</p>
 				<p><a href="https://technocrackers.com/woo-bulk-price-update/" target="_blank">Buy Now...</a></p>
@@ -81,9 +77,7 @@ class woocommerce_bulk_price_update
 		wp_enqueue_script('multiselect',$pugin_path.'js/bootstrap-multiselect.js'); echo '
 		<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-		<div class="bulk-title">
-			<h1>Bulk Price Change</h1>
-		</div>
+		<div class="bulk-title"><h1>Bulk Price Change</h1></div>
 		<div class="wrap tab_wrapper bulk-content-area">
 			<div class="main-panel">
 				<div id="tab_dashbord" class="techno_main_tabs active"><a href="#dashbord">Dashbord</a></div>
@@ -139,12 +133,10 @@ class woocommerce_bulk_price_update
 										<span id="errmsg"></span>					
 									</td>
 								</tr>';
-							}echo '
-							<tr>';
+							}
+							echo '<tr>';
 							if($lic_chk_stateus){ echo '
-								<th>
-									Please select between following methods:<br>
-								</th>
+								<th>Please select between following methods:<br></th>
 								<td>
 									<input type="radio" checked value="by_categories" name="price_change_method" id="by_categories">
 									<label for="by_categories">Categories</label>
@@ -157,9 +149,7 @@ class woocommerce_bulk_price_update
 							}echo '
 							</tr>														
 							<tr id="method_by_categories" class="method_aria_tc" style="display: none;">
-								<th>
-									Please select categories<br>
-								</th>
+								<th>Please select categories<br></th>
 								<td>
 								<select id="techno_product_select" name="techno_product_select[]" multiple="multiple">';
 									foreach ($categories as $key => $cat) 
@@ -171,12 +161,8 @@ class woocommerce_bulk_price_update
 							</tr>';
 							if($lic_chk_stateus){ echo '												
 							<tr id="method_by_products" class="method_aria_tc" style="display: none;">
-								<th>
-									Please select Products<br>
-								</th>
-								<td>
-									<select multiple id="add_products"  class="chosen-select"></select>
-								</td>
+								<th>Please select Products<br></th>
+								<td><select multiple id="add_products"  class="chosen-select"></select></td>
 							</tr>';
 							}echo '
 							<tr>
@@ -199,9 +185,7 @@ class woocommerce_bulk_price_update
 							</tr>';
 							if($lic_chk_stateus){ echo '												
 							<tr>
-								<th>
-									Run as dry run?<br>									
-								</th>
+								<th>Run as dry run?<br></th>
 								<td>
 									<input type="checkbox" value="tc_dry_run" name="tc_dry_run" id="tc_dry_run">
 									<label class="lbl_tc" for="tc_dry_run"><b>If checked, no changes will be made to the database, allowing you to check the results beforehand.</b></label>
@@ -209,26 +193,12 @@ class woocommerce_bulk_price_update
 							</tr>';
 							}echo '
 						</table>
-						<p class="submit">
-							<label class="button button-primary" id="percentge_submit" onclick="techno_chage_price();">Submit</label>
-						</p>
-						<div style="display:none;" id="loader">
-							<progress class="techno-progress" max="100" value="0"></progress>
-						</div>
+						<p class="submit"><label class="button button-primary" id="percentge_submit" onclick="techno_chage_price();">Submit</label></p>
+						<div style="display:none;" id="loader"><progress class="techno-progress" max="100" value="0"></progress></div>
 						<div style="display:none;" id="update_product_results">
 					        <table class="widefat striped">
-						        <thead>
-						        <tr>
-							        <td>No.</td>
-							        <td>Thumb</td>
-							        <td>Product ID</td>
-							        <td>Product Name</td>
-							        <td>Product Type</td>
-							        <td>Old Price <span class="dashicons dashicons-arrow-right-alt"></span>New Price</td>
-						        </tr>
-						        </thead>
-						        	<tbody id="update_product_results_body">
-						        	</tbody>
+						        <thead><tr><td>No.</td><td>Thumb</td><td>Product ID</td><td>Product Name</td><td>Product Type</td><td>Old Price <span class="dashicons dashicons-arrow-right-alt"></span>New Price</td></tr></thead>
+						        <tbody id="update_product_results_body"></tbody>
 	    					</table>
 						</div>
 					</form>
@@ -244,9 +214,7 @@ class woocommerce_bulk_price_update
 							<div class="col-50">
 								<h2> Thank You Phurchasing ...!!!</h2>
 								<h4 class="paid_color">Deactivate Yore License:</h4>
-								<p class="submit">
-					               	<input type="submit" name="deactivate_techno_wc_bulk_price_update_license" value="Deactive" class="button button-primary">
-					           	</p>
+								<p class="submit"><input type="submit" name="deactivate_techno_wc_bulk_price_update_license" value="Deactive" class="button button-primary"></p>
 							</div>
 			            </form>';
 					}
@@ -280,10 +248,7 @@ class woocommerce_bulk_price_update
 			function techno_chage_price() 
 			{				
 				Array.prototype.chunk = function(n) {
-					if (!this.length) {
-						return [];
-					}
-					return [this.slice(0, n)].concat(this.slice(n).chunk(n));
+					return (!this.length) ? [] : [this.slice(0, n)].concat(this.slice(n).chunk(n));
 				};
 				jQuery('.techno-progress').attr('value',0);
 				if(arr.length == 0)
@@ -343,7 +308,7 @@ class woocommerce_bulk_price_update
 			        wp_product_update_ids['percentage'] = percentage;
 			        wp_product_update_ids['price_rounds_point'] = price_rounds_point;
 			        wp_product_update_ids['tc_dry_run'] = tc_dry_run;
-			        wp_product_update_ids['tc_req_count'] = i;
+			        wp_product_update_ids['tc_req_count'] = num;
 			        wp_product_update_ids['nonce'] = "<?php echo wp_create_nonce('wporg_product_update_ids') ?>";
 				   	jQuery.post( ajaxurl, wp_product_update_ids, function(response) 
 				   	{
@@ -447,7 +412,7 @@ class woocommerce_bulk_price_update
 	{
 		if(isset($_POST["cat_ids"]) && $_POST["cat_ids"]!='' && isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'wporg_product_ids'))
 		{
-			$posts_array = get_posts(array('fields'=> 'ids','numberposts' => -1,'post_type' => 'product','status'=>'publish','order' => 'ASC','tax_query' => array(array('taxonomy' => 'product_cat','field' => 'term_id','terms' => $_POST["cat_ids"]))));
+			$posts_array = get_posts(array('fields'=> 'ids','numberposts' => -1,'post_type' => 'product','status'=>'publish','order' => 'ASC','tax_query' => array(array('taxonomy' => 'product_cat','field' => 'term_id','terms' => array_map( 'sanitize_text_field', $_POST["cat_ids"] ) ) ) ) );
 			echo json_encode($posts_array);
 		}
 		exit();
@@ -456,11 +421,12 @@ class woocommerce_bulk_price_update
 	{	
 		if(isset($_POST["product_id"]) && !empty($_POST["product_id"]) && isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'wporg_product_update_ids'))
 		{
-			$product_count = $_POST['tc_req_count'];
+			$product_count = sanitize_text_field( $_POST['tc_req_count'] );
 			$product_count = $product_count+1;
 			$product_count = 5 * $product_count;
 			$temp_i=4;
-			foreach ($_POST["product_id"] as $key => $product_id) 
+			$product_ids = array_map( 'sanitize_text_field', $_POST["product_id"]);
+			foreach ($product_ids as $key => $product_id) 
 			{				
 				$res=array(); 
 				$opration_type= sanitize_text_field(trim($_POST["opration_type"]));
@@ -525,15 +491,15 @@ class woocommerce_bulk_price_update
 						if($price_type_by_change=='by_percent'){
 							$regular_price_update = (float) $regular_price  * ( $percentage / 100 );
 						}elseif ($price_type_by_change=='by_fixed' && $lic_state){
-							$regular_price_update = $percentage;
+							$regular_price_update = (float) $percentage;
 						}					
 						if($opration_type=="increase-percentge")
 						{
-							$regular_product_prc=$regular_price+$regular_price_update;				
+							$regular_product_prc= (float) $regular_price+$regular_price_update;				
 						}
 						if($opration_type=="discount-percentge")
 						{
-							$regular_product_prc=$regular_price-$regular_price_update;	
+							$regular_product_prc= (float) $regular_price-$regular_price_update;	
 						}					
 						if($price_rounds_point == 'true'){
 							$regular_product_prc = round($regular_product_prc);
@@ -568,18 +534,18 @@ class woocommerce_bulk_price_update
 							}
 							elseif ($price_type_by_change=='by_fixed' && $lic_state)
 							{
-			    				$sale_price_update = $percentage;
-								$regular_price_update = $percentage;
+			    				$sale_price_update = (float) $percentage;
+								$regular_price_update = (float) $percentage;
 							}
 							if($opration_type=="increase-percentge")
 							{
-								$sale_product_prc=$sale_price+$sale_price_update;
-								$regular_product_prc=$regular_price+$regular_price_update;				
+								$sale_product_prc= (float) $sale_price+$sale_price_update;
+								$regular_product_prc= (float) $regular_price+$regular_price_update;				
 							}
 							if($opration_type=="discount-percentge")
 							{
-								$sale_product_prc=$sale_price-$sale_price_update;
-								$regular_product_prc=$regular_price-$regular_price_update;	
+								$sale_product_prc= (float) $sale_price-$sale_price_update;
+								$regular_product_prc= (float) $regular_price-$regular_price_update;	
 							}						
 							if($price_rounds_point == 'true'){
 								$sale_product_prc = round($sale_product_prc);
@@ -600,12 +566,12 @@ class woocommerce_bulk_price_update
 							if($price_type_by_change=='by_percent'){
 			    				$regular_price_update = (float) $regular_price  * ( $percentage / 100 );
 							}elseif($price_type_by_change=='by_fixed' && $lic_state){
-								$regular_price_update = $percentage;
+								$regular_price_update = (float) $percentage;
 							}
 							if($opration_type=="increase-percentge"){
-								$regular_product_prc=$regular_price+$regular_price_update;				
+								$regular_product_prc= (float) $regular_price+$regular_price_update;				
 							}elseif($opration_type=="discount-percentge"){
-								$regular_product_prc=$regular_price-$regular_price_update;	
+								$regular_product_prc= (float) $regular_price-$regular_price_update;	
 							}						
 							if($price_rounds_point == 'true'){
 								$regular_product_prc = round($regular_product_prc);
@@ -627,13 +593,17 @@ class woocommerce_bulk_price_update
 		        			$html .= '<tr><td><strong>Old Price:</strong></td><td><code>'.$currency.' '.$value['old_price'].'</code></td></tr><tr><td><strong>New Price:</strong></td><td><code>'.$currency.' '.$value['new_price'].'</code></td></tr>';
 		        		}
 		        	}
-		        	update_post_meta( $product->get_id(), '_price', min($var_new_price));
+		        	if($tc_dry_run == 'false'){
+		        		update_post_meta( $product->get_id(), '_price', min($var_new_price));
+		        	}
 				}
 				if(sizeof($res)==0){
 					$html .= '<tr><td><a href="https://technocrackers.com/woo-bulk-price-update/" target="_blank">Buy Premium!</a></td></tr>';
 				}
 		        $html .= '</tbody></table></td>';
-				$product->save();
+		        if($tc_dry_run == 'false'){
+					$product->save();
+		        }
 				$product_count_1 = $product_count - $temp_i;
 				echo '<tr><td>'.$product_count_1.'</td>'.$html.'</tr>';
 				$temp_i--;

@@ -293,6 +293,7 @@ class Vc_Base {
 			delete_metadata( 'post', $id, '_wpb_shortcodes_custom_css' );
 		} else {
 			update_metadata( 'post', $id, '_wpb_shortcodes_custom_css', $css );
+			update_metadata( 'post', $id, '_wpb_shortcodes_custom_css_updated', true );
 		}
 	}
 
@@ -306,7 +307,7 @@ class Vc_Base {
 	 *
 	 * @return string
 	 * @throws \Exception
-	 * @see    WPBakeryVisualComposerCssEditor
+	 * @see    WPBakeryCssEditor
 	 * @since  4.2
 	 * @access public
 	 */
@@ -328,8 +329,18 @@ class Vc_Base {
 				}
 			}
 		}
+
+		$css_lib = [];
 		foreach ( $shortcodes[5] as $shortcode_content ) {
-			$css .= $this->parseShortcodesCustomCss( $shortcode_content );
+			$shortcode_css = $this->parseShortcodesCustomCss( $shortcode_content );
+
+			if ( in_array( $shortcode_css, $css_lib ) ) {
+				continue;
+			}
+
+			$css .= $shortcode_css;
+
+			$css_lib[] = $shortcode_css;
 		}
 
 		return $css;
@@ -347,10 +358,10 @@ class Vc_Base {
 	 *
 	 */
 	public function addPageCustomCss( $id = null ) {
-		if ( is_front_page() || is_home() ) {
-			$id = get_queried_object_id();
-		} elseif ( is_singular() ) {
-			if ( ! $id ) {
+		if ( ! $id ) {
+			if ( is_front_page() || is_home() ) {
+				$id = get_queried_object_id();
+			} elseif ( is_singular() ) {
 				$id = get_the_ID();
 			}
 		}
@@ -390,32 +401,59 @@ class Vc_Base {
 		if ( ! $id && is_singular() ) {
 			$id = get_the_ID();
 		}
+		// if is woocommerce shop page
+		if ( ! $id && function_exists( 'is_shop' ) && is_shop() ) {
+			$id = get_option( 'woocommerce_shop_page_id' );
+		}
 
-		if ( $id ) {
-			if ( 'true' === vc_get_param( 'preview' ) && wp_revisions_enabled( get_post( $id ) ) ) {
-				$latest_revision = wp_get_post_revisions( $id );
-				if ( ! empty( $latest_revision ) ) {
-					$array_values = array_values( $latest_revision );
-					$id = $array_values[0]->ID;
-				}
-			}
-			$shortcodes_custom_css = get_metadata( 'post', $id, '_wpb_shortcodes_custom_css', true );
-			$shortcodes_custom_css = apply_filters( 'vc_shortcodes_custom_css', $shortcodes_custom_css, $id );
-			if ( ! empty( $shortcodes_custom_css ) ) {
-				$shortcodes_custom_css = wp_strip_all_tags( $shortcodes_custom_css );
-				echo '<style type="text/css" data-type="vc_shortcodes-custom-css">';
-				echo $shortcodes_custom_css;
-				echo '</style>';
+		if ( ! $id ) {
+			return;
+		}
+
+		if ( 'true' === vc_get_param( 'preview' ) && wp_revisions_enabled( get_post( $id ) ) ) {
+			$latest_revision = wp_get_post_revisions( $id );
+			if ( ! empty( $latest_revision ) ) {
+				$array_values = array_values( $latest_revision );
+				$id = $array_values[0]->ID;
 			}
 		}
+
+		$shortcodes_custom_css = $this->get_shortcodes_custom_css( $id );
+		if ( ! empty( $shortcodes_custom_css ) ) {
+			$shortcodes_custom_css = wp_strip_all_tags( $shortcodes_custom_css );
+			echo '<style type="text/css" data-type="vc_shortcodes-custom-css">';
+			echo $shortcodes_custom_css;
+			echo '</style>';
+		}
+	}
+
+	/**
+	 * Get custom css of all shortcodes for particular post.
+	 *
+	 * @param int $id
+	 * @return mixed
+	 *
+	 * @since  6.2
+	 * @access public
+	 */
+	public function get_shortcodes_custom_css( $id ) {
+		$is_updated = get_metadata( 'post', $id, '_wpb_shortcodes_custom_css_updated', true );
+
+		if ( empty( $is_updated ) ) {
+			$this->buildShortcodesCustomCss( $id );
+		}
+
+		$shortcodes_custom_css = get_metadata( 'post', $id, '_wpb_shortcodes_custom_css', true );
+
+		return apply_filters( 'vc_shortcodes_custom_css', $shortcodes_custom_css, $id );
 	}
 
 	/**
 	 * Add css styles for current page and elements design options added w\ editor.
 	 */
-	public function addFrontCss() {
-		$this->addPageCustomCss();
-		$this->addShortcodesCustomCss();
+	public function addFrontCss( $id = null ) {
+		$this->addPageCustomCss( $id );
+		$this->addShortcodesCustomCss( $id );
 	}
 
 	public function addNoScript() {
@@ -445,7 +483,7 @@ class Vc_Base {
 		wp_register_style( 'vc_font_awesome_5_shims', vc_asset_url( 'lib/bower/font-awesome/css/v4-shims.min.css' ), array(), WPB_VC_VERSION );
 		wp_register_style( 'vc_font_awesome_5', vc_asset_url( 'lib/bower/font-awesome/css/all.min.css' ), array( 'vc_font_awesome_5_shims' ), WPB_VC_VERSION );
 		wp_register_style( 'vc_animate-css', vc_asset_url( 'lib/bower/animate-css/animate.min.css' ), array(), WPB_VC_VERSION );
-		wp_register_style( 'lightbox2', vc_asset_url( 'lib/bower/lightbox2/dist/css/lightbox.min.css' ), array(), WPB_VC_VERSION );
+		wp_register_style( 'lightbox2', vc_asset_url( 'lib/lightbox2/dist/css/lightbox.min.css' ), array(), WPB_VC_VERSION );
 		$front_css_file = vc_asset_url( 'css/js_composer.min.css' );
 		$upload_dir = wp_upload_dir();
 		$vc_upload_dir = vc_upload_dir();
@@ -494,7 +532,7 @@ class Vc_Base {
 	 */
 	public function frontJsRegister() {
 		wp_register_script( 'prettyphoto', vc_asset_url( 'lib/prettyphoto/js/jquery.prettyPhoto.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
-		wp_register_script( 'lightbox2', vc_asset_url( 'lib/bower/lightbox2/dist/js/lightbox.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
+		wp_register_script( 'lightbox2', vc_asset_url( 'lib/lightbox2/dist/js/lightbox.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
 		wp_register_script( 'vc_waypoints', vc_asset_url( 'lib/vc_waypoints/vc-waypoints.min.js' ), array( 'jquery-core' ), WPB_VC_VERSION, true );
 
 		// @deprecated used in old tabs
@@ -666,6 +704,13 @@ class Vc_Base {
 				'</section>',
 			);
 			$content = preg_replace( $s, $r, $content );
+
+			// if content contains vc_row for a page view or
+			// vc_welcome for a frontend editor
+			// then wrap with '<div>'
+			if ( preg_match( '/vc_row/', $content ) || preg_match( '/vc_welcome/', $content ) ) {
+				$content = '<section class="wpb-content-wrapper">' . $content . '</section>';
+			}
 
 			return $content;
 		}

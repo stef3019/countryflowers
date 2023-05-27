@@ -269,43 +269,43 @@ LESS_VARIABLE;
 		public function getMainVariable()
 		{
 			$body_font = G5P()->options()->get_body_font();
-            $body_font = GSF()->core()->fonts()->processFont($body_font);
-            $body_font_family = GSF()->core()->fonts()->getFontFamily($body_font['font_family']);
+            $body_font = GSF_Core_Fonts::getInstance()->processFont($body_font);
+            $body_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($body_font['font_family']);
 
 			$primary_font = G5P()->options()->get_primary_font();
-			$primary_font = GSF()->core()->fonts()->getFontFamily($primary_font['font_family']);
+			$primary_font = GSF_Core_Fonts::getInstance()->getFontFamily($primary_font['font_family']);
 
             $h1_font = G5P()->options()->get_h1_font();
-            $h1_font = GSF()->core()->fonts()->processFont($h1_font);
-            $h1_font_family = GSF()->core()->fonts()->getFontFamily($h1_font['font_family']);
+            $h1_font = GSF_Core_Fonts::getInstance()->processFont($h1_font);
+            $h1_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h1_font['font_family']);
 
             $h2_font = G5P()->options()->get_h2_font();
-            $h2_font = GSF()->core()->fonts()->processFont($h2_font);
-            $h2_font_family = GSF()->core()->fonts()->getFontFamily($h2_font['font_family']);
+            $h2_font = GSF_Core_Fonts::getInstance()->processFont($h2_font);
+            $h2_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h2_font['font_family']);
 
             $h3_font = G5P()->options()->get_h3_font();
-            $h3_font = GSF()->core()->fonts()->processFont($h3_font);
-            $h3_font_family = GSF()->core()->fonts()->getFontFamily($h3_font['font_family']);
+            $h3_font = GSF_Core_Fonts::getInstance()->processFont($h3_font);
+            $h3_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h3_font['font_family']);
 
             $h4_font = G5P()->options()->get_h4_font();
-            $h4_font = GSF()->core()->fonts()->processFont($h4_font);
-            $h4_font_family = GSF()->core()->fonts()->getFontFamily($h4_font['font_family']);
+            $h4_font = GSF_Core_Fonts::getInstance()->processFont($h4_font);
+            $h4_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h4_font['font_family']);
 
             $h5_font = G5P()->options()->get_h5_font();
-            $h5_font = GSF()->core()->fonts()->processFont($h5_font);
-            $h5_font_family = GSF()->core()->fonts()->getFontFamily($h5_font['font_family']);
+            $h5_font = GSF_Core_Fonts::getInstance()->processFont($h5_font);
+            $h5_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h5_font['font_family']);
 
             $h6_font = G5P()->options()->get_h6_font();
-            $h6_font = GSF()->core()->fonts()->processFont($h6_font);
-            $h6_font_family = GSF()->core()->fonts()->getFontFamily($h6_font['font_family']);
+            $h6_font = GSF_Core_Fonts::getInstance()->processFont($h6_font);
+            $h6_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($h6_font['font_family']);
 
 			$menu_font = G5P()->options()->get_menu_font();
-            $menu_font = GSF()->core()->fonts()->processFont($menu_font);
-			$menu_font_family = GSF()->core()->fonts()->getFontFamily($menu_font['font_family']);
+            $menu_font = GSF_Core_Fonts::getInstance()->processFont($menu_font);
+			$menu_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($menu_font['font_family']);
 
 			$sub_menu_font = G5P()->options()->get_sub_menu_font();
-            $sub_menu_font = GSF()->core()->fonts()->processFont($sub_menu_font);
-			$sub_menu_font_family = GSF()->core()->fonts()->getFontFamily($sub_menu_font['font_family']);
+            $sub_menu_font = GSF_Core_Fonts::getInstance()->processFont($sub_menu_font);
+			$sub_menu_font_family = GSF_Core_Fonts::getInstance()->getFontFamily($sub_menu_font['font_family']);
 
 			$header_responsive_breakpoint = G5P()->options()->get_header_responsive_breakpoint();
 			$accent_color = G5P()->options()->get_accent_color();

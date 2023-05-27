@@ -2,7 +2,7 @@
 Theme Name:         Spring Plant
 Theme URI:          http://themes.g5plus.net/spring/
 Description:        Spring Plant is a premium responsive WordPress theme created especially for shop online with clean and modern design. <a href="http://www.g5plus.net">Visit site</a>
-Version:            2.8
+Version:            3.4
 Author:             g5plus
 Author URI:         http://g5plus.net/
 

@@ -14,7 +14,7 @@ $field_classes = array(
 	"{$settings['type']}_field"
 );
 $field_class = implode(' ', array_filter($field_classes));
-$values = GSF()->core()->fonts()->getActiveFonts();
+$values = GSF_Core_Fonts::getInstance()->getActiveFonts();
 ?>
 <div class="gsf-field-typography-wrapper">
 	<input type="hidden" name="<?php echo esc_attr($settings['param_name']) ?>"

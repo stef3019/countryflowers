@@ -4,21 +4,21 @@
  *
  *
  * @link              piwebsolution.com
- * @since             2.4.49.4
+ * @since             2.4.49.9
  * @package           Css_Js_Manager
  *
  * @wordpress-plugin
  * Plugin Name:       CSS JS Manager, Async JavaScript, Defer Render Blocking CSS
  * Plugin URI:        https://www.piwebsolution.com/css-js-manager-documentation/
  * Description:       You can control how to load CSS or JS file, Both CSS and JS can be loaded Asynchronous or Normal. There are many rules that allow you to remove them from different type of pages
- * Version:           2.4.49.4
+ * Version:           2.4.49.9
  * Author:            Pi Websolution
  * Author URI: 		  https://www.piwebsolution.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       css-js-manager
  * Domain Path:       /languages
- * WC tested up to: 7.4.0
+ * WC tested up to: 7.6.1
  */
 
 // If this file is called directly, abort.
@@ -48,7 +48,7 @@ if(is_plugin_active( 'css-js-manager-pro/css-js-manager.php')){
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PLUGIN_CSS_JS_MANAGER', '2.4.49.4' );
+define( 'PLUGIN_CSS_JS_MANAGER', '2.4.49.9' );
 define( 'CSS_JS_MANAGER_BUY_URL', 'https://www.piwebsolution.com/cart/?add-to-cart=751&&variation_id=755' );
 define( 'CSS_JS_MANAGER_PRICE', '$25 ONLY' );
 define( 'CSS_JS_MANAGER_DEVELOPMENT_MODE', false );

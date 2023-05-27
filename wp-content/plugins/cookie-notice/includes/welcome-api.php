@@ -27,27 +27,39 @@ class Cookie_Notice_Welcome_API {
 	/**
 	 * Ajax API request.
 	 *
-	 * @return bool|void
+	 * @return void
 	 */
 	public function api_request() {
+		// check capabilities
 		if ( ! current_user_can( apply_filters( 'cn_manage_cookie_notice_cap', 'manage_options' ) ) )
 			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
+		// check main nonce
 		if ( ! check_ajax_referer( 'cookie-notice-welcome', 'nonce' ) )
 			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
-		if ( empty( $_POST['request'] ) )
+		// get request
+		$request = isset( $_POST['request'] ) ? sanitize_key( $_POST['request'] ) : '';
+
+		// no valid request?
+		if ( ! in_array( $request, [ 'register', 'login', 'configure', 'select_plan', 'payment', 'get_bt_init_token', 'use_license' ], true ) )
 			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
 
-		if ( ( $_POST['request'] === 'payment' && ! empty( $_POST['cn_payment_nonce'] ) && ! wp_verify_nonce( $_POST['cn_payment_nonce'], 'cn_api_payment' ) ) || ( ! empty( $_POST['cn_nonce'] ) && ! wp_verify_nonce( $_POST['cn_nonce'], 'cn_api_' . $_POST['request'] ) ) )
-			wp_die( __( 'You do not have permission to access this page.', 'cookie-notice' ) );
+		$special_actions = [ 'register', 'login', 'configure', 'payment' ];
 
-		$request = in_array( $_POST['request'], [ 'register', 'login', 'configure', 'select_plan', 'payment', 'get_bt_init_token', 'use_license' ], true ) ? $_POST['request'] : '';
+		// payment nonce
+		if ( $request === 'payment' )
+			$nonce = isset( $_POST['cn_payment_nonce'] ) ? sanitize_key( $_POST['cn_payment_nonce'] ) : '';
+		// special nonce
+		elseif ( in_array( $request, $special_actions, true ) )
+			$nonce = isset( $_POST['cn_nonce'] ) ? sanitize_key( $_POST['cn_nonce'] ) : '';
+
+		// check additional nonce
+		if ( in_array( $request, $special_actions, true ) && ! wp_verify_nonce( $nonce, 'cn_api_' . $request ) )
+			wp_die( _( 'You do not have permission to access this page.', 'cookie-notice' ) );
+
 		$errors = [];
 		$response = false;
-
-		if ( ! $request )
-			return false;
 
 		// get main instance
 		$cn = Cookie_Notice();
@@ -72,7 +84,7 @@ class Cookie_Notice_Welcome_API {
 
 		switch ( $request ) {
 			case 'use_license':
-				$subscriptionID = (int) $_POST['subscriptionID'];
+				$subscriptionID = isset( $_POST['subscriptionID'] ) ? (int) $_POST['subscriptionID'] : 0;
 
 				$result = $this->request(
 					'assign_subscription',
@@ -100,7 +112,7 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'payment':
-				$error = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+				$error = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 
 				// empty data?
 				if ( empty( $_POST['payment_nonce'] ) || empty( $_POST['plan'] ) || empty( $_POST['method'] ) ) {
@@ -120,12 +132,24 @@ class Cookie_Notice_Welcome_API {
 					'compliance_yearly_20'
 				];
 
-				$plan = in_array( $_POST['plan'], $available_plans, true ) ? $_POST['plan'] : false;
-				$method = in_array( $_POST['method'], [ 'credit_card', 'paypal' ], true ) ? $_POST['method'] : false;
+				$available_payment_methods = [
+					'credit_card',
+					'paypal'
+				];
+
+				$plan = sanitize_key( $_POST['plan'] );
+
+				if ( ! in_array( $_POST['plan'], $available_plans, true ) )
+					$plan = false;
+
+				$method = sanitize_key( $_POST['method'] );
+
+				if ( ! in_array( $_POST['method'], $available_payment_methods, true ) )
+					$method = false;
 
 				// valid plan and payment method?
 				if ( empty( $plan ) || empty( $method ) ) {
-					$response = [ 'error' => __( 'Empty plan or payment method data.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Empty plan or payment method data.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -148,7 +172,7 @@ class Cookie_Notice_Welcome_API {
 							'AppID'					=> $app_id,
 							'AdminID'				=> $admin_email, // remove later - AdminID from API response
 							'PlanId'				=> $plan,
-							'paymentMethodNonce'	=> sanitize_text_field( $_POST['payment_nonce'] )
+							'paymentMethodNonce'	=> sanitize_key( $_POST['payment_nonce'] )
 						]
 					);
 
@@ -160,38 +184,28 @@ class Cookie_Notice_Welcome_API {
 
 				// user created/received?
 				if ( empty( $customer->id ) ) {
-					$response = [ 'error' => __( 'Unable to create customer data.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Unable to create customer data.', 'cookie-notice' ) ];
 					break;
 				}
 
 				// selected payment method
 				$payment_method = false;
 
-				// get payment identifier
+				// get payment identifier (email or 4 digits)
 				$identifier = isset( $_POST['cn_payment_identifier'] ) ? sanitize_text_field( $_POST['cn_payment_identifier'] ) : '';
 
 				// customer available payment methods
 				$payment_methods = ! empty( $customer->paymentMethods ) ? $customer->paymentMethods : [];
 
-				$paypal_methods = [];
-				$cc_methods = [];
-
 				// try to find payment method
 				if ( ! empty( $payment_methods ) && is_array( $payment_methods ) ) {
 					foreach ( $payment_methods as $pm ) {
 						// paypal
-						if ( isset( $pm->email ) ) {
-							$paypal_methods[] = $pm;
-
-							if ( $pm->email === $identifier )
-								$payment_method = $pm;
+						if ( isset( $pm->email ) && $pm->email === $identifier )
+							$payment_method = $pm;
 						// credit card
-						} else {
-							$cc_methods[] = $pm;
-
-							if ( isset( $pm->last4 ) && $pm->last4 === $identifier )
-								$payment_method = $pm;
-						}
+						elseif ( isset( $pm->last4 ) && $pm->last4 === $identifier )
+							$payment_method = $pm;
 					}
 				}
 
@@ -201,7 +215,7 @@ class Cookie_Notice_Welcome_API {
 						'create_payment_method',
 						[
 							'AppID'					=> $app_id,
-							'paymentMethodNonce'	=> sanitize_text_field( $_POST['payment_nonce'] )
+							'paymentMethodNonce'	=> sanitize_key( $_POST['payment_nonce'] )
 						]
 					);
 
@@ -209,13 +223,13 @@ class Cookie_Notice_Welcome_API {
 					if ( ! empty( $result->success ) ) {
 						$payment_method = $result->paymentMethod;
 					} else {
-						$response = [ 'error' => __( 'Unable to create payment mehotd.', 'cookie-notice' ) ];
+						$response = [ 'error' => esc_html__( 'Unable to create payment mehotd.', 'cookie-notice' ) ];
 						break;
 					}
 				}
 
 				if ( ! isset( $payment_method->token ) ) {
-					$response = [ 'error' => __( 'No payment method token.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'No payment method token.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -254,36 +268,50 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'register':
-				$email = is_email( $_POST['email'] );
-				$pass = ! empty( $_POST['pass'] ) ? $_POST['pass'] : '';
-				$pass2 = ! empty( $_POST['pass2'] ) ? $_POST['pass2'] : '';
+				// check terms
 				$terms = isset( $_POST['terms'] );
-				$language = ! empty( $_POST['language'] ) ? sanitize_text_field( $_POST['language'] ) : 'en';
 
+				// no terms?
 				if ( ! $terms ) {
-					$response = [ 'error' => __( 'Please accept the Terms of Service to proceed.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Please accept the Terms of Service to proceed.', 'cookie-notice' ) ];
 					break;
 				}
 
+				// check email
+				$email = isset( $_POST['email'] ) ? is_email( $_POST['email'] ) : false;
+
+				// empty email?
 				if ( ! $email ) {
-					$response = [ 'error' => __( 'Email is not allowed to be empty.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Email is not allowed to be empty.', 'cookie-notice' ) ];
 					break;
 				}
 
+				// check passwords
+				$pass = ! empty( $_POST['pass'] ) ? stripslashes( $_POST['pass'] ) : '';
+				$pass2 = ! empty( $_POST['pass2'] ) ? stripslashes( $_POST['pass2'] ) : '';
+
+				// empty password?
 				if ( ! $pass || ! is_string( $pass ) ) {
-					$response = [ 'error' => __( 'Password is not allowed to be empty.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Password is not allowed to be empty.', 'cookie-notice' ) ];
 					break;
 				}
 
+				// invalid password?
+				if ( preg_match( '/^(?=.*[A-Z])(?=.*\d)[\w !"#$%&\'()*\+,\-.\/:;<=>?@\[\]^\`\{\|\}\~\\\\]{8,}$/', $pass ) !== 1 ) {
+					$response = [ 'error' => esc_html__( 'The password contains illegal characters or does not meet the conditions.', 'cookie-notice' ) ];
+					break;
+				}
+
+				// no match?
 				if ( $pass !== $pass2 ) {
-					$response = [ 'error' => __( 'Passwords do not match.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Passwords do not match.', 'cookie-notice' ) ];
 					break;
 				}
 
 				$params = [
 					'AdminID'	=> $email,
 					'Password'	=> $pass,
-					'Language'	=> $language
+					'Language'	=> ! empty( $_POST['language'] ) ? sanitize_key( $_POST['language'] ) : 'en'
 				];
 
 				$response = $this->request( 'register', $params );
@@ -318,7 +346,7 @@ class Cookie_Notice_Welcome_API {
 
 				// token in response?
 				if ( empty( $response->data->token ) ) {
-					$response = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -360,7 +388,7 @@ class Cookie_Notice_Welcome_API {
 
 				// data in response?
 				if ( empty( $response->data->AppID ) || empty( $response->data->SecretKey ) ) {
-					$response = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 					break;
 				} else {
 					$app_id = $response->data->AppID;
@@ -375,16 +403,10 @@ class Cookie_Notice_Welcome_API {
 
 					update_site_option( 'cookie_notice_options', $cn->options['general'] );
 
-					// purge cache
-					delete_site_transient( 'cookie_notice_app_cache' );
-
 					// get options
 					$app_config = get_site_transient( 'cookie_notice_app_quick_config' );
 				} else {
 					update_option( 'cookie_notice_options', $cn->options['general'] );
-
-					// purge cache
-					delete_transient( 'cookie_notice_app_cache' );
 
 					// get options
 					$app_config = get_transient( 'cookie_notice_app_quick_config' );
@@ -395,6 +417,8 @@ class Cookie_Notice_Welcome_API {
 
 				// cast to objects
 				if ( $params ) {
+					$new_params = [];
+
 					foreach ( $params as $key => $array ) {
 						$object = new stdClass();
 
@@ -479,16 +503,21 @@ class Cookie_Notice_Welcome_API {
 				break;
 
 			case 'login':
-				$email = is_email( $_POST['email'] );
-				$pass = ! empty( $_POST['pass'] ) ? $_POST['pass'] : '';
+				// check email
+				$email = isset( $_POST['email'] ) ? is_email( $_POST['email'] ) : false;
 
+				// invalid email?
 				if ( ! $email ) {
-					$response = [ 'error' => __( 'Email is not allowed to be empty.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Email is not allowed to be empty.', 'cookie-notice' ) ];
 					break;
 				}
 
+				// check password
+				$pass = ! empty( $_POST['pass'] ) ? preg_replace( '/[^\w !"#$%&\'()*\+,\-.\/:;<=>?@\[\]^\`\{\|\}\~\\\\]/', '', $_POST['pass'] ) : '';
+
+				// empty password?
 				if ( ! $pass ) {
-					$response = [ 'error' => __( 'Password is not allowed to be empty.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Password is not allowed to be empty.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -511,7 +540,7 @@ class Cookie_Notice_Welcome_API {
 
 				// token in response?
 				if ( empty( $response->data->token ) ) {
-					$response = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -585,7 +614,7 @@ class Cookie_Notice_Welcome_API {
 
 				// check if we have the valid app data
 				if ( empty( $app_exists->AppID ) || empty( $app_exists->SecretKey ) ) {
-					$response = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+					$response = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 					break;
 				}
 
@@ -618,14 +647,8 @@ class Cookie_Notice_Welcome_API {
 					$cn->options['general']['global_override'] = true;
 
 					update_site_option( 'cookie_notice_options', $cn->options['general'] );
-
-					// purge cache
-					delete_site_transient( 'cookie_notice_app_cache' );
 				} else {
 					update_option( 'cookie_notice_options', $cn->options['general'] );
-
-					// purge cache
-					delete_transient( 'cookie_notice_app_cache' );
 				}
 
 				// create quick config
@@ -880,7 +903,7 @@ class Cookie_Notice_Welcome_API {
 				break;
 		}
 
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		exit;
 	}
 
@@ -1096,12 +1119,14 @@ class Cookie_Notice_Welcome_API {
 					$api_params[$key] = $param;
 				elseif ( is_array( $param ) )
 					$api_params[$key] = array_map( 'sanitize_text_field', $param );
+				elseif ( $key === 'Password' && ( $request === 'register' || $request === 'login' ) )
+					$api_params[$key] = preg_replace( '/[^\w !"#$%&\'()*\+,\-.\/:;<=>?@\[\]^\`\{\|\}\~\\\\]/', '', $param );
 				else
 					$api_params[$key] = sanitize_text_field( $param );
 			}
 
 			if ( $json )
-				$api_args['body'] = json_encode( $api_params );
+				$api_args['body'] = wp_json_encode( $api_params );
 			else
 				$api_args['body'] = $api_params;
 		}
@@ -1115,7 +1140,7 @@ class Cookie_Notice_Welcome_API {
 
 			// html response, means error
 			if ( $content_type == 'text/html' )
-				$result = [ 'error' => __( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
+				$result = [ 'error' => esc_html__( 'Unexpected error occurred. Please try again later.', 'cookie-notice' ) ];
 			else {
 				$result = wp_remote_retrieve_body( $response );
 

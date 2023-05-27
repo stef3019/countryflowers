@@ -715,7 +715,7 @@ var G5_Woocommerce = window.G5_Woocommerce || {};
                 }
 
                 if (isNaN(max)) {
-                    max = 100;
+                    max = -1;
                 }
                 if (isNaN(min)) {
                     min = 0;
@@ -739,11 +739,11 @@ var G5_Woocommerce = window.G5_Woocommerce || {};
                     }
 
                     if (type == 'plus') {
-                        if (current_value < max) {
+                        if ((max === -1) || (current_value < max)) {
                             current_value = (current_value + step).toFixed(stepLength);
                             input.val(current_value).change();
                         }
-                        if (parseFloat(input.val()) >= max) {
+                        if ((max !== -1) && (parseFloat(input.val()) >= max)) {
                             input.val(max).change();
                             $(this).attr('disabled', true);
                         }
@@ -766,7 +766,7 @@ var G5_Woocommerce = window.G5_Woocommerce || {};
                     step = parseFloat(input.attr('step'));
 
                 if (isNaN(max)) {
-                    max = 100;
+                    max = -1;
                 }
                 if (isNaN(min)) {
                     min = 0;
@@ -785,7 +785,7 @@ var G5_Woocommerce = window.G5_Woocommerce || {};
                     }
 
                 } else {
-                    alert('Sorry, the minimum value was reached');
+                    alert(g5plus_woocommerce_var.localization.add_cart_quantity.min);
                     $(this).val($(this).data('oldValue'));
 
                     if (typeof(btn_add_to_cart) != 'undefined') {
@@ -793,13 +793,13 @@ var G5_Woocommerce = window.G5_Woocommerce || {};
                     }
                 }
 
-                if (current_value <= max) {
+                if ((max === -1) || (current_value <= max)) {
                     $(".btn-number[data-type='plus']", $(this).parent()).removeAttr('disabled');
                     if (typeof(btn_add_to_cart) != 'undefined') {
                         btn_add_to_cart.attr('data-quantity', current_value);
                     }
                 } else {
-                    alert('Sorry, the maximum value was reached');
+                    alert(g5plus_woocommerce_var.localization.add_cart_quantity.max);
                     $(this).val($(this).data('oldValue'));
                     if (typeof(btn_add_to_cart) != 'undefined') {
                         btn_add_to_cart.attr('data-quantity', $(this).data('oldValue'));

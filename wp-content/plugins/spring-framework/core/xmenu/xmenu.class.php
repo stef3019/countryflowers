@@ -71,7 +71,7 @@ if (!class_exists('G5P_Core_XMenu')) {
 			if (isset($_GET['action']) && ($_GET['action'] == 'locations')) {
 				return;
 			}
-			GSF()->core()->iconPopup()->enqueue();
+			GSF_Core_Icons_Popup::getInstance()->enqueue();
 
 			wp_enqueue_style(G5P()->assetsHandle('xmenu_admin'), G5P()->helper()->getAssetUrl('core/xmenu/assets/css/xmenu-admin.min.css'), array(), G5P()->pluginVer());
 			wp_enqueue_script(G5P()->assetsHandle('xmenu_admin'), G5P()->helper()->getAssetUrl('core/xmenu/assets/js/xmenu-admin.min.js'), array(), G5P()->pluginVer(), true);
