@@ -1,0 +1,76 @@
+.gsf-countdown .countdown-section {
+  display: inline-block;
+  position: relative;
+}
+.gsf-countdown .countdown-section .countdown-value {
+  font-size: 48px;
+  margin-bottom: 2px;
+  line-height: 1em;
+}
+.gsf-countdown .countdown-section .countdown-text {
+  font-size: 16px;
+  line-height: 24px;
+  text-transform: capitalize;
+  text-align: center;
+  font-style: italic;
+}
+.gsf-countdown .countdown-section + .countdown-section {
+  padding-left: 34px;
+}
+.gsf-countdown .countdown-section + .countdown-section:before {
+  content: ':';
+  display: block;
+  position: absolute;
+  font-size: 24px;
+  left: 13px;
+  bottom: 0;
+}
+.gsf-countdown.custom-countdown .gsf-countdown-inner {
+  text-align: center;
+}
+.gsf-countdown.custom-countdown .gsf-countdown-inner .countdown-section:first-child {
+  display: block;
+  margin-bottom: 65px;
+}
+.gsf-countdown.custom-countdown .gsf-countdown-inner .countdown-section:first-child .countdown-value {
+  font-size: 200px;
+  line-height: 60px;
+}
+.gsf-countdown.custom-countdown .gsf-countdown-inner .countdown-section:first-child .countdown-text {
+  position: relative;
+  top: -92px;
+}
+.gsf-countdown.custom-countdown .gsf-countdown-inner .countdown-section:nth-child(2):before {
+  content: none;
+}
+.countdown-style-02 .countdown-section .countdown-value {
+  color: #333;
+  font-weight: 700;
+  display: block;
+  line-height: 1;
+}
+.countdown-style-02 .countdown-section .countdown-text,
+.countdown-style-02 .countdown-section + .countdown-section:before {
+  color: #b7b7b7;
+  display: block;
+}
+.countdown-style-02 .countdown-section + .countdown-section:before {
+  top: 2px;
+  bottom: auto;
+}
+@media (max-width: 575px) {
+  .gsf-countdown .countdown-section:nth-child(3) {
+    margin-left: 0;
+    padding-left: 0;
+    width: 35%;
+  }
+  .gsf-countdown .countdown-section:nth-child(3)::before {
+    display: none;
+  }
+  .gsf-countdown .countdown-section:first-child {
+    width: 35%;
+  }
+  .gsf-countdown .countdown-section:nth-child(2n) {
+    width: 42%;
+  }
+}

@@ -1,0 +1,135 @@
+.gf-shop-category {
+	position: relative;
+	.gf-shop-category-inner{
+		position: absolute;
+	}
+	&.shop-cate-small-title{
+		.gf-shop-category-content h5{
+			font-size: 16px;
+		}
+	}
+	.gf-shop-category-content{
+		h5{
+			font-size: 20px;
+			letter-spacing: 0.3em;
+			text-transform: uppercase;
+			font-weight: 900;
+			line-height: 1;
+			margin-bottom: 5px;
+			margin-top: 0;
+			a{
+				.transition(.3s);
+			}
+		}
+		.cate-count{
+			font-style: italic;
+			font-weight: bold;
+		}
+	}
+	.gf-shop-category-bg{
+		background-size: cover;
+		&:after{
+			content: "";
+			left: 10px;
+			bottom: 10px;
+			top: calc(~"100% - 10px");
+			right: calc(~"100% - 10px");
+			background: rgba(255,255,255,0.8);
+			position: absolute;
+			.transition(.5s);
+		}
+		a {
+			display: block;
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			top: 0;
+		}
+	}
+	&:hover,
+	&:focus{
+		outline: none;
+		.gf-shop-category-bg:after{
+			top: 10px;
+			bottom: 10px;
+			right: 10px;
+			left: 10px;
+		}
+	}
+	.gsf-category-button{
+		position: absolute;
+		a > i{
+			margin-left: 15px;
+			display: inline-block;
+		}
+	}
+	&.gf-shop-category-style-01{
+		.gf-shop-category-inner{
+			left: 50px;
+			top: 10px;
+		}
+		.gsf-category-button{
+			bottom: 60px;
+			left: 0;
+			opacity: 0;
+			.transition(0.5s);
+		}
+		&:hover{
+			.gsf-category-button{
+				opacity: 1;
+				left: 50px;
+			}
+		}
+	}
+	&.gf-shop-category-style-02{
+		.gf-shop-category-inner{
+			left: 50px;
+			bottom: 40px;
+			.transition(.5s);
+		}
+		.gsf-category-button{
+			bottom: 0;
+			left: 50px;
+			opacity: 0;
+			.transition(.5s);
+		}
+		&:hover{
+			.gf-shop-category-inner{
+				bottom: 100px;
+			}
+			.gsf-category-button{
+				opacity: 1;
+				bottom: 50px;
+			}
+		}
+	}
+	&.gf-shop-category-style-03{
+		.gf-shop-category-inner{
+			position: inherit;
+			text-align: center;
+		}
+		.gf-shop-category-content h5{
+			font-size: 16px;
+			margin-top: 30px;
+		}
+		.gf-shop-category-bg{
+			position: relative;
+			&:after{
+				content: none;
+			}
+		}
+	}
+}
+@media (max-width: 1339px){
+	.gf-shop-category{
+		.gsf-category-button a{
+			padding: 15px 15px;
+			line-height: 1;
+			i{
+				display: none;
+			}
+		}
+	}
+	
+}

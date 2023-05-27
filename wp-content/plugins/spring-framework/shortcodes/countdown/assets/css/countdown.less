@@ -1,0 +1,86 @@
+.gsf-countdown {
+	.countdown-section {
+		display: inline-block;
+		position: relative;
+		.countdown-value {
+			font-size: 48px;
+			margin-bottom: 2px;
+			line-height: 1em;
+		}
+		.countdown-text {
+			font-size: 16px;
+			line-height: 24px;
+			text-transform: capitalize;
+			text-align: center;
+			font-style: italic;
+		}
+		+ .countdown-section {
+			padding-left: 34px;
+			&:before {
+				content: ':';
+				display: block;
+				position: absolute;
+				font-size: 24px;
+				left: 13px;
+				bottom: 0;
+			}
+		}
+	}
+	&.custom-countdown{
+		.gsf-countdown-inner{
+			text-align: center;
+			.countdown-section:first-child{
+				display: block;
+				margin-bottom: 65px;
+				.countdown-value{
+					font-size: 200px;
+					line-height: 60px;
+				}
+				.countdown-text{
+					position: relative;
+					top: -92px;
+				}
+			}
+			.countdown-section:nth-child(2):before{
+				content: none;
+			}
+		}
+	}
+}
+.countdown-style-02 {
+	.countdown-section {
+		.countdown-value {
+			color: #333;
+			font-weight: 700;
+			display: block;
+			line-height: 1;
+		}
+		.countdown-text,
+		+ .countdown-section:before {
+			color: #b7b7b7;
+			display: block;
+		}
+		+ .countdown-section:before {
+			top: 2px;
+			bottom: auto;
+		}
+	}
+}
+@media (max-width: 575px){
+	.gsf-countdown{
+		.countdown-section:nth-child(3){
+			margin-left: 0;
+			padding-left: 0;
+			width:35%;
+			&::before{
+				display: none;
+			}
+		}
+		.countdown-section:first-child{
+			width:35%;
+		}
+		.countdown-section:nth-child(2n){
+			width:42%;
+		}
+	}
+}

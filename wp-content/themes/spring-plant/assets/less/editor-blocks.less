@@ -1,0 +1,98 @@
+@import "variable";
+
+.edit-post-layout__content[data-site_layout="none"] .wp-block[data-align="full"],
+.edit-post-layout__content[data-site_layout="none"] .wp-block[data-align="wide"],
+.edit-post-layout__content[data-site_layout="none"] .wp-block{
+  max-width: 1170px;
+}
+
+
+.editor-block-list__layout .editor-block-list__block[data-align="full"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 600px) {
+  .editor-block-list__layout .editor-block-list__block[data-align="full"] > .editor-block-list__block-edit {
+    margin-left: -28px;
+    margin-right: -28px;
+  }
+}
+
+
+.editor-styles-wrapper {
+  @import "blocks";
+  @import "buttons";
+
+  .components-icon-button {
+    overflow: hidden;
+  }
+
+}
+
+.wp-block-code .editor-plain-text {
+  font-family: @body_font;
+  font-size: 0.875rem;
+  color: @heading_color;
+  background: transparent;
+}
+
+.wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: #333 !important;
+    color: #fff !important;
+  }
+
+  &.has-background,
+  &.has-text-color {
+    border-color: transparent !important;
+  }
+
+
+}
+
+.wp-block-button.is-style-outline .wp-block-button__link {
+  &:hover,
+  &:focus,
+  &:active {
+    color: @accent_color !important;
+  }
+
+  &:not(.has-text-color) {
+    &:hover,
+    &:focus,
+    &:active {
+      color: #333 !important;
+    }
+  }
+}
+
+
+.editor-post-title__block .editor-post-title__input {
+  font-size: 36px;
+  font-weight: 600;
+  font-family: @h1_font;
+  color: @heading_color;
+}
+
+
+.wp-block-freeform.wp-block-freeform.block-library-rich-text__tinymce a {
+  color: @accent_color;
+}
+
+.wp-block-freeform.wp-block-freeform.block-library-rich-text__tinymce code {
+  padding: .2rem .4rem;
+  font-size: 90%;
+  color: #bd4147;
+  background-color: #f8f9fa;
+  border-radius: .25rem;
+  font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+
+.wp-block-freeform.wp-block-freeform.block-library-rich-text__tinymce a > code {
+  padding: 0;
+  color: inherit;
+  background-color: inherit;
+}

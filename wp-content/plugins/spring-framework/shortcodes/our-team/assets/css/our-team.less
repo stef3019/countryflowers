@@ -1,0 +1,57 @@
+.gsf-our-team {
+	position: relative;
+	img {
+		width: 100%;
+	}
+	&:after{
+		.transition(.3s);
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	&:hover{
+		&:after{
+			background-color: rgba(0,0,0,0.7);
+		}
+		.ourteam-content{
+			opacity: 1;
+			top: 50%;
+		}
+	}
+	.ourteam-content{
+		position: absolute;
+		top: 70%;
+		left: 50%;
+		width: 100%;
+		.transform(translateX(-50%) translateY(-50%));
+		z-index: 2;
+		opacity: 0;
+		.transition(.3s);
+	}
+	.ourteam-name {
+		font-size: 24px;
+		margin: 0;
+		font-weight: 400;
+	}
+	.ourteam-position{
+		font-size: 18px;
+		margin-bottom: 25px;
+		margin-top: 5px;
+		display: block;
+	}
+	.ourteam-socials{
+		a{
+			font-size: 18px;
+			.transition(.3s);
+			&:hover{
+				text-decoration: none;
+			}
+		}
+		a + a{
+			margin-left: 25px;
+		}
+	}
+}

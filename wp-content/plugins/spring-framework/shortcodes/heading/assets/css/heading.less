@@ -1,0 +1,83 @@
+.gf-heading {
+    .heading-title {
+        display: block;
+        margin-top: 0;
+        margin-bottom: 0;
+        font-weight: 700;
+        font-style: italic;
+        font-size: 48px;
+        + .heading-description {
+            margin-top: 20px;
+        }
+        + .heading-sub-title {
+            display: block;
+            margin-top: 8px;
+        }
+    }
+    .heading-sub-title {
+        font-weight: 400;
+        font-size: 14px;
+        + .heading-title {
+            margin-top: 14px;
+        }
+        + .heading-description {
+            margin-top: 11px;
+        }
+    }
+    &.gf-heading-style-02 {
+        position: relative;
+        .heading-sub-title {
+            padding-top: 30px;
+            padding-bottom: 30px;
+            display: block;
+            position: relative;
+            z-index: 2;
+            + .heading-title {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                z-index: 1;
+                .transform(translate(-50%, -50%));
+            }
+        }
+        .heading-title {
+            margin-top: 0;
+            font-style: normal;
+        }
+    }
+    &.gf-heading-style-03 {
+        .heading-title {
+            position: relative;
+            &:before {
+                content: '';
+                display: block;
+                position: absolute;
+                left: 50%;
+                bottom: -25px;
+                width: 70px;
+                height: 1px;
+                .transform(translateX(27px));
+            }
+            &:after {
+                content: '';
+                display: block;
+                position: absolute;
+                right: 50%;
+                bottom: -25px;
+                width: 70px;
+                height: 1px;
+                .transform(translateX(-27px));
+            }
+            + span {
+                font-size: 18px;
+                display: block;
+                margin-top: 10px;
+            }
+        }
+    }
+    &.gf-heading-style-04 {
+        .heading-title + .heading-sub-title {
+            margin-top: 23px;
+        }
+    }
+}

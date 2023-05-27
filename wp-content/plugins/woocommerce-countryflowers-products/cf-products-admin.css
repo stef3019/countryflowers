@@ -1,0 +1,25 @@
+tr:hover {
+    background-color: #eee;
+}
+
+#add_assorted_variations {
+    margin-top:30px;
+}
+#alerts_table td {
+    line-height: 2.5em;
+}
+body {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    background-color: #f1f1f1;
+}
+#alerts_table_wrapper .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+#alerts_table_wrapper .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #e2dada;
+    border: none;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e2dada), color-stop(100%, #e2dada)) !important;
+    background: -webkit-linear-gradient(top, #e2dada 0%, #e2dada 100%)!important;
+    background: -moz-linear-gradient(top, #e2dada 0%, #e2dada 100%)!important;
+    background: -ms-linear-gradient(top, #e2dada 0%, #e2dada 100%)!important;
+    background: -o-linear-gradient(top, #e2dada 0%, #e2dada 100%)!important;
+    background: linear-gradient(to bottom, #e2dada 0%, #e2dada 100%)!important;
+}

@@ -1,0 +1,27 @@
+.gf-product-category-list {
+	ul.product-categories {
+		padding: 0;
+		margin: 0;
+		list-style-type: disc;
+		li {
+			font-size: 16px;
+			a {
+				.transition(all 0.3s);
+				&:hover,
+				&:focus {
+					padding-left: 5px;
+					color: inherit;
+					text-decoration: underline;
+				}
+			}
+			+ li {
+				padding-top: 20px;
+			}
+		}
+		ul.children {
+			padding-top: 20px;
+			padding-left: 20px;
+			list-style-type: disc;
+		}
+	}
+}

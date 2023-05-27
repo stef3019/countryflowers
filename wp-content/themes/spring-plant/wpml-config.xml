@@ -1,0 +1,39 @@
+<wpml-config>
+  <custom-types>
+    <custom-type translate="0">gsf_template</custom-type>
+    <custom-type translate="0">gsf_content</custom-type>
+    <custom-type translate="0">portfolio</custom-type>
+    <custom-type translate="0">product</custom-type>
+    <custom-type translate="0">product_variation</custom-type>
+    <custom-type translate="0">shop_order</custom-type>
+    <custom-type translate="0">shop_order_refund</custom-type>
+    <custom-type translate="0">shop_coupon</custom-type>
+    <custom-type translate="0">vc4_templates</custom-type>
+    <custom-type translate="0">wpcf7_contact_form</custom-type>
+    <custom-type translate="0">vc_grid_item</custom-type>
+    <custom-type translate="0">mc4wp-form</custom-type>
+    <custom-type translate="0">amn_smtp</custom-type>
+    <custom-type translate="0">xmenu_mega</custom-type>
+  </custom-types>
+  <taxonomies>
+    <taxonomy translate="0">gsf_content_cat</taxonomy>
+    <taxonomy translate="0">gsf_template_cat</taxonomy>
+    <taxonomy translate="0">portfolio_cat</taxonomy>
+    <taxonomy translate="0">product_type</taxonomy>
+    <taxonomy translate="0">product_visibility</taxonomy>
+    <taxonomy translate="0">product_cat</taxonomy>
+    <taxonomy translate="0">product_tag</taxonomy>
+    <taxonomy translate="0">product_shipping_class</taxonomy>
+    <taxonomy translate="0">portfolio_visibility</taxonomy>
+  </taxonomies>
+  <custom-fields>
+    <custom-field action="ignore">_wp_page_template</custom-field>
+    <custom-field action="ignore">_form</custom-field>
+    <custom-field action="ignore">_mail</custom-field>
+    <custom-field action="ignore">_mail_2</custom-field>
+    <custom-field action="ignore">_messages</custom-field>
+    <custom-field action="ignore">_additional_settings</custom-field>
+    <custom-field action="ignore">_locale</custom-field>
+    <custom-field action="ignore">_vc_post_settings</custom-field>
+  </custom-fields>
+</wpml-config>

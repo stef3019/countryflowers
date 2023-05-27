@@ -1,0 +1,32 @@
+.gsf-counter {
+  position: relative;
+}
+.gsf-counter .ct-content {
+  display: inline-block;
+}
+.gsf-counter .ct-content h4 {
+  margin-bottom: 0;
+  margin-top: 0;
+  font-size: 60px;
+  display: inline-block;
+  font-weight: 900;
+}
+.gsf-counter .ct-content-right {
+  display: inline-block;
+  margin-left: 20px;
+}
+.gsf-counter .ct-content-right span {
+  display: block;
+  color: #363636;
+  line-height: 1.8;
+}
+.gsf-counter .ct-content-right span:last-child {
+  color: #7d7d7d;
+  line-height: 1.2;
+}
+@media (max-width: 425px) {
+  .gsf-counter .ct-content-right {
+    display: block;
+    margin: 0;
+  }
+}

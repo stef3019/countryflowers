@@ -1,0 +1,93 @@
+.gsf-product_tabs .gsf-pretty-tabs {
+  border-bottom: none;
+  margin-bottom: 50px !important;
+  font-size: 0;
+}
+.gsf-product_tabs .gsf-pretty-tabs li {
+  float: none;
+  display: inline-block;
+}
+.gsf-product_tabs .gsf-pretty-tabs li a {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  border: none;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  padding: 0;
+  margin-right: 0;
+  text-transform: uppercase;
+}
+.gsf-product_tabs .gsf-pretty-tabs li.active > a,
+.gsf-product_tabs .gsf-pretty-tabs li.active > a:hover,
+.gsf-product_tabs .gsf-pretty-tabs li a:hover,
+.gsf-product_tabs .gsf-pretty-tabs li a:focus {
+  background-color: transparent;
+}
+.gsf-product_tabs .gsf-pretty-tabs li + li {
+  margin-left: 45px;
+}
+.gsf-product_tabs .gsf-pretty-tabs li.dropdown {
+  float: right;
+}
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu {
+  margin-top: 10px;
+  border: none;
+  padding: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-box-shadow: 0 3px 10px rgba(111, 111, 111, 0.7);
+  -moz-box-shadow: 0 3px 10px rgba(111, 111, 111, 0.7);
+  box-shadow: 0 3px 10px rgba(111, 111, 111, 0.7);
+}
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu a {
+  font-size: 13px;
+  border-bottom: none;
+  text-align: left;
+  padding: 5px 10px;
+  display: block;
+}
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu li {
+  display: block;
+}
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu li.active > a,
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu li a:hover,
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu li a:focus {
+  border: none;
+  color: #6ea820;
+}
+.gsf-product_tabs .gsf-pretty-tabs .dropdown-menu li + li {
+  margin-left: 0;
+}
+.tabs-left .gsf-pretty-tabs {
+  display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+}
+.tabs-left .gsf-pretty-tabs {
+  -webkit-justify-content: flex-start;
+  -moz-justify-content: flex-start;
+  -ms-justify-content: flex-start;
+  justify-content: flex-start;
+}
+.tabs-center .gsf-pretty-tabs {
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+}
+.tabs-right .gsf-pretty-tabs {
+  -webkit-justify-content: flex-end;
+  -moz-justify-content: flex-end;
+  -ms-justify-content: flex-end;
+  justify-content: flex-end;
+}

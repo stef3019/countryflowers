@@ -1,0 +1,59 @@
+.logo-text {
+	margin: 0;
+	font-size: 24px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	font-weight: bold;
+}
+.site-branding-text {
+	position: relative;
+	.site-title {
+		position: absolute;
+		clip: rect(1px, 1px, 1px, 1px);
+	}
+}
+
+/**
+* Desktop
+* ----------------------------------------------------------------------------
+*/
+@media screen and (min-width: (@header_responsive_breakpoint + 1px)) {
+	.logo-header {
+		height: @logo_max_height;
+		padding-right: 60px;
+		.transition(all .5s);
+		flex-shrink: 0;
+		-webkit-flex-shrink: 0;
+		img {
+			.transition(all .5s);
+			max-height: @logo_max_height;
+			padding-top: @logo_padding_top;
+			padding-bottom: @logo_padding_bottom;
+		}
+	}
+	.sticky-logo {
+		display: none;
+	}
+}
+
+/**
+* Mobile
+* ----------------------------------------------------------------------------
+*/
+@media (max-width: @header_responsive_breakpoint) {
+	.mobile-logo-header {
+		height: @mobile_logo_max_height;
+		.transition(all .5s);
+		img {
+			.transition(all .5s);
+			max-height: @mobile_logo_max_height;
+			padding-top: @mobile_logo_padding_top;
+			padding-bottom: @mobile_logo_padding_bottom;
+		}
+	}
+}
+
+
+
+
+

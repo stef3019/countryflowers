@@ -1,0 +1,409 @@
+/*
+ Theme Name:   Spring Plant Child Theme
+ Theme URI:    http://themes.g5plus.net/spring/
+ Description:  Spring Plant Child Theme
+ Author:       G5plus
+ Author URI:   http://g5plus.net
+ Template:     spring-plant
+ Version:      1.0
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+Tags: 				two-columns, three-columns, left-sidebar, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-header, custom-menu, editor-style, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready, accessibility-ready
+Text Domain: 		spring-plant
+*/
+/************************************************************************************
+Put your custom CSS below this block :)
+*************************************************************************************/
+.skin-dark a:hover, .gf-skin .skin-dark a:hover, .gf-skin .gf-skin .skin-dark a:hover, .gf-skin .gf-skin .gf-skin .skin-dark a:hover, .skin-dark .gsf-link:hover, .gf-skin .skin-dark .gsf-link:hover, .gf-skin .gf-skin .skin-dark .gsf-link:hover, .gf-skin .gf-skin .gf-skin .skin-dark .gsf-link:hover, .skin-dark a:focus, .gf-skin .skin-dark a:focus, .gf-skin .gf-skin .skin-dark a:focus, .gf-skin .gf-skin .gf-skin .skin-dark a:focus, .skin-dark .gsf-link:focus, .gf-skin .skin-dark .gsf-link:focus, .gf-skin .gf-skin .skin-dark .gsf-link:focus, .gf-skin .gf-skin .gf-skin .skin-dark .gsf-link:focus, .skin-dark a:active, .gf-skin .skin-dark a:active, .gf-skin .gf-skin .skin-dark a:active, .gf-skin .gf-skin .gf-skin .skin-dark a:active, .skin-dark .gsf-link:active, .gf-skin .skin-dark .gsf-link:active, .gf-skin .gf-skin .skin-dark .gsf-link:active, .gf-skin .gf-skin .gf-skin .skin-dark .gsf-link:active, .skin-dark .widget_shopping_cart_content:hover .shopping-cart-icon a, .gf-skin .skin-dark .widget_shopping_cart_content:hover .shopping-cart-icon a  {
+    color: #ab906f;
+}
+
+.skin-dark .main-menu.menu-active-01.menu-space-short > .menu-item > a:before, .gf-skin .skin-dark .main-menu.menu-active-01.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .skin-dark .main-menu.menu-active-01.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .gf-skin .skin-dark .main-menu.menu-active-01.menu-space-short > .menu-item > a:before, .skin-dark .main-menu.menu-active-02.menu-space-short > .menu-item > a:before, .gf-skin .skin-dark .main-menu.menu-active-02.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .skin-dark .main-menu.menu-active-02.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .gf-skin .skin-dark .main-menu.menu-active-02.menu-space-short > .menu-item > a:before, .skin-dark .main-menu.menu-active-05.menu-space-short > .menu-item > a:before, .gf-skin .skin-dark .main-menu.menu-active-05.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .skin-dark .main-menu.menu-active-05.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .gf-skin .skin-dark .main-menu.menu-active-05.menu-space-short > .menu-item > a:before, .skin-dark .main-menu.menu-active-06.menu-space-short > .menu-item > a:before, .gf-skin .skin-dark .main-menu.menu-active-06.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .skin-dark .main-menu.menu-active-06.menu-space-short > .menu-item > a:before, .gf-skin .gf-skin .gf-skin .skin-dark .main-menu.menu-active-06.menu-space-short > .menu-item > a:before {
+    background-color: #ab906f;
+}
+
+.page-title-content.d-flex h1 {
+    font-family: 'Montserrat', Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: #333333;
+}
+ul.nav.nav-tabs.gf-cate-filter.gsf-pretty-tabs.gsf-pretty-tabs-initialized li a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.skin-light ul.nav-tabs.gf-cate-filter li a {
+    color: #ceaf88;
+}
+
+div#single-product-image-2 {
+    margin-top: 65px;
+}
+
+.primary-sidebar.sidebar.col-lg-3.gf-sidebar-canvas.gf-sticky {
+    margin-left: 50px;
+}
+ul.nav-tabs.gf-cate-filter li + li {
+    margin-left: 18px;
+}
+ul.nav-tabs.gf-cate-filter li{
+    height: 45px;
+}
+.woocommerce .woocommerce-error, .woocommerce .woocommerce-info, .woocommerce .woocommerce-message {
+    border: none;
+    background-color: antiquewhite;
+}
+.woocommerce .woocommerce-error:before, .woocommerce .woocommerce-info:before, .woocommerce .woocommerce-message:before {
+    color: #333333;
+}
+
+.woocommerce .woocommerce-ordering select{
+    background-color: #f6f7fb;
+    padding: 12px;
+}
+input.wpcf7-form-control, textarea.wpcf7-form-control {
+    width: 100%;
+}
+form.wpcf7-form label {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size:12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color:#333333;
+}
+aside#nav_menu-3 {
+    text-align: center;
+}
+aside#text-2 {
+    text-align: right;
+}
+footer.main-footer-wrapper {
+    border-top: 1px solid #ceaf88;
+    padding-top: 40px;
+}
+.main-footer-wrapper h4.widget-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 21px;
+}
+
+.layout-grid .product-skin-04 .product-action-inner a {
+    color: #ffffff;
+}
+
+.layout-grid .product-skin-04 .product-action-inner a:hover, .layout-grid .product-skin-04 .product-action-inner a:focus {
+    color: #efddc5;
+}
+#single-product-image-2 .summary-product table.variations select, #single-product-image-2 .quantity .quantity-inner .input-text {
+    background-color: #ffffff;
+}
+.btn.btn-accent {
+    color: #ffffff;
+}
+.woocommerce-MyAccount-navigation-link.is-active a,
+.woocommerce-MyAccount-navigation-link a:hover {
+    color:white !important;
+}
+.gf-shop-category .gf-shop-category-bg:after {
+    background: rgba(255, 255, 255, 0.26) !important;
+}
+.gf-shop-category .gf-shop-category-content h5 {
+    font-weight: 700 !important;
+    letter-spacing: 3px !important;
+}
+.home #primary-content {
+    padding-top:0 !important;
+}
+.gsf-process .process-item-inner .process-index {
+    font-family: 'Playfair Display', sans-serif;
+}
+h3.process-title {
+    font-weight: 300;
+}
+*::selection { color: white; }
+input.wpcf7-form-control.wpcf7-submit {
+    color: white;
+}
+#pa_colour option:disabled {
+    color: #eaeaea !important;
+}
+.gf-shop-category .gf-shop-category-bg {
+    background-repeat: no-repeat;
+}
+
+
+
+.category_box .vc_column-inner {
+    padding-right: 0 !important;
+}
+
+
+
+@media only screen and (min-width: 1200px) {
+    div#wrapper-content {
+        margin-top:120px;
+    }
+}
+@media only screen and (max-width: 1200px) and (min-width: 980px){
+    .gf-shop-category .gf-shop-category-bg {
+        background-position: calc(100% + 2em);
+    }
+}
+
+@media only screen and (max-width: 979px) and (min-width: 480px){
+    .gf-shop-category .gf-shop-category-bg {
+        background-position: calc(100% + 27px) calc(100% - 30px);
+    background-size: contain !important;
+    }
+}
+
+
+/*MOBILE OVVERIDES*/
+@media only screen and (max-width: 480px) {
+    .gf-shop-category.gf-shop-category-style-02 .gf-shop-category-inner,
+    .gf-shop-category.gf-shop-category-style-02 .gsf-category-button {
+        left: 10px !important; 
+        width:50%;
+    }
+
+    .gf-shop-category .gf-shop-category-bg {
+        background-position: calc(100% + 82px);
+    }
+
+    .gf-shop-category.gf-shop-category-style-02.home-category {
+        margin-left: 25px;
+    }
+
+    .page-title-content h1 {
+        text-align: center !important;
+        width: 100%;
+    }
+    ul.gf-breadcrumbs.d-flex {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .gsf-catalog-filter .woocommerce-customize-left {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+
+@media (min-width: 992px) {
+    .gf-sticky.col-lg-3 {
+        width: 300px;
+
+    }
+}
+
+.gf-product-category-filter-wrap {
+    background: #f6f7fb;
+    padding: 13px;
+}
+.gf-shop-category-inner.effect-content {
+    max-width: 50%;
+}
+
+.yith-woo-ajax-navigation .yith-wcan-select-wrapper {
+    z-index: 99 !important;
+}
+ul#menu-quick-links li {
+    padding-bottom: 0;
+}
+
+footer.main-footer-wrapper {
+    border-top: 6px solid #ceaf88;
+    padding-top: 40px;
+    background: #a98961;
+    color:white;
+}
+
+.main-footer-wrapper h4.widget-title
+ {
+    color:white;
+}
+footer .widget_nav_menu ul.menu li a,
+.main-footer-wrapper .textwidget a {
+    color: #ead3b7;
+}
+
+.main-footer-wrapper .textwidget.custom-html-widget p {
+    margin-bottom: 3px;
+}
+.main-footer-wrapper i.fa.fa-map-marker {
+    margin-right: 5px;
+}
+
+.gf-product-category-list ul.product-categories{
+    height: 685px;
+    overflow-y: scroll;
+    background: #f7f7f7;
+    padding: 19px 10px 10px 45px !important;
+}
+ul.product-categories li {
+    line-height: 1em;
+    padding-bottom: 0;
+}
+
+aside#woocommerce_product_categories-2 {
+    background: #f7f7f7;
+    padding: 23px;
+}
+#menu-quick-links li a:hover {
+    color:#f1e7db;
+    text-decoration: none;
+}
+.wpcf7 form.sent .wpcf7-response-output {
+    border-color: #edf7f0;
+    background: #edf7f0;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.wpcf7 form.invalid .wpcf7-response-output, .wpcf7 form.unaccepted .wpcf7-response-output {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    background:#ffd6de;
+    border-color:#ffd6de;
+}
+.woocommerce form .form-row.woocommerce-validated .select2-container, 
+.woocommerce form .form-row.woocommerce-validated input.input-text, 
+.woocommerce form .form-row.woocommerce-validated select {
+    border-color: #a98961;
+}
+
+.ui-datepicker {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 3px 5px 9px rgb(218 210 200);
+    display: none;
+    margin-top: 4px;
+    padding: 10px;
+    width: 240px;
+    margin-top: -32px;
+}
+.ui-datepicker a,
+.ui-datepicker a:hover {
+	text-decoration: none;
+}
+.ui-datepicker a:hover,
+.ui-datepicker td:hover a {
+	color: #2A6496;
+	-webkit-transition: color 0.1s ease-in-out;
+	   -moz-transition: color 0.1s ease-in-out;
+	     -o-transition: color 0.1s ease-in-out;
+	        transition: color 0.1s ease-in-out;
+}
+.ui-datepicker .ui-datepicker-header {
+	margin-bottom: 4px;
+	text-align: center;
+}
+.ui-datepicker .ui-datepicker-title {
+	font-weight: 700;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+	cursor: default;
+	font-family: 'Glyphicons Halflings';
+	-webkit-font-smoothing: antialiased;
+	font-style: normal;
+	font-weight: normal;
+	height: 20px;
+	line-height: 1;
+	margin-top: 2px;
+	width: 30px;
+}
+.ui-datepicker .ui-datepicker-prev {
+	float: left;
+	text-align: left;
+}
+.ui-datepicker .ui-datepicker-next {
+	float: right;
+	text-align: right;
+}
+.ui-datepicker .ui-datepicker-prev:before {
+	content: "\e079";
+}
+.ui-datepicker .ui-datepicker-next:before {
+	content: "\e080";
+}
+.ui-datepicker .ui-icon {
+	display: none;
+}
+.ui-datepicker .ui-datepicker-calendar {
+  table-layout: fixed;
+	width: 100%;
+}
+.ui-datepicker .ui-datepicker-calendar th,
+.ui-datepicker .ui-datepicker-calendar td {
+	text-align: center;
+	padding: 4px 0;
+}
+.ui-datepicker .ui-datepicker-calendar td {
+	border-radius: 4px;
+	-webkit-transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+	   -moz-transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+	     -o-transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+	        transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+}
+.ui-datepicker .ui-datepicker-calendar td:hover {
+	background-color: #eee;
+	cursor: pointer;
+}
+.ui-datepicker .ui-datepicker-calendar td a {
+	text-decoration: none;
+}
+.ui-datepicker .ui-datepicker-current-day {
+	background-color: #4289cc;
+}
+.ui-datepicker .ui-datepicker-current-day a {
+	color: #fff
+}
+.ui-datepicker .ui-datepicker-calendar .ui-datepicker-unselectable:hover {
+	background-color: #fff;
+	cursor: default;
+}
+td.ui-datepicker-unselectable.ui-state-disabled {
+    color: #ded6cc;
+}
+
+.woocommerce span.password-input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    outline: 0;
+    line-height: normal;
+}
+
+label.woocommerce-form__label.woocommerce-form__label-for-checkbox.woocommerce-form-login__rememberme {
+    width: 100%;
+    margin-bottom: 30px;
+}
+.ui-datepicker .ui-datepicker-next:before {
+    content: "\f105";
+    font-family: 'FontAwesome';
+}
+.ui-datepicker .ui-datepicker-prev:before {
+    content: "\f104";
+    font-family: 'FontAwesome';
+}
+h3#ship-to-different-address span {
+    font-size: 20px !important;
+}
+.woocommerce form.checkout h3#ship-to-different-address {
+    margin-top:25px !important;
+}
+.gsf-pretty-tabs {
+    opacity: 1;
+  }

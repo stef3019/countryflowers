@@ -1,0 +1,29 @@
+.gf-product-category-list ul.product-categories {
+  padding: 0;
+  margin: 0;
+  list-style-type: disc;
+}
+.gf-product-category-list ul.product-categories li {
+  font-size: 16px;
+}
+.gf-product-category-list ul.product-categories li a {
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.gf-product-category-list ul.product-categories li a:hover,
+.gf-product-category-list ul.product-categories li a:focus {
+  padding-left: 5px;
+  color: inherit;
+  text-decoration: underline;
+}
+.gf-product-category-list ul.product-categories li + li {
+  padding-top: 20px;
+}
+.gf-product-category-list ul.product-categories ul.children {
+  padding-top: 20px;
+  padding-left: 20px;
+  list-style-type: disc;
+}

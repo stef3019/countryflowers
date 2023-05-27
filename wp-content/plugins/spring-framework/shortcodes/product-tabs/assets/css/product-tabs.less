@@ -1,0 +1,83 @@
+.gsf-product_tabs {
+	.gsf-pretty-tabs {
+		border-bottom: none;
+		margin-bottom: 50px !important;
+		font-size: 0;
+		li {
+			float: none;
+			display: inline-block;
+			a {
+				font-size: 13px;
+				font-weight: 700;
+				line-height: 1;
+				border: none;
+				.border-radius(0);
+				padding: 0;
+				margin-right: 0;
+				text-transform: uppercase;
+			}
+			&.active > a,
+			&.active > a:hover,
+			a:hover, a:focus {
+				background-color: transparent;
+			}
+			+ li {
+				margin-left: 45px;
+			}
+			&.dropdown {
+				float: right;
+			}
+		}
+		.dropdown-menu {
+			margin-top: 10px;
+			border: none;
+			padding: 0;
+			.border-radius(0);
+			.box-shadow(0 3px 10px rgba(111, 111, 111, 0.7));
+			a {
+				font-size: 13px;
+				border-bottom: none;
+				text-align: left;
+				padding: 5px 10px;
+				display: block;
+			}
+			li {
+				display: block;
+				&.active > a,
+				a:hover,
+				a:focus {
+					border: none;
+					color: @accent_color;
+				}
+				+ li {
+					margin-left: 0;
+				}
+			}
+		}
+	}
+}
+
+.tabs-left .gsf-pretty-tabs {
+	display: flex;
+	display: -webkit-flex;
+	display: -moz-flex;
+	display: -ms-flex;
+}
+
+.tabs-left {
+	.gsf-pretty-tabs {
+		.justify-content(flex-start);
+	}
+}
+
+.tabs-center {
+	.gsf-pretty-tabs {
+		.justify-content(center);
+	}
+}
+
+.tabs-right {
+	.gsf-pretty-tabs {
+		.justify-content(flex-end);
+	}
+}

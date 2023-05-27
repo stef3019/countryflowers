@@ -1,0 +1,299 @@
+// Button sizes
+.button-size(@height;@padding-horizontal;@font-size;){
+	@line-height: 20px;
+	@padding-vertical: (@height - @line-height - 2) / 2;
+	padding: @padding-vertical @padding-horizontal;
+	font-size: @font-size;
+	line-height:@line-height;
+	&.btn-outline {
+		padding: @padding-vertical @padding-horizontal;
+	}
+}
+
+.button-variant(@color;@background;@border;@color_hover : ''; @background_hover : ''; @border_hover : '') {
+
+	@_color_hover : @color_hover;
+	@_background_hover : @background_hover;
+
+	& when (@_color_hover = '') {
+		@color_hover : @color;
+	}
+
+	& when (@_background_hover = '') {
+		@background_hover : @background;
+	}
+
+	color: @color;
+	background-color: @background;
+	border-color: @border;
+
+	&:focus,
+	&:hover {
+		color: @color_hover;
+		background-color: @background_hover;
+		border-color: @border_hover;
+	}
+	&.disabled,
+	&[disabled],
+	fieldset[disabled] & {
+		&:hover,
+		&.focus {
+			background-color: @background;
+			border-color: @border;
+		}
+	}
+
+	&.btn-3d {
+		top: 0;
+		.box-shadow(5px 9px 46px rgba(172, 185, 191, 0.4));
+		&:focus,
+		&:hover {
+			top: 3px;
+			.box-shadow(9px 15px 20px rgba(172, 185, 191, 0.6));
+			color: @color;
+			background-color: @background;
+			border-color: @border;
+		}
+	}
+}
+
+
+.wp-block-button__link,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+.btn {
+	display: inline-block;
+	font-weight: 700;
+	position: relative;
+	text-align: center;
+	vertical-align: middle;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	//white-space: nowrap;
+	text-transform: uppercase;
+	.button-size(40px, 30px, 14px);
+	.user-select(none);
+	.transition(all .2s ease-in-out);
+	.border-radius(0);
+	&:hover,
+	&:focus,
+	&.focus {
+		text-decoration: none;
+		.box-shadow(none);
+	}
+
+	&:active,
+	&.active {
+		outline: 0;
+		background-image: none;
+	}
+
+	&.disabled,
+	&[disabled],
+	fieldset[disabled] & {
+		cursor: not-allowed;
+		.opacity(.65);
+	}
+}
+[class*="btn-link-"] {
+	text-transform: none;
+	border: none;
+	height: auto;
+	line-height: 0.9em;
+	padding: 0;
+	letter-spacing: 0.2em;
+	&[class*="btn-icon"] i {
+		color: @accent_color;
+	}
+}
+
+.wp-block-button__link:not(.has-background):not(.has-text-color),
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	.button-variant(@foreground_accent_color, @accent_color, @accent_color, #fff, #2a2d2e, #2a2d2e);
+}
+
+.wp-block-button:not(.is-style-outline) .wp-block-button__link {
+	&:hover,
+	&:focus,
+	&:active {
+		color: #fff;
+		background-color: #333;
+		border-color: #333;
+	}
+
+	&.has-background,
+	&.has-text-color {
+		border-color: transparent;
+	}
+}
+
+.wp-block-button.is-style-outline .wp-block-button__link {
+	background: transparent !important;
+	border: 1px solid currentcolor;
+	color: @accent_color;
+	&:hover,
+	&:focus,
+	&:active {
+		color: @accent_color;
+	}
+
+	&:not(.has-text-color) {
+		&:hover,
+		&:focus,
+		&:active {
+			color: #333;
+		}
+	}
+}
+
+a.btn {
+	&.disabled,
+	fieldset[disabled] & {
+		pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
+	}
+}
+
+.btn-block {
+	display: block;
+	width: 100%;
+}
+
+.btn.btn-xs {
+	.button-size(32px, 25px, 12px);
+}
+
+.btn.btn-sm {
+	.button-size(40px, 35px, 13px);
+}
+
+.btn.btn-md {
+	.button-size(45px, 45px, 13px);
+}
+
+.btn.btn-lg {
+	.button-size(54px, 50px, 14px);
+}
+
+.btn.btn-xl {
+	.button-size(56px, 50px, 14px);
+}
+
+.btn.btn-xxl {
+	.button-size(60px, 55px, 14px);
+}
+
+.btn-link-xs {
+	font-size: 12px;
+}
+.btn-link-sm {
+	font-size: 13px;
+}
+.btn-link-md {
+	font-size: 14px;
+}
+.btn-link-lg {
+	font-size: 16px;
+}
+.btn-link-xl {
+	font-size: 18px;
+}
+.btn-link-xxl {
+	font-size: 24px;
+}
+
+.btn.btn-square {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+
+.wp-block-button:not(.is-style-squared) .wp-block-button__link,
+.btn.btn-round {
+	-webkit-border-radius: 2em;
+	-moz-border-radius: 2em;
+	border-radius: 2em;
+}
+
+.btn.btn-rounded {
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
+
+.btn.btn-inline {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.btn.btn-icon-left > i {
+	margin-right: 15px;
+}
+
+.btn.btn-icon-right > i {
+	margin-left: 15px;
+	display: inline-block;
+}
+
+.btn.btn-accent {
+	.button-variant(@foreground_accent_color, @accent_color, @accent_color, #fff, #333, #333);
+	&.btn-accent-hover-light {
+		.button-variant(@foreground_accent_color, @accent_color, @accent_color, #333, #fff, #fff);
+	}
+	&.btn-outline {
+		.button-variant(@accent_color, transparent, @accent_color, @foreground_accent_color, @accent_color, @accent_color);
+	}
+	&[class*="btn-link"] {
+		.button-variant(@accent_color, transparent, @accent_color, @accent_color, transparent, @accent_color);
+	}
+}
+
+.btn.btn-white {
+	.button-variant(#333, #fff, #fff, @foreground_accent_color, @accent_color, @accent_color);
+	&.btn-outline {
+		.button-variant(#fff, transparent, #fff, #333, #fff, #fff);
+	}
+	&[class*="btn-link"] {
+		.button-variant(#fff, transparent, #fff, @accent_color, transparent, @accent_color);
+	}
+}
+
+.btn.btn-gray {
+	.button-variant(#fff, #696969, #696969, @foreground_accent_color, @accent_color, @accent_color);
+	&.btn-outline {
+		.button-variant(#696969, transparent, #696969, #fff, #696969, #696969);
+	}
+	&[class*="btn-link"] {
+		.button-variant(#696969, transparent, #696969, @accent_color, transparent, @accent_color);
+	}
+}
+
+.btn.btn-red {
+	.button-variant(#fff, #e14e42, #e14e42, @foreground_accent_color, @accent_color, @accent_color);
+	&.btn-outline {
+		.button-variant(#e14e42, transparent, #e14e42, #fff, #e14e42, #e14e42);
+	}
+	&[class*="btn-link"] {
+		.button-variant(#e14e42, transparent, #e14e42, @accent_color, transparent, @accent_color);
+	}
+}
+
+.btn.btn-black {
+	.button-variant(#fff, #252525, #252525, @foreground_accent_color, @accent_color, @accent_color);
+	&.btn-outline {
+		.button-variant(#333, transparent, #252525, #fff, #252525, #252525);
+	}
+	&[class*="btn-link"] {
+		.button-variant(#252525, transparent, #252525, @accent_color, transparent, @accent_color);
+	}
+}
+.btn-container.btn-inline {
+	display: inline-block;
+}
