@@ -6,7 +6,6 @@ Version: 1.0
 Author: Stef Cordina (AI generated)
 */
 
-// Create database table upon plugin activation
 register_activation_hook(__FILE__, 'json_image_importer_create_table');
 function json_image_importer_create_table() {
     global $wpdb;
@@ -46,12 +45,19 @@ function json_image_importer_settings_page() {
     <div class="wrap">
         <h1>JSON Image Importer</h1>
         <p>Enter the URL of a JSON file to import images.</p>
-        <form method="post">
+        <form method="post" class="dhg_import_fn">
             <label for="json_url">JSON File URL:</label>
             <input type="text" id="json_url" name="json_url" placeholder="Enter JSON file URL" required>
-            <input type="submit" class="button button-primary" value="Import Images">
+            <input type="submit" id="json-image-importer-button" class="button button-primary" value="Import Christmas Images" onclick="showLoader()">
             <div id="json-image-importer-loader"></div>
             <?php wp_nonce_field('json_image_importer', 'json_image_importer_nonce'); ?>
+        </form>
+</br></br>
+        <form method="post" class="dhg_import_fn" id="save-json-file">
+            <label for="json_url">JSON File URL:</label>
+            <input type="text" id="json_url_2" name="json_url" placeholder="Enter JSON file URL" required>
+            <input type="submit" id="save_json_button" class="button" value="Save JSON File" onclick="saveJsonFile()">
+            <?php wp_nonce_field('json_save_file', 'json_save_file_nonce'); ?>
         </form>
     </div>
     <?php
@@ -76,52 +82,58 @@ function json_image_importer_import_images($json_url) {
     $response = wp_remote_get($json_url);
 
     if (is_wp_error($response)) {
-        echo '<div class="error notice"><p>Error retrieving JSON file.</p></div>';
+        echo '<div class="error notice"><p>There was an error retrieving the JSON file.</p></div>';
         return;
     }
 
-    $json_data = wp_remote_retrieve_body($response);
-    $data = json_decode($json_data, true);
-   
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
 
     if (empty($data)) {
-        echo '<div class="error notice"><p>Invalid JSON file.</p></div>';
+        echo '<div class="error notice"><p>Invalid JSON data.</p></div>';
         return;
     }
     $data = $data['products'];
     $imported_count = 0;
 
     foreach ($data as $item) {
-       
-
         if (isset($item['categories'][0]['id']) && $item['categories'][0]['id'] == 1) {
+            # Uncomment for testing
+            // if ($imported_count > 1 ) {
+            //     break;
+            // }
             $variant = isset($item['variant']) ? $item['variant'] : '';
             $image_url = isset($item['Image']) ? $item['Image'] : '';
-            // echo '<pre style="margin-left: 230px;">';
-            // print_r($item);
-            // echo '</pre>';
-            // break;
-            echo $variant.': '.$image_url.'</br>';
-
+          
             if (!empty($variant) && !empty($image_url) && !strpos($image_url, 'no_image.png')) {
                 // Save image to media library
                 $upload_dir = wp_upload_dir();
+                $upload_path = $upload_dir['path'];
                 $image_data = file_get_contents($image_url);
                 $image_name = basename($image_url);
 
-                $file_path = $upload_dir['path'] . '/' . $image_name;
+                // Generate filename with current date
+                $file_name = $image_name;
+                $file_path = $upload_dir['path'] . '/' . $file_name;
                 file_put_contents($file_path, $image_data);
 
                 $attachment = array(
                     'post_title' => $image_name,
-                    'post_mime_type' => wp_check_filetype($image_name)['type'],
+                    'post_mime_type' => wp_check_filetype($file_name)['type'],
                     'post_content' => '',
                     'post_status' => 'inherit'
                 );
 
                 $attachment_id = wp_insert_attachment($attachment, $file_path);
+                
 
                 if (!is_wp_error($attachment_id)) {
+
+                    // Generate thumbnails for the attachment
+                    $attachment_data = wp_generate_attachment_metadata($attachment_id, $upload_path . '/' . $image_name);
+                    wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+
                     // Insert data into database table
                     $wpdb->insert(
                         $table_name,
@@ -140,7 +152,7 @@ function json_image_importer_import_images($json_url) {
                     );
 
                     $imported_count++;
-                }
+                } 
             }
         }
     }
@@ -150,31 +162,63 @@ function json_image_importer_import_images($json_url) {
     } else {
         echo '<div class="notice"><p>No images matching the criteria were found or imported.</p></div>';
     }
+
 }
 
-##NOTES
+// Helper function to look for existing file
+function is_file_in_directory($filename, $directory) {
+    $path = trailingslashit($directory) . $filename;
+    return file_exists($path);
+}
 
-/*
-Create a new directory in your WordPress installation's wp-content/plugins folder and name it csv-image-importer.
-Create a new PHP file inside the csv-image-importer folder and name it csv-image-importer.php.
-Copy and paste the above code into the csv-image-importer.php file.
-Save the file.
-Create a new folder inside the csv-image-importer folder and name it js.
-Create a new JavaScript file inside the js folder and name it csv-image-importer.js.
-Open the csv-image-importer.js file and add the following code:(added already)
-Save the csv-image-importer.js file.
-Activate the "CSV Image Importer" plugin in the WordPress admin area.
-Go to "Tools" -> "CSV Image Importer" to access the plugin's settings page.
-Select a CSV file containing image URLs and click the "Import" button.
-The plugin will read the CSV file, download the images, and save them to the WordPress media library.
-Note: Make sure the CSV file contains only one column with image URLs, and the URLs should be in the first column (column index 0). The plugin assumes that the first column of the CSV file contains the image URLs.
+// Save JSON file to uploads directory
+add_action('wp_ajax_save_json_file', 'json_image_importer_save_json_file');
+function json_image_importer_save_json_file() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+    }
 
+    check_ajax_referer('json_save_file', 'nonce');
 
-*/
+    $upload_dir = wp_upload_dir();
+    $json_folder = $upload_dir['basedir'] . '/json-files';
 
-//In this updated version, the CSV file should have two columns: the image URL and the title. The image URL should be in the first column (column index 0), and the title should be in the second column (column index 1). The plugin will set the title as both the alt text and image title when importing the images.
+    if (!is_dir($json_folder)) {
+        mkdir($json_folder);
+    }
 
-//With this updated version, a new database table named wp_csv_image_importer will be created when the plugin is activated. The table will have three columns: ID (primary key), product_id, and image_name. The CSV file should now include three columns: ID, product_id, and image_url. The plugin will extract the product_id and image_url from each row, download and save the image, and insert the product_id and image filename into the wp_csv_image_importer table.
+    $file_name = date('Ymd') . '_dhg_products.json';
+    $file_path = $json_folder . '/' . $file_name;
 
- // a new button has been added to the settings page labeled "Process JSON and Import Images." When clicked, it triggers the csv_image_importer_process_json() function, which checks if the CSV file exists and then calls the csv_image_importer_import_images_from_csv() function to import the images from the CSV file into the WordPress media library.
+    if (is_file_in_directory($file_name, $file_path)) {
+        wp_send_json_error('File already exists.');
 
+    } else {
+
+        $json_data = file_get_contents($_POST['json_url']);
+
+        if ($json_data === false) {
+            wp_send_json_error('Failed to retrieve JSON data.');
+        }
+
+        $result = file_put_contents($file_path, $json_data);
+
+        if ($result === false) {
+            wp_send_json_error('Failed to save JSON file.');
+        }
+
+        wp_send_json_success('JSON file saved successfully.');
+   }
+}
+
+// Enqueue JavaScript file for saving JSON file
+add_action('admin_enqueue_scripts', 'json_save_file_enqueue_script');
+function json_save_file_enqueue_script($hook) {
+    if ($hook === 'tools_page_json-image-importer') {
+        wp_enqueue_script('json-image-importer-save-json', plugin_dir_url(__FILE__) . 'js/save-json.js', array('jquery'), '1.0', true);
+        wp_localize_script('json-image-importer-save-json', 'jsonImageImporter', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('json_save_file')
+        ));
+    }
+}
