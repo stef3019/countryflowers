@@ -1,0 +1,18 @@
+#json-image-importer-loader {
+    display: none;
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+    background: url(loader.gif) no-repeat center center;
+    background-size: 16px 16px;
+    animation: json-import-animation 1s infinite linear;
+  }
+  
+  @keyframes json-import-animation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
