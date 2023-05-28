@@ -1,0 +1,23 @@
+#json-image-importer-loader {
+    display: none;
+    width: 26px;
+    height: 26px;
+    margin-left: 10px;
+    background: url(../images/loader.png) no-repeat center center;
+    background-size: 26px 26px;
+    animation: json-import-animation 1s infinite linear;
+    float: right;
+  }
+  
+  @keyframes json-import-animation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  form.dhg_import_fn {
+    max-width: 440px;
+  }
