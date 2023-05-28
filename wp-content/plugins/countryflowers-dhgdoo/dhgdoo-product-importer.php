@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: DHGDOO Image Importer for Christmas Items
-Description: Imports images from a JSON file and saves them to the WordPress media library.
+Description: Imports DHG Christmas images from a JSON file and saves them to the WordPress media library with a lookup table matching file path and variant code.
 Version: 1.0
 Author: Stef Cordina (AI generated)
 */
@@ -36,7 +36,15 @@ function json_image_importer_enqueue_scripts() {
 // Add plugin settings page
 add_action('admin_menu', 'json_image_importer_add_settings_page');
 function json_image_importer_add_settings_page() {
-    add_submenu_page('tools.php', 'JSON Image Importer', 'JSON Image Importer', 'manage_options', 'json-image-importer', 'json_image_importer_settings_page');
+    //add_submenu_page('tools.php', 'JSON Image Importer', 'JSON Image Importer', 'manage_options', 'json-image-importer', 'json_image_importer_settings_page');
+    add_submenu_page(
+        'woocommerce',                    // Parent menu slug
+        'DHG Image Importer',                  // Page title
+        'DHG Image Importer',                  // Menu title
+        'manage_options',                  // Capability required to access the page
+        'json-image-importer',               // Menu slug
+        'json_image_importer_settings_page'           // Callback function to display the page content
+    );
 }
 
 // Render plugin settings page
