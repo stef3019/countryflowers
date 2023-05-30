@@ -83,10 +83,13 @@ function json_image_importer_process_form() {
 }
 
 // Import images from JSON
-function json_image_importer_import_images($json_url) {
+add_action('wp_ajax_json_image_importer_process_json', 'json_image_importer_process_json');
+function json_image_importer_process_json() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'json_image_importer';
-
+  
+    $json_url = $_POST['json_url'];
+    
     $response = wp_remote_get($json_url);
 
     if (is_wp_error($response)) {
@@ -97,6 +100,7 @@ function json_image_importer_import_images($json_url) {
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body, true);
 
+
     if (empty($data)) {
         echo '<div class="error notice"><p>Invalid JSON data.</p></div>';
         return;
@@ -106,12 +110,15 @@ function json_image_importer_import_images($json_url) {
 
     foreach ($data as $item) {
         if (isset($item['categories'][0]['id']) && $item['categories'][0]['id'] == 1) {
-            # Uncomment for testing
-            // if ($imported_count > 1 ) {
-            //     break;
-            // }
+    //         # Uncomment for testing
+            if ($imported_count > 1 ) {
+                break;
+            }
+          
             $variant = isset($item['variant']) ? $item['variant'] : '';
             $image_url = isset($item['Image']) ? $item['Image'] : '';
+    // var_dump($variant);
+    // var_dump($image_url);
           
             if (!empty($variant) && !empty($image_url) && !strpos($image_url, 'no_image.png')) {
                 // Save image to media library
@@ -120,10 +127,12 @@ function json_image_importer_import_images($json_url) {
                 $image_data = file_get_contents($image_url);
                 $image_name = basename($image_url);
 
-                // Generate filename with current date
+                // Generate filename
                 $file_name = $image_name;
                 $file_path = $upload_dir['path'] . '/' . $file_name;
-                file_put_contents($file_path, $image_data);
+               file_put_contents($file_path, $image_data);
+
+              // echo $file_name;
 
                 $attachment = array(
                     'post_title' => $image_name,
@@ -159,17 +168,19 @@ function json_image_importer_import_images($json_url) {
                         )
                     );
 
-                    $imported_count++;
+                   $imported_count++;
                 } 
-            }
-        }
-    }
+           }
+       }
+   }
 
     if ($imported_count > 0) {
         echo '<div class="updated notice"><p>' . $imported_count . ' images imported successfully.</p></div>';
     } else {
         echo '<div class="notice"><p>No images matching the criteria were found or imported.</p></div>';
     }
+    
+    return;
 
 }
 
