@@ -111,9 +111,9 @@ function json_image_importer_process_json() {
     foreach ($data as $item) {
         if (isset($item['categories'][0]['id']) && $item['categories'][0]['id'] == 1) {
     //         # Uncomment for testing
-            if ($imported_count > 1 ) {
-                break;
-            }
+            // if ($imported_count > 1 ) {
+            //     break;
+            // }
           
             $variant = isset($item['variant']) ? $item['variant'] : '';
             $image_url = isset($item['Image']) ? $item['Image'] : '';
