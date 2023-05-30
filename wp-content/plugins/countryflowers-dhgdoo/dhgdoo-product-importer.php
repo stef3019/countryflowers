@@ -27,11 +27,20 @@ function json_image_importer_create_table() {
 
 // Enqueue necessary scripts and styles
 add_action('admin_enqueue_scripts', 'json_image_importer_enqueue_scripts');
-function json_image_importer_enqueue_scripts() {
+function json_image_importer_enqueue_scripts($hook) {
+    if ($hook === 'woocommerce_page_json-image-importer') {
     wp_enqueue_media();
     wp_enqueue_script('json-image-importer', plugin_dir_url(__FILE__) . 'js/json-image-importer.js', array('jquery'), '1.0', true);
     wp_enqueue_style( 'json-importer-styles',plugin_dir_url(__FILE__) . 'css/style.css');
+    wp_enqueue_script('json-image-importer-save-json', plugin_dir_url(__FILE__) . 'js/save-json.js', array('jquery'), '1.0', true);
+    wp_localize_script('json-image-importer-save-json', 'jsonImageImporter', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('json_save_file')
+    ));
+    }
 }
+
+
 
 // Add plugin settings page
 add_action('admin_menu', 'json_image_importer_add_settings_page');
@@ -230,14 +239,3 @@ function json_image_importer_save_json_file() {
    }
 }
 
-// Enqueue JavaScript file for saving JSON file
-add_action('admin_enqueue_scripts', 'json_save_file_enqueue_script');
-function json_save_file_enqueue_script($hook) {
-    if ($hook === 'tools_page_json-image-importer') {
-        wp_enqueue_script('json-image-importer-save-json', plugin_dir_url(__FILE__) . 'js/save-json.js', array('jquery'), '1.0', true);
-        wp_localize_script('json-image-importer-save-json', 'jsonImageImporter', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('json_save_file')
-        ));
-    }
-}
