@@ -172,12 +172,14 @@ function misha_hide_product_tags_column( $product_columns ) {
 	return $product_columns;
 }
 
-
-if ( is_product() ) { ?>
-	<script type="text/javascript">
-		document.querySelector('img[srcset]').attributes.removeNamedItem('srcset')
-	</script>
-<?php }  
+if (function_exists('is_product')) {
+    if ( is_product() ) { ?>
+        <script type="text/javascript">
+            document.querySelector('img[srcset]').attributes.removeNamedItem('srcset')
+        </script>
+    <?php } 
+}
+ 
 
 
 // Disable /users rest routes that show at example.com/wp-json/wp/v2/users
