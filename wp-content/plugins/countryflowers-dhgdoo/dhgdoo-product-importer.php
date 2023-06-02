@@ -193,7 +193,7 @@ function json_image_importer_process_json() {
 
 }
 
-// Helper function to look for existing file
+//Helper function to look for existing file
 function is_file_in_directory($filename, $directory) {
     $path = trailingslashit($directory) . $filename;
     return file_exists($path);

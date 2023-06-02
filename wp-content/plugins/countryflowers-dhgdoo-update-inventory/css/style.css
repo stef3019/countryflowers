@@ -18,6 +18,6 @@
     }
   }
 
-  form.dhg_import_fn {
-    max-width: 470px;
+  form#dhgdoo-settings-form {
+    max-width: 540px;
   }
