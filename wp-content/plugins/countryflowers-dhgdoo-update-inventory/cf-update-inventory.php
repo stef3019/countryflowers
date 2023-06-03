@@ -125,8 +125,24 @@ function wc_product_deletion_menu_page() {
     ?>
     <div class="wrap">
         <h1>Dhgdoo Products</h1>
-        <p>Welcome to the Dhgdoo Products page!</p>
-        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-settings')); ?>">Go to Settings</a>
+        <h3>Delete</h3>
+        <p>Delete products by category. Warning, this is permanent. Products will not be in the Bin.</p>
+        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-settings')); ?>">Delete Products</a>
+        
+        <h3 style="margin-top:30px">Clean up Media Library</h3>
+        <p>Clean up Media Library from any unattached and residual images.</p>
+        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-clean-pics')); ?>">Clean</a>
+        <h3 style="margin-top:30px">New Stock</h3>
+        <p>Add new stock from DHG json page as published or draft. Ideally delete first but not required.</p>
+        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-new-products')); ?>">Add</a>
+        <h3 style="margin-top:30px">Today</h3>
+        <p>View info from today's dhg json file. </p><p><em>WIP (json file needs to be saved first)</em></p>
+        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-info')); ?>">Info</a>
+        <h3 style="margin-top:30px">Category Mappings</h3>
+        <p>DHG category IDs mapped onto WooCommerce category IDs. </p><p><em>WIP (form doesnt work, needs to be edited from phpmyadmin)</em></p>
+        <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-cat-mappings')); ?>">Map</a>
+        <h3 style="margin-top:30px">Further updates required</h3>
+        <p>- Incorporate christmas image importer</p>
     </div>
     <?php
 }
