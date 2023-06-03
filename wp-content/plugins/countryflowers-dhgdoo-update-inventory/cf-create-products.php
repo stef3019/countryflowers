@@ -55,9 +55,6 @@ function cf_create_variables_and_variants ($items, $cat, $status) {
         echo 'Something weird for item '.$item['sku'];
     }
     
-
-   // }
-
 }
 
 
@@ -252,15 +249,19 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
     $colours = array();
     foreach ($var_group as $variant) {
         $colours[] = ucwords(strtolower($variant['product']['color']));
+        $skus[] = $variant['sku'];
     }
     $colours_list = implode('|', $colours);
    
-
+    echo 'Creating Var: '.$sku;
     // Create a new variable product
+
+
+
     $product = new WC_Product_Variable();
     $product->set_name(ucwords(strtolower($var_group[0]['product']['name'])));
     $product->set_slug(sanitize_title(ucwords(strtolower($var_group[0]['product']['name']))));
-    $product->set_sku($sku);
+
 
     $product->set_description('Please allow 10-15 days for delivery.');
     $product->set_short_description(ucwords(strtolower($var_group[0]['product']['name'])));
@@ -278,6 +279,13 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
 
     $product->save();
 
+    $product_id = $product->get_id();
+    // Check if SKU is already used
+    
+    $product->set_sku($sku);
+    $product->save();
+    
+
     // Add the "colour" attribute and its terms
     $attribute_name = 'pa_colour';
     $attribute_label = 'Colour';
@@ -294,7 +302,7 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
     $product->set_attributes(array($attribute));
     $product->save();
 
-    $product_id = $product->get_id();
+   
 
     wp_set_post_terms( $product_id, $attribute_values, 'pa_colour', false );
 
@@ -309,7 +317,7 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
 
      $pa_terms = array();
     // Create variations for each attribute value
-    foreach ($colours as $value) {
+    foreach ($colours as $key => $value) {
 
         $attributes = ['pa_colour' => $value];
 
@@ -320,6 +328,7 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
         $variation->set_attributes($attributes);
         $variation->set_manage_stock(false);
         $variation->set_stock_status('instock');
+        $variation->set_sku($skus[$key]);
         $variation->save();
 
         // Now update some value unrelated to attributes.

@@ -294,13 +294,9 @@ function wc_dropdown_variation_attribute_options( $args = array() ) {
                     'fields' => 'all',
                 )
             );
-//$html .= '<option>'.$term[2]->name.'</option>';
+
             foreach ( $terms as $term ) {
-              $html .= '<option>'.$term->name.'</option>';
-                //echo $term->slug;
-                //if ( in_array( $term->name, $options, true ) ) {
-           //         $html .= '<option value="' . esc_attr( $term->slug ) . '" ' . selected( sanitize_title( $args['selected'] ), $term->slug, false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term->name, $term, $attribute, $product ) ) . '</option>';
-                //}
+                   $html .= '<option class="attached enabled" value="' . esc_attr( $term->slug ) . '" ' . selected( sanitize_title( $args['selected'] ), $term->slug, false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term->name, $term, $attribute, $product ) ) . '</option>';
 
             }
         } else {
@@ -317,3 +313,5 @@ function wc_dropdown_variation_attribute_options( $args = array() ) {
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     echo apply_filters( 'woocommerce_dropdown_variation_attribute_options_html', $html, $args );
 }
+
+add_filter( 'wc_product_has_unique_sku', '__return_false' ); 
