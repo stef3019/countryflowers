@@ -98,14 +98,7 @@ function cf_insert_dhg_products() {
         //TEST WITH SPECIFIC
        // $selected_v = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `code` = '96616'", ARRAY_A );
        $codes = $wpdb->get_results( "SELECT DISTINCT `code` FROM `wp_dhg_product_dump` WHERE `type` = 'variant'", ARRAY_A );
-        
-       echo '<pre>';
-        var_dump($codes);
-        echo '</pre>';
-
-        $var_products = count ($codes);
-        echo $var_products;
-
+        $count_vars = count($codes);
        //get each product as a group with its variants (so 3 variants = 3 rows)
        foreach ($codes as $key => $group) {
 
@@ -117,6 +110,7 @@ function cf_insert_dhg_products() {
             $group_code = $group['code'];
             //get the actual variant codes
             $selected_vars = $wpdb->get_results( "SELECT DISTINCT * FROM `wp_dhg_product_dump` WHERE `code` = $group_code", ARRAY_A );
+             echo count($selected_vars).' for item with code '.$group_code.'</br>';
             
 
             if ( $wpdb->last_error ) {

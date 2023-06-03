@@ -39,18 +39,22 @@ function cf_create_variables_and_variants ($items, $cat, $status) {
 
     //for the group that just came in, create the variable product and its associated variants
     cf_create_variable_product_with_variations($items, $cats);
-
-    foreach($items as $item) {
-        //update DB as imported
-        $table_name = $wpdb->prefix . 'dhg_product_dump';
-        $wpdb->update(
-            $table_name,
-            array('imported' => 1),
-            array('variant' => $item['sku']), // WHERE clause: 'variant' column equals the specified value
-            array('%d'), // Format for 'imported' column
-            array('%s') // Format for WHERE clause (string in this case)
-        );
+    if (count($items) > 0) {
+        foreach($items as $item) {
+            //update DB as imported
+            $table_name = $wpdb->prefix . 'dhg_product_dump';
+            $wpdb->update(
+                $table_name,
+                array('imported' => 1),
+                array('variant' => $item['sku']), // WHERE clause: 'variant' column equals the specified value
+                array('%d'), // Format for 'imported' column
+                array('%s') // Format for WHERE clause (string in this case)
+            );
+        }
+    } else {
+        echo 'Something weird for item '.$item['sku'];
     }
+    
 
    // }
 
@@ -228,8 +232,8 @@ function cf_create_simple_product($product_data) {
     $product->save();
     $product_id = $product->get_id();
 
-    if (is_wp_error($result)) {
-        $error_message = $result->get_error_message();
+    if (is_wp_error($product_id )) {
+        $error_message = $product_id->get_error_message();
         return 'Error: ' . $error_message;
     }
 
