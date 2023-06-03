@@ -74,7 +74,6 @@ function cf_insert_dhg_products() {
 
         } //foreach
 
-        return;
 
         //First Create Simple Items
         $selected = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `subcategory` = $dhg_subcat AND `type` = 'simple'", ARRAY_A );
