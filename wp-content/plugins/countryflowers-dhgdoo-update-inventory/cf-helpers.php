@@ -252,7 +252,7 @@ function cf_get_product_object_type( $type ) {
 function cf_get_dhg_cat_from_wc ($wc_cat) {
     global $wpdb;
     $dhg = $wpdb->get_var( "SELECT `dhg_id` FROM `wp_category_lookup` WHERE `wc_id` = $wc_cat");
-    echo 'DHG:'.$dhg;
+   // echo 'DHG:'.$dhg;
     return $dhg;
 }
 

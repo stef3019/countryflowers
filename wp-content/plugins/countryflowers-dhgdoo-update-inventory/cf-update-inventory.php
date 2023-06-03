@@ -143,6 +143,8 @@ function wc_product_deletion_menu_page() {
         <a class="button-primary" href="<?php echo esc_url(admin_url('admin.php?page=wc-product-dhg-management-cat-mappings')); ?>">Map</a>
         <h3 style="margin-top:30px">Further updates required</h3>
         <p>- Incorporate christmas image importer</p>
+        <p>- Create Variants for items with Components</p>
+        <p>- Improved statistics (no image items, assortito.. per category)</p>
     </div>
     <?php
 }

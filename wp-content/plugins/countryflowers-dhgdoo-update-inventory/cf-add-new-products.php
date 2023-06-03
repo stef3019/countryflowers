@@ -8,10 +8,10 @@ function cf_insert_dhg_products() {
         $category = get_term_by('slug', $category_slug, 'product_cat');
 
         $wc_cat_id = $category->term_id;
-
+       
         //Get Corresponding DHG category from wp_category_lookup table. (Assumes they are correct)
-        $dhg_subcat = $wpdb->get_var( 'SELECT `dhg_id` FROM `wp_category_lookup` WHERE wc_id = '.$wc_cat_id); 
-        $dhg_parent = $wpdb->get_var( 'SELECT `dhg_parent_id` FROM `wp_category_lookup` WHERE wc_id = '.$wc_cat_id);
+        $dhg_subcat = $wpdb->get_var( 'SELECT `dhg_id` FROM `wp_category_lookup` WHERE `wc_id` = '.$wc_cat_id); 
+        $dhg_parent = $wpdb->get_var( 'SELECT `dhg_parent_id` FROM `wp_category_lookup` WHERE `wc_id` = '.$wc_cat_id);
 
         $status = $_POST['wc_cat_product_status'];
 
@@ -19,9 +19,13 @@ function cf_insert_dhg_products() {
 
         $json_products = cf_grab_products_json ();
 
-        foreach ($json_products as $key => $selected_product) { 
+        foreach ($json_products as $key => $selected_product) {    
+
             $code = $selected_product['code'];
 
+            if((!isset($selected_product['categories']))||(empty($selected_product['categories']))) {
+                continue;
+            }
                 if ($selected_product['subCategories'][0]['id'] == $dhg_subcat)  {
                     $clean = str_replace(',', '.', $selected_product['price']);
                     $orig =  ($clean)/3;
@@ -69,6 +73,8 @@ function cf_insert_dhg_products() {
             } //inner if
 
         } //foreach
+
+        return;
 
         //First Create Simple Items
         $selected = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `subcategory` = $dhg_subcat AND `type` = 'simple'", ARRAY_A );
