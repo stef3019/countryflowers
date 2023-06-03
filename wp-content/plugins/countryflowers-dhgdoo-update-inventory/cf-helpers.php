@@ -1,5 +1,21 @@
 <?php
 
+/*
+cf_get_today_json_filepath
+cf_json_save_products_file
+cf_grab_products_json
+cf_grab_categories_from_json
+cf_upload_image_from_url
+cf_attach_image_to_product
+cf_delete_prev_cat_in_dump_table
+get_parent_category_id
+add_wc_stuff_to_product 
+get_id_of_parent_wc_cat 
+cf_get_product_object_type
+cf_get_dhg_cat_from_wc
+cf_get_wc_cat_from_dhg
+*/
+
 function cf_get_today_json_filepath() {
     $upload_dir = wp_upload_dir();
     $json_folder = $upload_dir['basedir'] . '/json-files';
@@ -230,4 +246,18 @@ function cf_get_product_object_type( $type ) {
         return false;
     else
         return $product;
+}
+
+
+function cf_get_dhg_cat_from_wc ($wc_cat) {
+    global $wpdb;
+    $dhg = $wpdb->get_var( "SELECT `dhg_id` FROM `wp_category_lookup` WHERE `wc_id` = $wc_cat");
+    echo 'DHG:'.$dhg;
+    return $dhg;
+}
+
+function cf_get_wc_cat_from_dhg ($dhg_cat) {
+    global $wpdb;
+    $wc_cat = $wpdb->get_var( "SELECT `wc_id` FROM `wp_category_lookup` WHERE `dhg_id` = $dhg_cat" );
+    return $wc_cat;
 }

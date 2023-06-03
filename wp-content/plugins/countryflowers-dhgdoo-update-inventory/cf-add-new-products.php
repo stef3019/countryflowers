@@ -1,11 +1,5 @@
 <?php 
- function wc_product_add_category_products() {
-
- }
-
-
-
- function cf_insert_dhg_products() {
+function cf_insert_dhg_products() {
     global $wpdb;
     
     if (isset($_POST['wc_product_add_category_products'])) {
@@ -97,18 +91,40 @@
         // $selected = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `subcategory` = $dhg_subcat AND `type` = 'variant'", ARRAY_A );
 
         //TEST WITH SPECIFIC
-        $selected_v = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `code` = '96616'", ARRAY_A );
+       // $selected_v = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `code` = '96616'", ARRAY_A );
+       $codes = $wpdb->get_results( "SELECT DISTINCT `code` FROM `wp_dhg_product_dump` WHERE `type` = 'variant'", ARRAY_A );
+        
+       echo '<pre>';
+        var_dump($codes);
+        echo '</pre>';
 
-        if ( $wpdb->last_error ) {
-            echo 'wpdb error: ';
-            echo '<pre>';
-            var_dump($wpdb->last_error);
-            echo '</pre>';
+        $var_products = count ($codes);
+        echo $var_products;
+
+       //get each product as a group with its variants (so 3 variants = 3 rows)
+       foreach ($codes as $key => $group) {
+
+            // if ($key == 2) {
+            //     break;
+            // }
+
+            //create the variable and its variants
+            $group_code = $group['code'];
+            //get the actual variant codes
+            $selected_vars = $wpdb->get_results( "SELECT DISTINCT * FROM `wp_dhg_product_dump` WHERE `code` = $group_code", ARRAY_A );
+            
+
+            if ( $wpdb->last_error ) {
+                echo 'wpdb error: ';
+                echo '<pre>';
+                var_dump($wpdb->last_error);
+                echo '</pre>';
+            }
+
+            $vars = add_wc_stuff_to_product($selected_vars);
+
+            cf_create_variables_and_variants ($vars, $wc_cat_id, $status);   
         }
-
-        $vars = add_wc_stuff_to_product($selected_v);
-
-        cf_create_variables_and_variants ($vars, $wc_cat_id, $status);   
     } //if isset
 } //function
 
