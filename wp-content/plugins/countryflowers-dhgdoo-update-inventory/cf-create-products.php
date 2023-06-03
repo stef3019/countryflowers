@@ -39,6 +39,19 @@ function cf_create_variables_and_variants ($items, $cat, $status) {
 
     //for the group that just came in, create the variable product and its associated variants
     cf_create_variable_product_with_variations($items, $cats);
+
+    foreach($items as $item) {
+        //update DB as imported
+        $table_name = $wpdb->prefix . 'dhg_product_dump';
+        $wpdb->update(
+            $table_name,
+            array('imported' => 1),
+            array('variant' => $item['sku']), // WHERE clause: 'variant' column equals the specified value
+            array('%d'), // Format for 'imported' column
+            array('%s') // Format for WHERE clause (string in this case)
+        );
+    }
+
    // }
 
 }
