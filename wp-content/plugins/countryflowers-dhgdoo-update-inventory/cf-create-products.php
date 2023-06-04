@@ -4,29 +4,30 @@
 function cf_create_simple_products($items, $cat, $status ) {
     global $wpdb;
 
-    echo count($items).' simple items to add.</br>';
-
+    $count = count($items);
+    echo $count.' simple items to add.</br>';
     //Get the parent category of this one, returns 1D array of parent and child category
     $cats = get_id_of_parent_wc_cat($cat);
-    
-    foreach ($items as $item) {
+    if ($count > 0) {
+        foreach ($items as $item) {
 
-        $product_id = wc_get_product_id_by_sku($item['sku']);
-        if ($product_id) {
-            continue;
+            $product_id = wc_get_product_id_by_sku($item['sku']);
+            if ($product_id) {
+                continue;
+            }
+            //foreach item, add it to the catalogue as a simple product
+            cf_add_simple_product_to_catalog($item, $cats, $status, 'simple');
+            
+            //update DB as imported
+            $table_name = $wpdb->prefix . 'dhg_product_dump';
+            $wpdb->update(
+                $table_name,
+                array('imported' => 1),
+                array('variant' => $item['sku']), // WHERE clause: 'variant' column equals the specified value
+                array('%d'), // Format for 'imported' column
+                array('%s') // Format for WHERE clause (string in this case)
+            );
         }
-        //foreach item, add it to the catalogue as a simple product
-        cf_add_simple_product_to_catalog($item, $cats, $status, 'simple');
-        
-        //update DB as imported
-        $table_name = $wpdb->prefix . 'dhg_product_dump';
-        $wpdb->update(
-            $table_name,
-            array('imported' => 1),
-            array('variant' => $item['sku']), // WHERE clause: 'variant' column equals the specified value
-            array('%d'), // Format for 'imported' column
-            array('%s') // Format for WHERE clause (string in this case)
-        );
     }
 }
 
@@ -38,7 +39,7 @@ function cf_create_variables_and_variants ($items, $cat, $status) {
     $cats = get_id_of_parent_wc_cat($cat);
 
     //for the group that just came in, create the variable product and its associated variants
-    cf_create_variable_product_with_variations($items, $cats);
+    cf_create_variable_product_with_variations($items, $cats, $status);
     if (count($items) > 0) {
         foreach($items as $item) {
             //update DB as imported
@@ -56,54 +57,6 @@ function cf_create_variables_and_variants ($items, $cat, $status) {
     }
     
 }
-
-
-/////////////////////////////////////////
-// ADD VARIATION TO PRODUCT           //
-///////////////////////////////////////
-
-// function cf_add_variation_to_product ($parent_id, $item, $cat, $status, $type) {
-//     global $woocommerce;
-//     $variation_data = array(
-//         'regular_price' =>$item['product']['price'], // Regular price for the variation
-//         'sku' => $item['sku'], // SKU for the variation
-//         'stock_status' => 'instock', // Stock status for the variation
-//     );
-//     $attributes =  array(
-//          'pa_colour' => ucwords(strtolower($item['product']['color'])), // Attribute and value for the variation
-//     );
-
-//     $var_id = cf_create_product_variation($parent_id, $attributes, $variation_data);
-
-//     if ($var_id) {
-//         return $var_id;
-//     } else {
-//         return false;
-//     }
-// }
-
-
-// function cf_create_product_variation($product_id, $attributes, $variation_data) {
-//     global $woocommerce;
-//     $product = wc_get_product($product_id);
-    
-//     if (!$product || !$product->is_type('variable')) {
-//         return false; // Not a variable product
-//     }
-
-//     $variation = new WC_Product_Variation();
-//     $variation->set_parent_id($product_id);
-//     $variation->set_attributes($attributes);
-
-//     foreach ($variation_data as $key => $value) {
-//         $variation->{"set_$key"}($value);
-//     }
-
-//     $variation->save();
-
-//     return $variation->get_id();
-// }
-
 
 
 /////////////////////////////////////////
@@ -127,7 +80,8 @@ function cf_add_simple_product_to_catalog($item, $cats, $status, $type) {
         'stock_quantity' => '', // Stock quantity
         'categories' => $cats, // Product categories
         'catalog_visibility' => 'visible',
-        'image_url' => $item['product']['image']
+        'image_url' => $item['product']['image'],
+        'status' => $status
     );
 
     // Create the product object
@@ -136,56 +90,6 @@ function cf_add_simple_product_to_catalog($item, $cats, $status, $type) {
     // Return the product ID
     return $product_id;
    
-}
-
-
-
-/////////////////////////////////////////
-// ADD VARIABLE PRODUCT               //
-///////////////////////////////////////
-
-
-function cf_add_variable_product_to_catalog($item, $cats, $status, $type) {
-    global $woocommerce, $wpdb;
-    // Set up product data
-    $sku = $item['sku'];
-    $value = array();
-    $att_values =  $att_terms = $wpdb->get_results( "SELECT DISTINCT `color` FROM `wp_dhg_product_dump` WHERE `code` = $sku", ARRAY_A );
-    foreach ($att_values as $value) {
-        $values[] = $value['pa_colour']; 
-    }
-    $values = implode(',', $values);
-
-    $product_data = array(
-        'name' => ucwords(strtolower($item['product']['name'])), // Product name
-        'slug' => sanitize_title(ucwords(strtolower($item['product']['name']))),
-        'type' => $type,// Product type
-        'regular_price' => $item['product']['price'], // Regular price
-        'description'  => 'Please allow 10-15 days for delivery.', // Product description
-        'short_description' => ucwords(strtolower($item['product']['name'])), // Short description
-        'sku' =>  $item['sku'], // SKU
-        'stock_status' => 'instock', // Stock status
-        'manage_stock' => false, // Manage stock
-        'categories' => $cats,  // Product category IDs (replace with the desired category ID)
-        'attributes' => array(
-            'pa_colour' => array(
-                'name' => 'Colour', // Attribute name
-                'value' => $values, // Attribute options (comma-separated if multiple)
-                'position' => 1, // Attribute position
-                'is_visible' => 1, // Attribute visibility on the product page
-                'is_variation' => 1, // Attribute variation status
-                'is_taxonomy' => 1, // Use attribute as taxonomy
-            ),
-        ),
-        'catalog_visibility' => 'visible',
-        'image_url' => $item['product']['image']
-    );
-
-    // Create the product object
-    $product_id = cf_create_simple_product($product_data);
-    
-    return $product_id;
-
 }
 
 
@@ -215,15 +119,8 @@ function cf_create_simple_product($product_data) {
     $product->set_stock_quantity($product_data['stock_quantity']);
     $product->set_category_ids($product_data['categories']);
     $product->set_catalog_visibility('visible');
+    $product->set_status($product_data['status']);
     $product->set_reviews_allowed(false);
-
-    //if is variable
-
-    if ($product_data['type'] == 'variable') {
-        echo 'setting attributes';
-        $product->set_attributes($product_data['attributes']);
-    }
-
 
     // Save the product
     $product->save();
@@ -241,8 +138,11 @@ function cf_create_simple_product($product_data) {
 }
 
 
-//NEW TEST FUNCTION
-function cf_create_variable_product_with_variations($var_group, $cats) {
+/////////////////////////////////////////
+// CREATE VARIABLE & IT'S VARIATION   //
+///////////////////////////////////////
+
+function cf_create_variable_product_with_variations($var_group, $cats, $status) {
     global $woocommerce, $wpdb;
 
     $sku = $var_group[0]['product']['code'];
@@ -253,11 +153,8 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
     }
     $colours_list = implode('|', $colours);
    
-    echo 'Creating Var: '.$sku;
+
     // Create a new variable product
-
-
-
     $product = new WC_Product_Variable();
     $product->set_name(ucwords(strtolower($var_group[0]['product']['name'])));
     $product->set_slug(sanitize_title(ucwords(strtolower($var_group[0]['product']['name']))));
@@ -276,6 +173,8 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
 
     $product->set_catalog_visibility('visible');
     $product->set_reviews_allowed(false);
+
+    $product->set_status($status);
 
     $product->save();
 
@@ -328,16 +227,15 @@ function cf_create_variable_product_with_variations($var_group, $cats) {
         $variation->set_attributes($attributes);
         $variation->set_manage_stock(false);
         $variation->set_stock_status('instock');
+        
         $variation->set_sku($skus[$key]);
         $variation->save();
 
         // Now update some value unrelated to attributes.
         $variation = wc_get_product($variation->get_id());
-        $variation->set_status('publish');
+        $variation->set_status($status);
         $variation->save();
     
-        // $pa_term = get_term_by('name',$value, 'pa_colour');
-        // $pa_term_ids[] = $pa_term->term_id;
     }
 
     $product->save();
