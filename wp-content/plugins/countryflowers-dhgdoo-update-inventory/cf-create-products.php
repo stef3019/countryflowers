@@ -13,6 +13,7 @@ function cf_create_simple_products($items, $cat, $status ) {
 
             $product_id = wc_get_product_id_by_sku($item['sku']);
             if ($product_id) {
+                echo '<p>Skipping simple '.$item['sku'].', it exists.</p>';
                 continue;
             }
             echo '<h3><em>Adding simple '.$item['sku'].'</em></h3>';

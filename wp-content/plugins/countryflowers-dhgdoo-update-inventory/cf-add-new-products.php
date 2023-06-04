@@ -106,9 +106,9 @@ function cf_insert_dhg_products() {
        foreach ($codes as $key => $group) {
 
             //for testing, uncomment
-            if ($key == 3) {
-                break;
-            }
+            // if ($key == 3) {
+            //     break;
+            // }
 
             //create the variable and its variants
             $group_code = $group['code'];
