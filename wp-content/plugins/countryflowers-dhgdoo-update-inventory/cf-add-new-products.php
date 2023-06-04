@@ -74,6 +74,8 @@ function cf_insert_dhg_products() {
 
         } //foreach
 
+        //////////////////// ----- SIMPLE ------//////////////////////
+
 
         //First Create Simple Items
         $selected = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `subcategory` = $dhg_subcat AND `type` = 'simple' ", ARRAY_A );
@@ -85,32 +87,42 @@ function cf_insert_dhg_products() {
             echo '</pre>';
           }
 
-        //add some extra WC stuff
-        $simple = add_wc_stuff_to_product($selected);
+        //remove non-viable products and add some extra WC stuff
+        $viable = cf_remove_non_viable_products($selected);
+        if (!empty($viable)) {
+            $simple = add_wc_stuff_to_product($viable);
+            //Testing: comment this line to supress actual product creation
+            cf_create_simple_products($simple, $wc_cat_id, $status); 
+        }
 
-        cf_create_simple_products($simple, $wc_cat_id, $status);
 
-     
+        //////////////////// ----- VARIABLES ------//////////////////////
 
-        //NEXT VARIABLES
-        // $selected = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `subcategory` = $dhg_subcat AND `type` = 'variant'", ARRAY_A );
 
-        //TEST WITH SPECIFIC
-       // $selected_v = $wpdb->get_results( "SELECT * FROM `wp_dhg_product_dump` WHERE `code` = '96616'", ARRAY_A );
+        // get distinct codes that are type variant. For each code, create the variable product and its variants
        $codes = $wpdb->get_results( "SELECT DISTINCT `code` FROM `wp_dhg_product_dump` WHERE `type` = 'variant' AND `subcategory` = $dhg_subcat", ARRAY_A );
         $count_vars = count($codes);
        //get each product as a group with its variants (so 3 variants = 3 rows)
        foreach ($codes as $key => $group) {
 
-            // if ($key == 2) {
-            //     break;
-            // }
+            //for testing, uncomment
+            if ($key == 3) {
+                break;
+            }
 
             //create the variable and its variants
             $group_code = $group['code'];
             //get the actual variant codes
+
+            //if product already exists, skip it. 
+            $product_id = wc_get_product_id_by_sku($group_code);
+            if ($product_id) {
+                echo '<p>Skipping '.$group_code.', it exists.</p>';
+                continue;
+            }
+
             $selected_vars = $wpdb->get_results( "SELECT DISTINCT * FROM `wp_dhg_product_dump` WHERE `code` = $group_code AND `subcategory` = $dhg_subcat", ARRAY_A );
-             echo count($selected_vars).' for item with code '.$group_code.'</br>';
+             echo '--------------</br><strong>'.count($selected_vars).' items for product with code '.$group_code.'<strong></br>';
             
 
             if ( $wpdb->last_error ) {
@@ -120,9 +132,12 @@ function cf_insert_dhg_products() {
                 echo '</pre>';
             }
 
-            $vars = add_wc_stuff_to_product($selected_vars);
-
-            cf_create_variables_and_variants ($vars, $wc_cat_id, $status);   
+            $viable = cf_remove_non_viable_products($selected_vars);
+            
+            if (!empty($viable)) {
+                $vars = add_wc_stuff_to_product($viable);
+                 cf_create_variables_and_variants ($vars, $wc_cat_id, $status);
+            } 
         }
     } //if isset
 } //function

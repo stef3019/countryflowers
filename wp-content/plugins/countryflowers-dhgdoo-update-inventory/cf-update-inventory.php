@@ -173,6 +173,7 @@ function wc_product_deletion_settings_page() {
                 $args = array(
                     'post_type'      => 'product',
                     'posts_per_page' => -1,
+                    'post_status' => array('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', 'trash'),
                     'tax_query'      => array(
                         array(
                             'taxonomy' => 'product_cat',

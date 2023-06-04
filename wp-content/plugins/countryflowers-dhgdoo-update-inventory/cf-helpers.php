@@ -192,28 +192,37 @@ function get_parent_category_id($subcategory_id) {
     return $term->parent;
 }
 
+function cf_remove_non_viable_products ($products) {
+    $viable = array();
+    foreach ($products as $product) {    
+        //skip if assortito
+        if ($product ['color'] == 'ASSORTITO') {
+            continue;
+        }
+
+        //skip if no image
+        if ((isset($product['image'])) && (strpos($product['image'], 'no_image'))) 
+        {
+            continue;
+        }
+
+        $viable[] = $product;
+    }
+    return $viable;
+}
+
 function add_wc_stuff_to_product ($selected) {
            //add some extra WC stuff
-           foreach ($selected as $count => $product) { 
-
-            //skip if assortito
-            if ($product ['color'] == 'ASSORTITO') {
-                continue;
-            }
-
-            //skip if no image
-            if ((isset($product['image'])) && (strpos($product['image'], 'no_image'))) 
-            {
-                continue;
-            }
-           
+           foreach ($selected as $count => $product) {
+            
+            $sku = str_pad($product['variant'], 5, '0', STR_PAD_LEFT);
             $simple[$count]['product'] = $product;
-            $simple[$count]['sku']  = $product['variant'];
+            $simple[$count]['sku']  = $sku;
             $simple[$count]['item_type'] = $product['type'];
       
     } //foreach selected from DB
-
-    return $simple;
+        return $simple;
+    
 }
 
 function get_id_of_parent_wc_cat ($cat) {
@@ -225,27 +234,6 @@ function get_id_of_parent_wc_cat ($cat) {
     }
 
     return $cats;
-}
-
-
-// Utility function that returns the correct product object instance
-function cf_get_product_object_type( $type ) {
-   
-    // Get an instance of the WC_Product object (depending on his type)
-    if( isset($type) && $type === 'variable' ){
-        $product = new WC_Product_Variable();
-    } elseif( isset($type) && $type === 'grouped' ){
-        $product = new WC_Product_Grouped();
-    } elseif( isset($type) && $type === 'external' ){
-        $product = new WC_Product_External();
-    } else {
-        $product = new WC_Product_Simple(); // "simple" By default
-    } 
-
-    if( ! is_a( $product, 'WC_Product' ) )
-        return false;
-    else
-        return $product;
 }
 
 

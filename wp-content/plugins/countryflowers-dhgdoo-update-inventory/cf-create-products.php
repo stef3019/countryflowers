@@ -15,6 +15,7 @@ function cf_create_simple_products($items, $cat, $status ) {
             if ($product_id) {
                 continue;
             }
+            echo '<h3><em>Adding simple '.$item['sku'].'</em></h3>';
             //foreach item, add it to the catalogue as a simple product
             cf_add_simple_product_to_catalog($item, $cats, $status, 'simple');
             
@@ -35,13 +36,16 @@ function cf_create_simple_products($items, $cat, $status ) {
 
 function cf_create_variables_and_variants ($items, $cat, $status) {
     global $wpdb;
+
     
     $cats = get_id_of_parent_wc_cat($cat);
-
+    
+    
     //for the group that just came in, create the variable product and its associated variants
     cf_create_variable_product_with_variations($items, $cats, $status);
     if (count($items) > 0) {
         foreach($items as $item) {
+
             //update DB as imported
             $table_name = $wpdb->prefix . 'dhg_product_dump';
             $wpdb->update(
@@ -102,10 +106,7 @@ function cf_create_simple_product($product_data) {
     global $woocommerce;
 
     // Initialise the $product from the Woo Commerce product classes
-    $product = cf_get_product_object_type($product_data['type']);
-
-    //$product = wc_get_product($product_id);
-
+    $product = new WC_Product_Simple();
 
     // Set the product data
     $product->set_name($product_data['name']);
@@ -139,107 +140,119 @@ function cf_create_simple_product($product_data) {
 
 
 /////////////////////////////////////////
-// CREATE VARIABLE & IT'S VARIATION   //
+// CREATE VARIABLE & IT'S VARIATIONS  //
 ///////////////////////////////////////
 
 function cf_create_variable_product_with_variations($var_group, $cats, $status) {
     global $woocommerce, $wpdb;
 
-    $sku = $var_group[0]['product']['code'];
-    $colours = array();
-    foreach ($var_group as $variant) {
-        $colours[] = ucwords(strtolower($variant['product']['color']));
-        $skus[] = $variant['sku'];
-    }
-    $colours_list = implode('|', $colours);
-   
+    $count = count ($var_group);
+    if ($count > 0){
 
-    // Create a new variable product
-    $product = new WC_Product_Variable();
-    $product->set_name(ucwords(strtolower($var_group[0]['product']['name'])));
-    $product->set_slug(sanitize_title(ucwords(strtolower($var_group[0]['product']['name']))));
+        $sku = $var_group[0]['product']['code'];
+        $colours = array();
+        foreach ($var_group as $key => $variant) {
+            $var_details[$key]['colour'] = ucwords(strtolower($variant['product']['color']));
+            $var_details[$key]['sku'] = $variant['sku'];
 
-
-    $product->set_description('Please allow 10-15 days for delivery.');
-    $product->set_short_description(ucwords(strtolower($var_group[0]['product']['name'])));
-
-    $product->set_regular_price($var_group[0]['product']['price']);
-   
-    $product->set_manage_stock(false);
-    $product->set_stock_status('instock');
-
-   
-    $product->set_category_ids($cats);
-
-    $product->set_catalog_visibility('visible');
-    $product->set_reviews_allowed(false);
-
-    $product->set_status($status);
-
-    $product->save();
-
-    $product_id = $product->get_id();
-    // Check if SKU is already used
+            $colours[] = ucwords(strtolower($variant['product']['color']));
+            $skus[] = $variant['sku'];
+        }
+        $colours_list = implode('|', $colours);
     
-    $product->set_sku($sku);
-    $product->save();
+        echo '<h3>Creating var product'.$sku.'</h3>';
+        // Create a new variable product
+        $product = new WC_Product_Variable();
+        $product->set_name(ucwords(strtolower($var_group[0]['product']['name'])));
+        $product->set_slug(sanitize_title(ucwords(strtolower($var_group[0]['product']['name']))));
+
+
+        $product->set_description('Please allow 10-15 days for delivery.');
+        $product->set_short_description(ucwords(strtolower($var_group[0]['product']['name'])));
+
+        $product->set_regular_price($var_group[0]['product']['price']);
     
+        $product->set_manage_stock(false);
+        $product->set_stock_status('instock');
 
-    // Add the "colour" attribute and its terms
-    $attribute_name = 'pa_colour';
-    $attribute_label = 'Colour';
-    $attribute_values = $colours;
+    
+        $product->set_category_ids($cats);
 
-    $attribute = new WC_Product_Attribute();
-    $attribute->set_name($attribute_name);
-    $attribute->set_visible(true);
-    $attribute->set_variation(true);
-    $attribute->set_options($attribute_values);
+        $product->set_catalog_visibility('visible');
+        $product->set_reviews_allowed(false);
 
+        $product->set_status($status);
 
+        $product->save();
 
-    $product->set_attributes(array($attribute));
-    $product->save();
-
-   
-
-    wp_set_post_terms( $product_id, $attribute_values, 'pa_colour', false );
-
-    if (is_wp_error($product_id)) {
-        $error_message = $result->get_error_message();
-        return 'Error: ' . $error_message;
-    }
-
-     // Set the main product image
-     $imageUrl = $var_group[0]['product']['image'];
-     $attachment_id = cf_upload_image_from_url($imageUrl, $product_id);
-
-     $pa_terms = array();
-    // Create variations for each attribute value
-    foreach ($colours as $key => $value) {
-
-        $attributes = ['pa_colour' => $value];
-
-
-        $variation = new WC_Product_Variation();
-        $variation->set_regular_price($var_group[0]['product']['price']);
-        $variation->set_parent_id($product_id);
-        $variation->set_attributes($attributes);
-        $variation->set_manage_stock(false);
-        $variation->set_stock_status('instock');
+        $product_id = $product->get_id();
+        // Check if SKU is already used
         
-        $variation->set_sku($skus[$key]);
-        $variation->save();
+        $product->set_sku($sku);
+        $product->save();
+        
 
-        // Now update some value unrelated to attributes.
-        $variation = wc_get_product($variation->get_id());
-        $variation->set_status($status);
-        $variation->save();
+        // Add the "colour" attribute and its terms
+        $attribute_name = 'pa_colour';
+        $attribute_label = 'Colour';
+        $attribute_values = $colours;
+
+        $attribute = new WC_Product_Attribute();
+        $attribute->set_name($attribute_name);
+        $attribute->set_visible(true);
+        $attribute->set_variation(true);
+        $attribute->set_options($attribute_values);
+
+
+
+        $product->set_attributes(array($attribute));
+        $product->save();
+
     
+
+        wp_set_post_terms( $product_id, $attribute_values, 'pa_colour', false );
+
+        if (is_wp_error($product_id)) {
+            $error_message = $result->get_error_message();
+            return 'Error: ' . $error_message;
+        }
+
+        // Set the main product image
+        $imageUrl = $var_group[0]['product']['image'];
+        $attachment_id = cf_upload_image_from_url($imageUrl, $product_id);
+
+        $pa_terms = array();
+        // Create variations for each attribute value
+        foreach ( $var_details as $key => $value) {
+
+            $attributes = ['pa_colour' => $value['colour']];
+
+            echo '<p>Creating its variant '.$value['sku'].'</p>';
+            $variation = new WC_Product_Variation();
+            $variation->set_regular_price($var_group[0]['product']['price']);
+            $variation->set_parent_id($product_id);
+            $variation->set_attributes($attributes);
+            $variation->set_manage_stock(false);
+            $variation->set_stock_status('instock');
+            
+            $variation->set_sku($value['sku']);
+            $variation->save();
+
+            // Now update some value unrelated to attributes.
+            $variation = wc_get_product($variation->get_id());
+            $variation->set_status('publish');
+            $variation->save();
+        
+        }
+
+        $product->save();
+        
+    } else {
+        echo '<h3>Problem with:</h3>';
+        echo '<pre>';
+        var_dump($var_group);
+        echo '</pre>';
+        return false;
     }
-
-    $product->save();
-    
-  
     return $product_id;
 }
