@@ -52,6 +52,9 @@ if(!in_array($sidebar_layout, array('', 'none'))) {
 						<td class="product-thumbnail">
 							<?php
 								$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+								$extension = pathinfo($thumbnail, PATHINFO_EXTENSION);
+								$newExtension = strtolower($extension);
+								$thumbnail = str_replace($extension, $newExtension, $thumbnail);
 								if ( ! $product_permalink ) {
 									echo wp_kses_post($thumbnail);
 								} else {
