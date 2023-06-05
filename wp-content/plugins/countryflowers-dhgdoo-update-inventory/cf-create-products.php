@@ -77,7 +77,7 @@ function cf_add_simple_product_to_catalog($item, $cats, $status, $type) {
         'slug' => sanitize_title(ucwords(strtolower($item['product']['name']))),
         'type' => $type, // Product type
         'regular_price' => $item['product']['price'], // Regular price
-        'description'  => 'Please allow 10-15 days for delivery.',
+        'description'  => '',
         'short_description' => ucwords(strtolower($item['product']['name'])).' '.$item['product']['color'], // Short description
         'sku' =>  $item['sku'], // SKU
         'stock_status' => 'instock', // Stock status
@@ -227,9 +227,12 @@ function cf_create_variable_product_with_variations($var_group, $cats, $status) 
         foreach ( $var_details as $key => $value) {
 
             $attributes = ['pa_colour' => $value['colour']];
+            
 
             echo '<p>Creating its variant '.$value['sku'].'</p>';
+
             $variation = new WC_Product_Variation();
+            $variation->set_slug(false);
             $variation->set_regular_price($var_group[0]['product']['price']);
             $variation->set_parent_id($product_id);
             $variation->set_attributes($attributes);

@@ -109,7 +109,7 @@ function add_selected_simple_products($product, $cat_ids, $type) {
                     'status'             => 'draft',
                     'featured'           => false,
                     'catalog_visibility' => 'visible',
-                    'description'        => 'Please allow 10-15 days for delivery.',
+                    'description'        => '',
                     'short_description'  => $short_desc,
                     'sku'                => $product['code'],
                     'price'              => $price,

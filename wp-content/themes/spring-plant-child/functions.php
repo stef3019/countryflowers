@@ -294,10 +294,11 @@ function wc_dropdown_variation_attribute_options( $args = array() ) {
                     'fields' => 'all',
                 )
             );
-
+           
             foreach ( $terms as $term ) {
-                   $html .= '<option class="attached enabled" value="' . esc_attr( $term->slug ) . '" ' . selected( sanitize_title( $args['selected'] ), $term->slug, false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term->name, $term, $attribute, $product ) ) . '</option>';
-
+               if ((in_array( $term->slug, $options ))||(in_array( $term->name, $options ))) {
+                    $html .= '<option class="attached enabled" value="' . esc_attr( $term->slug ) . '" ' . selected( sanitize_title( $args['selected'] ), $term->slug, false ) . '>' . esc_html( apply_filters( 'woocommerce_variation_option_name', $term->name, $term, $attribute, $product ) ) . '</option>';
+                }
             }
         } else {
             foreach ( $options as $option ) {
@@ -315,3 +316,23 @@ function wc_dropdown_variation_attribute_options( $args = array() ) {
 }
 
 add_filter( 'wc_product_has_unique_sku', '__return_false' ); 
+
+
+/**
+ * Hide shipping rates when free shipping is available.
+ * Updated to support WooCommerce 2.6 Shipping Zones.
+ *
+ * @param array $rates Array of rates found for the package.
+ * @return array
+ */
+function my_hide_shipping_when_free_is_available( $rates ) {
+	$free = array();
+	foreach ( $rates as $rate_id => $rate ) {
+		if ( 'free_shipping' === $rate->method_id ) {
+			$free[ $rate_id ] = $rate;
+			break;
+		}
+	}
+	return ! empty( $free ) ? $free : $rates;
+}
+add_filter( 'woocommerce_package_rates', 'my_hide_shipping_when_free_is_available', 100 );
