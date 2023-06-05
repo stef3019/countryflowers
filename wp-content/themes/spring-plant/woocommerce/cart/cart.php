@@ -51,10 +51,14 @@ if(!in_array($sidebar_layout, array('', 'none'))) {
 					<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 						<td class="product-thumbnail">
 							<?php
-								$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-								$extension = pathinfo($thumbnail, PATHINFO_EXTENSION);
-								$newExtension = strtolower($extension);
-								$thumbnail = str_replace($extension, $newExtension, $thumbnail);
+								$image = $_product->get_image();
+								$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $image, $cart_item, $cart_item_key );
+
+								if (strpos($thumbnail, '.JPG') !== false) {
+									$newExtension = strtolower($thumbnail);
+									$thumbnail = str_replace('.JPG', '.jpg', $thumbnail);
+								}
+
 								if ( ! $product_permalink ) {
 									echo wp_kses_post($thumbnail);
 								} else {
