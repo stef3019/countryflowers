@@ -336,3 +336,6 @@ function my_hide_shipping_when_free_is_available( $rates ) {
 	return ! empty( $free ) ? $free : $rates;
 }
 add_filter( 'woocommerce_package_rates', 'my_hide_shipping_when_free_is_available', 100 );
+
+
+add_image_size( 'spring-flower-basket', 100, 129,  array( 'center', 'center' ) );
