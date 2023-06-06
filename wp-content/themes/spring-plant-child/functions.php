@@ -62,14 +62,14 @@ add_filter( 'woocommerce_defer_transactional_emails', '__return_true' );
 add_action('wp_head', 'pn_add_analytics');
 function pn_add_analytics() { ?>
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178642334-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NLRDVDMBMX"></script>
+		<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
 
-  gtag('config', 'UA-178642334-1');
+		gtag('config', 'G-NLRDVDMBMX');
 </script>
 
 <?php }
