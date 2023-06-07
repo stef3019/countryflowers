@@ -1,11 +1,10 @@
 <?php
-add_action( 'wp_enqueue_scripts', 'spring_plant_child_theme_enqueue_styles', 1000 );
-function spring_plant_child_theme_enqueue_styles() {
-    wp_enqueue_style( 'child-style', get_stylesheet_directory_uri() . '/style.css', array( 'spring-plant-main' ) );
-   
-}
 
-add_action( 'after_setup_theme', 'spring_plant_child_theme_setup');
+function enqueue_custom_scripts() {
+    wp_enqueue_style( 'child-style', get_stylesheet_directory_uri() . '/style.css', array( 'spring-plant-main' ) );
+}
+add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
+
 function spring_plant_child_theme_setup(){
     $language_path = get_stylesheet_directory() .'/languages';
     if(is_dir($language_path)){
@@ -325,17 +324,70 @@ add_filter( 'wc_product_has_unique_sku', '__return_false' );
  * @param array $rates Array of rates found for the package.
  * @return array
  */
-function my_hide_shipping_when_free_is_available( $rates ) {
-	$free = array();
-	foreach ( $rates as $rate_id => $rate ) {
-		if ( 'free_shipping' === $rate->method_id ) {
-			$free[ $rate_id ] = $rate;
-			break;
-		}
-	}
-	return ! empty( $free ) ? $free : $rates;
-}
-add_filter( 'woocommerce_package_rates', 'my_hide_shipping_when_free_is_available', 100 );
-
 
 add_image_size( 'spring-flower-basket', 100, 129,  array( 'center', 'center' ) );
+
+ 
+// Hide Local Pickup shipping method
+add_filter( 'woocommerce_checkout_fields', 'hide_local_pickup_method' );
+function hide_local_pickup_method( $fields_pickup ) {
+    // change below for the method
+    $shipping_method_pickup ='local_pickup:5';
+    // change below for the list of fields. Add (or delete) the field name you want (or don’t want) to use
+    $hide_billing_fields_pickup = array( 'billing_company', 'billing_country', 'billing_postcode', 'billing_address_1', 'billing_address_2' , 'billing_city', 'billing_state');
+    $hide_shipping_fields_pickup = array(  'ship_to_different_address', 'shipping_first_name', 'shipping_last_name', 'shipping_company', 'shipping_country', 'shipping_address_1', 'shipping_address_2', 'shipping_city', 'shipping_postcode', 'shipping_phone_field', 'shipping_phone_field_field');
+ 
+    $chosen_methods_pickup = WC()->session->get( 'chosen_shipping_methods' );
+    $chosen_shipping_pickup = $chosen_methods_pickup[0];
+ 
+    foreach($hide_billing_fields_pickup as $field_pickup ) {
+        if ($chosen_shipping_pickup == $shipping_method_pickup) {
+            $fields_pickup['billing'][$field_pickup]['required'] = false;
+            $fields_pickup['billing'][$field_pickup]['class'][] = 'hide_pickup';
+        }
+        $fields_pickup['billing'][$field_pickup]['class'][] = 'toggle-dynamic_pickup';
+    }
+
+    foreach($hide_shipping_fields_pickup as $field_pickup ) {
+        if ($chosen_shipping_pickup == $shipping_method_pickup) {
+            $fields_pickup['shipping'][$field_pickup]['required'] = false;
+            $fields_pickup['shipping'][$field_pickup]['class'][] = 'hide_pickup';
+        }
+        $fields_pickup['shipping'][$field_pickup]['class'][] = 'toggle-dynamic_pickup';
+    }
+    return $fields_pickup;
+}
+// Local Pickup - hide fields
+add_action( 'wp_head', 'local_pickup_fields', 999 );
+function local_pickup_fields() {
+    if (is_checkout()) :
+    ?>
+    <style>
+        .hide_pickup {display: none!important;}
+    </style>
+    <script>
+        jQuery( function( $ ) {
+            if ( typeof woocommerce_params === 'undefined' ) {
+                return false;
+            }
+            var sh = jQuery('#shipping_method input[type="radio"]:checked').val();
+            if (sh == 'local_pickup:5') {
+                $('#ship-to-different-address').hide();
+            } 
+           
+            $(document).on( 'change', '#shipping_method input[type="radio"]', function() {
+                // change local_pickup:5 accordingly
+            $('.toggle-dynamic_pickup').toggleClass('hide_pickup', this.value == 'local_pickup:5');
+            if (this.value == 'local_pickup:5') {
+                $('#ship-to-different-address').hide();
+            } else {
+                $('#ship-to-different-address').show();
+            }
+            
+
+            });
+        });
+    </script>
+    <?php
+    endif;
+}
