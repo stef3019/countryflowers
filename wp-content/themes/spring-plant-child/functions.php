@@ -34,12 +34,11 @@ function wc_remove_description_tab( $tabs ) {
 }
 
 
-
-add_filter( 'woocommerce_billing_fields', 'require_shipping_phone_field');
-function require_shipping_phone_field( $fields ) {
-    $fields['shipping_phone_field']['required'] = false;
-return $fields;
-}
+// add_filter( 'woocommerce_billing_fields', 'require_shipping_phone_field');
+// function require_shipping_phone_field( $fields ) {
+//     $fields['shipping_phone_field']['required'] = false;
+// return $fields;
+// }
 
 
 /**
@@ -427,8 +426,9 @@ add_filter('gettext', 'ts_shipchange', 20, 3);
 add_filter( 'woocommerce_checkout_fields' , 'prefix_woocommerce_checkout_fields' );
 function prefix_woocommerce_checkout_fields( $fields ) {
      unset($fields['shipping']['ship_to_different_address']);
-     $fields['shipping']['shipping_phone_field']['label'] = 'Delivery Contact Phone number';
-     $fields['shipping']['shipping_phone_field']['required'] = true;
+     unset($fields['shipping']['shipping_phone_field']);
+     $fields['shipping']['shipping_phone']['label'] = 'Delivery Contact Phone number';
+     $fields['shipping']['shipping_phone']['required'] = true;
      unset($fields['billing']['shipping_phone_field']);
      return $fields;
 }
