@@ -413,27 +413,22 @@ function cf_hide_shipping_when_free_is_available( $rates ) {
 add_filter( 'woocommerce_package_rates', 'cf_hide_shipping_when_free_is_available', 100 );
 
 
-add_filter('woocommerce_shipping_fields', 'change_ship_to_different_address_label');
-
-add_filter( 'gettext', 'ecommercehints_change_ship_address_heading', 999, 3 );
-function ecommercehints_change_ship_address_heading( $translated, $untranslated, $domain ) {
-if ( ! is_admin() && 'woocommerce' === $domain ) {
-
-      switch ( $translated ) {
-         case 'Ship to a different address?':
-            $translated = 'Deliver to a different address? Enter the delivery address in the fields below.';
+function ts_shipchange( $translated_text, $text, $domain ) {
+    switch ( $translated_text ) {
+        case 'Ship to a different address?' :
+            $translated_text = __( 'Deliver to a different address? Enter delivery address and information in the fields below.', 'woocommerce' );
             break;
-      }
-   }
-   return $translated;
+    }
+    return $translated_text;
 }
+add_filter('gettext', 'ts_shipchange', 20, 3);
 
 
-add_filter( 'woocommerce_checkout_fields' , 'cf_woocommerce_checkout_fields' );
-function cf_woocommerce_checkout_fields( $fields ) {
+add_filter( 'woocommerce_checkout_fields' , 'prefix_woocommerce_checkout_fields' );
+function prefix_woocommerce_checkout_fields( $fields ) {
      unset($fields['shipping']['ship_to_different_address']);
-     unset($fields['shipping']['shipping_phone_field_field']);
-     unset($fields['shipping']['shipping_phone_field_field_field']);
-     unset($fields['shipping']['shipping_phone_field']);
+     $fields['shipping']['shipping_phone_field']['label'] = 'Delivery Contact Phone number';
+     $fields['shipping']['shipping_phone_field']['required'] = true;
+     unset($fields['billing']['shipping_phone_field']);
      return $fields;
 }
