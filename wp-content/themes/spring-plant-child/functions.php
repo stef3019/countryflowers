@@ -411,3 +411,11 @@ function cf_hide_shipping_when_free_is_available( $rates ) {
 	return ! empty( $free ) ? $free : $rates;
 }
 add_filter( 'woocommerce_package_rates', 'cf_hide_shipping_when_free_is_available', 100 );
+
+
+add_filter('woocommerce_shipping_fields', 'change_ship_to_different_address_label');
+
+function change_ship_to_different_address_label($fields) {
+    $fields['shipping']['ship_to_different_address']['label'] = 'Deliver to a different address. Enter delivery address below.';
+    return $fields;
+} 
