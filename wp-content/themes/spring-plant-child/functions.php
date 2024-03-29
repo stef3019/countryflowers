@@ -335,7 +335,7 @@ function hide_local_pickup_method( $fields_pickup ) {
     $shipping_method_pickup ='local_pickup:5';
     // change below for the list of fields. Add (or delete) the field name you want (or don’t want) to use
     $hide_billing_fields_pickup = array( 'billing_company', 'billing_country', 'billing_postcode', 'billing_address_1', 'billing_address_2' , 'billing_city', 'billing_state');
-    $hide_shipping_fields_pickup = array(  'ship_to_different_address', 'shipping_first_name', 'shipping_last_name', 'shipping_company', 'shipping_country', 'shipping_address_1', 'shipping_address_2', 'shipping_city', 'shipping_postcode', 'shipping_phone_field', 'shipping_phone_field_field');
+    $hide_shipping_fields_pickup = array(  'ship_to_different_address', 'shipping_first_name', 'shipping_last_name', 'shipping_company', 'shipping_country', 'shipping_address_1', 'shipping_address_2', 'shipping_city', 'shipping_postcode', 'shipping_phone_field');
  
     $chosen_methods_pickup = WC()->session->get( 'chosen_shipping_methods' );
     $chosen_shipping_pickup = $chosen_methods_pickup[0];
@@ -415,7 +415,25 @@ add_filter( 'woocommerce_package_rates', 'cf_hide_shipping_when_free_is_availabl
 
 add_filter('woocommerce_shipping_fields', 'change_ship_to_different_address_label');
 
-function change_ship_to_different_address_label($fields) {
-    $fields['shipping']['ship_to_different_address']['label'] = 'Deliver to a different address. Enter delivery address below.';
-    return $fields;
-} 
+add_filter( 'gettext', 'ecommercehints_change_ship_address_heading', 999, 3 );
+function ecommercehints_change_ship_address_heading( $translated, $untranslated, $domain ) {
+if ( ! is_admin() && 'woocommerce' === $domain ) {
+
+      switch ( $translated ) {
+         case 'Ship to a different address?':
+            $translated = 'Deliver to a different address? Enter the delivery address in the fields below.';
+            break;
+      }
+   }
+   return $translated;
+}
+
+
+add_filter( 'woocommerce_checkout_fields' , 'cf_woocommerce_checkout_fields' );
+function cf_woocommerce_checkout_fields( $fields ) {
+     unset($fields['shipping']['ship_to_different_address']);
+     unset($fields['shipping']['shipping_phone_field_field']);
+     unset($fields['shipping']['shipping_phone_field_field_field']);
+     unset($fields['shipping']['shipping_phone_field']);
+     return $fields;
+}
